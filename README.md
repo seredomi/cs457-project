@@ -14,5 +14,6 @@ Run the `server.py` script from a computer with a static IP address and specify 
 * SQLite
 
 **Additional resources:**
-* [Link to Python Documentation](docs/python-docs.md)
 * [Link to Game Tutorial](docs/game-tutorial.md)
+* [Link to Team 5 SOW](docs/SOW.md)
+* [Link to Python Documentation](docs/python-docs.md)

@@ -20,7 +20,7 @@ Create an interactive game that allows students of CS 457 to answer questions fr
 * Players are prompted with immediate results after each question
 * Players are prompted with aggregated results at the end of each session
 
-**Eclusions:**
+**Exclusions:**
 * Original quiz questions that the team comes up with
 * Any quiz question which involves pictures or other non-textual media
 * Fuzzy answer interpretation. Players will answer in a multiple-choice fashion only

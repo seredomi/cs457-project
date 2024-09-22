@@ -1,7 +1,7 @@
 # SOW
 
 ## Project Title
-CS457 Quiz Game
+[CS457 Quiz Game](https://github.com/seredomi/cs457-project)
 
 ## Team
 * Sereno Dominguez

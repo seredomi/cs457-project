@@ -4,7 +4,8 @@
 CS457 Quiz Game
 
 ## Team
-Sereno Dominguez
+* Sereno Dominguez
+* Max Sandoval
 
 ## Project Objective
 Create an interactive game that allows students of CS 457 to answer questions from the Chapter Reviews.
@@ -70,10 +71,10 @@ Create an interactive game that allows students of CS 457 to answer questions fr
 **Software:**
 * Server
   * Python 3.11^
-    * sqlite, socket, threading, click libraries 
+    * sqlite, socket, threading, pytest, click libraries 
 * Client
   * Python 3.11^
-    * click library
+    * pytest, click libraries
   * GlobalProtect VPN if server is hosted on CSU Lab computer (it likely will be)
 
 ## Assumptions
@@ -82,3 +83,17 @@ Create an interactive game that allows students of CS 457 to answer questions fr
 * Sufficient bandwidth, computing power, and RAM on both ends (very minimal)
 
 ## Roles and Responsibilities
+| Name | Roles | Responsibilities |
+| -- | -- | -- |
+| Sereno | Developer, Tester | Write code, Implement tests |
+| Max | Developer, Project Manager | Write code, Ensure deadlines are met |
+
+## Communication Plan
+* Use Discord for video chats and text updates
+* Sprint planning meeting before each Sprint
+* Sprint retrospective after each Sprint
+* Regular video calls twice a week (coordinated on a case-by-case basis since there are only two of us and we are both remote)
+* Additional meetings can be scheduled as needed when issues arise
+
+## Additional Notes
+N/A

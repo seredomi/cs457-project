@@ -45,19 +45,19 @@ Create an interactive game that allows students of CS 457 to answer questions fr
 | CLI for entire game sessions implemented on both sides | Nov 20 |
 
 **Task Breakdown:**
-| Task | Estimated Hours | 
-| -- | -- |
-| Aggregate question data (continuous) | 3 |
-| Instantiate SQLite DB | 1 |
-| Populate DB with question data | 2 |
-| Server script reads and stores question data | 3 |
-| Server script accepts incoming connections | 2 |
-| Client script connects to server | 2 |
-| CLI implemented for a single question | 3 |
-| Results returned for single questions | 1 | 
-| CLI implemented for entire game sessions | 4 |
-| Results returned for entire game sessions | 2 |
-| Testing suite (continuous) | 4 |
+| Task | Est. Hrs | Status |
+| -- | -- | -- |
+| Aggregate question data (continuous) | 3 | Ch1=IP, Ch2=IP|
+| Instantiate SQLite DB | 1 | |
+| Populate DB with question data | 2 | |
+| Server script reads and stores question data | 3 | |
+| Server script accepts incoming connections | 2 | |
+| Client script connects to server | 2 | |
+| CLI implemented for a single question | 3 | |
+| Results returned for single questions | 1 |  |
+| CLI implemented for entire game sessions | 4 | |
+| Results returned for entire game sessions | 2 | |
+| Testing suite (continuous) | 4 | |
 
 ## Technical Requirements
 

@@ -1,0 +1,656 @@
+{
+  "number": 1,
+  "questions": [
+    {
+      "number": "1",
+      "topic": "1.1-3 What is a protocol?",
+      "question": "Which of the following human scenarios involve a protocol (recall: \"Protocols define the format, order of messages sent and received among network entities, and actions taken on message transmission, receipt\")? Select one or more answers below that are correct. [Hint: more than one of the answers below are correct.]",
+      "offered-answers": [
+        {
+          "answer": "One person asking, and getting, the time to/from another person.",
+          "isCorrect": true
+        },
+        {
+          "answer": "A person reading a book.",
+          "isCorrect": false
+        },
+        {
+          "answer": "A person sleeping.",
+          "isCorrect": false
+        },
+        {
+          "answer": "Two people introducing themselves to each other.",
+          "isCorrect": true
+        },
+        {
+          "answer": "A student raising her/his hand to ask a really insightful question, followed by the teaching acknowledging the student, listening carefully to the question, and responding with a clear, insightful answer.  And then thanking the student for the question, since teachers love to get questions.",
+          "isCorrect": true
+        }
+      ]
+    },
+    {
+      "number": "2",
+      "topic": "1.3-1 Routing versus forwarding",
+      "question": "Choose one of the following two definitions that makes the correct distinction between routing versus forwarding.",
+      "offered-answers": [
+        {
+          "answer": "Forwarding is the local action of moving arriving packets from router's input link to appropriate router output link, while routing is the global action of determining the source-destination paths taken by packets.",
+          "isCorrect": true
+        },
+        {
+          "answer": "Routing is the local action of moving arriving packets from router's input link to appropriate router output link, while forwarding is the global action of determining the source-destination paths taken by packets.",
+          "isCorrect": false
+        }
+      ]
+    },
+    {
+      "number": "3",
+      "topic": "1.3-2 Packet switching versus circuit switching (1)",
+      "question": "Which of the characteristics below are associated with the technique of packet switching? Select all correct answers. [Hint: more than one of the answers is correct].",
+      "offered-answers": [
+        {
+          "answer": "Reserves resources needed for a call from source to destination.",
+          "isCorrect": false
+        },
+        {
+          "answer": "Resources are used on demand, not reserved in advance.",
+          "isCorrect": true
+        },
+        {
+          "answer": "Data may be queued before being transmitted due to other user's data that's also queueing for transmission.",
+          "isCorrect": true
+        },
+        {
+          "answer": "Frequency Division Multiplexing (FDM) and Time Division Multiplexing (TDM) are two approaches for implementing this technique.",
+          "isCorrect": false
+        },
+        {
+          "answer": "Congestion loss and variable end-end delays are possible with this technique.",
+          "isCorrect": true
+        },
+        {
+          "answer": "This technique is used in the Internet.",
+          "isCorrect": true
+        },
+        {
+          "answer": "This technique was the basis for the telephone call switching during the 20th century and into the beginning of this current century.",
+          "isCorrect": false
+        }
+      ]
+    },
+    {
+      "number": "4",
+      "topic": "1.4-01 Components of packet delay",
+      "question": "Match the description of each component of packet delay to its name in the pull down list.",
+      "offered-answers": [
+        {
+          "answer": "Time needed to perform an integrity check, lookup packet information in a local table and move the packet from an input link to an output link in a router.",
+          "isCorrect": true
+        },
+        {
+          "answer": "Time spent waiting in packet buffers for link transmission.",
+          "isCorrect": true
+        },
+        {
+          "answer": "Time spent transmitting packets bits into the link.",
+          "isCorrect": true
+        },
+        {
+          "answer": "Time need for bits to physically propagate through the transmission medium from end one of a link to the other.",
+          "isCorrect": true
+        }
+      ]
+    },
+    {
+      "number": "5",
+      "topic": "1.4-01a. Performance: Delay",
+      "question": "Consider the network shown in the figure below, with three links, each with a transmission rate of 1 Mbps, and a propagation delay of 1 msec per link. Assume the length of a packet is 1000 bits. What is the end-end delay of a packet from when it first begins transmission on link 1, until is it received in full by the server at the end of link 3.  You can assume that queueing delays and packet processing delays are zero, but make sure you include packet transmission time delay on all links. Assume store-and forward packet transmission.",
+      "offered-answers": [
+        {
+          "answer": "1 msec",
+          "isCorrect": false
+        },
+        {
+          "answer": "2 msec",
+          "isCorrect": false
+        },
+        {
+          "answer": "3 msec",
+          "isCorrect": false
+        },
+        {
+          "answer": "6 msec",
+          "isCorrect": true
+        },
+        {
+          "answer": "12 msec",
+          "isCorrect": false
+        }
+      ]
+    },
+    {
+      "number": "6",
+      "topic": "1.4-01c. Performance: Maximum end-end throughput",
+      "question": "Consider the scenario shown below, with a single source client sending to a server over two links of capacities R1=10 Mbps and R3=100 Mbps. What is the maximum achievable end-end throughput (in Mbps, give an integer value) for the client-to-server pair, assuming that the client is trying to send at its maximum rate?",
+      "offered-answers": [
+        {
+          "answer": "10 Mbps",
+          "isCorrect": true
+        },
+        {
+          "answer": "100 Mbps",
+          "isCorrect": false
+        },
+        {
+          "answer": ".1 Mbps",
+          "isCorrect": false
+        },
+        {
+          "answer": "1 Mbps",
+          "isCorrect": false
+        },
+        {
+          "answer": "10 secs.",
+          "isCorrect": false
+        }
+      ]
+    },
+    {
+      "number": "7",
+      "topic": "1.4-01d. Performance: Maximum end-end throughput",
+      "question": "Consider the scenario shown below, with two clients sending to a server.  The links attached to clients each have a capacity of  R1= R2  = 100 Mbps.  The link from the router to the server has a capacity of and R3 = 10 Mbps, which is shared evenly between the two sources when they are each sending at their maximum rate. What is the maximum achievable end-end throughput (in Mbps, give an integer value) for each client-to-server pair, assuming that the client is trying to send at its maximum rate?",
+      "offered-answers": [
+        {
+          "answer": "5 Mbps",
+          "isCorrect": true
+        },
+        {
+          "answer": "100 Mbps",
+          "isCorrect": false
+        },
+        {
+          "answer": "10 Mbps",
+          "isCorrect": false
+        },
+        {
+          "answer": "50 Mbps",
+          "isCorrect": false
+        },
+        {
+          "answer": "10 secs.",
+          "isCorrect": false
+        }
+      ]
+    },
+    {
+      "number": "8",
+      "topic": "1.4-02 Computing Packet Transmission Delay(1)",
+      "question": "Suppose a packet is L = 1500 bytes long (one byte = 8 bits), and link transmits at R = 1 Gbps (i.e., a link can transmit bits 1,000,000,000 bits per second).  What is the transmission delay for this packet? [Note: you can find more problems like this one here.]",
+      "offered-answers": [
+        {
+          "answer": ".000012 secs",
+          "isCorrect": true
+        },
+        {
+          "answer": ".00012 secs",
+          "isCorrect": false
+        },
+        {
+          "answer": ".0000015 secs",
+          "isCorrect": false
+        },
+        {
+          "answer": ".0015 secs",
+          "isCorrect": false
+        },
+        {
+          "answer": "666,666 secs",
+          "isCorrect": false
+        }
+      ]
+    },
+    {
+      "number": "9",
+      "topic": "1.4-02a. Performance: Utilization",
+      "question": "Consider the scenario shown below, with a single source client sending to a server over two links of capacities R1=100 Mbps and R3=10 Mbps. What is the utilization of the link of capacity R1?",
+      "offered-answers": [
+        {
+          "answer": ".10",
+          "isCorrect": true
+        },
+        {
+          "answer": "1.0",
+          "isCorrect": false
+        },
+        {
+          "answer": ".5",
+          "isCorrect": false
+        },
+        {
+          "answer": "10.0",
+          "isCorrect": false
+        }
+      ]
+    },
+    {
+      "number": "10",
+      "topic": "1.4-02c. Performance: Utilization",
+      "question": "Consider the scenario shown below, with two clients sending to a server.  The links attached to clients each have a capacity of  R1= R2  = 10 Mbps.  The link from the router to the server has a capacity of R3 = 100 Mbps, which is shared evenly between the two sources when they are each sending at their maximum rate. What is the utilization of the R1 and R3 links, assuming that the clients are trying to send at their maximum rates?",
+      "offered-answers": [
+        {
+          "answer": "1",
+          "isCorrect": true
+        },
+        {
+          "answer": ".1",
+          "isCorrect": false
+        },
+        {
+          "answer": ".001",
+          "isCorrect": false
+        },
+        {
+          "answer": "10",
+          "isCorrect": false
+        }
+      ]
+    },
+    {
+      "number": "11",
+      "topic": "1.4-03 Computing Packet Transmission Delay (2)",
+      "question": "Suppose a packet is L = 1200 bytes long (one byte = 8 bits), and link transmits at R = 100 Mbps (i.e., a link can transmit bits 100,000,000 bits per second).  What is the transmission delay for this packet? [Note: you can find more problems like this one here.]",
+      "offered-answers": [
+        {
+          "answer": ".000096 secs",
+          "isCorrect": true
+        },
+        {
+          "answer": ".00096 secs",
+          "isCorrect": false
+        },
+        {
+          "answer": ".000015 secs",
+          "isCorrect": false
+        },
+        {
+          "answer": ".0012 secs",
+          "isCorrect": false
+        },
+        {
+          "answer": "8,333 secs",
+          "isCorrect": false
+        }
+      ]
+    },
+    {
+      "number": "12",
+      "topic": "1.4-03a. Performance: Packet Transmission Delay",
+      "question": "Consider the network shown in the below, with two senders on the left sending packets to a common receiver on the right.  The links have transmission rates of R1 = R2 = 100 Mbps (i.e., 100 x 106 bits per second).  Suppose each packet is 1 Mbit (106 bits) in size. How long does it take a sender to transmit a packet into its link (i.e., the packet transmission delay at the sender)?",
+      "offered-answers": [
+        {
+          "answer": "10 msec",
+          "isCorrect": true
+        },
+        {
+          "answer": ".1 msec",
+          "isCorrect": false
+        },
+        {
+          "answer": "1 msec",
+          "isCorrect": false
+        },
+        {
+          "answer": "100 msec",
+          "isCorrect": false
+        },
+        {
+          "answer": "106 msec",
+          "isCorrect": false
+        }
+      ]
+    },
+    {
+      "number": "13",
+      "topic": "1.4-03b. Performance: End-to-end Delay",
+      "question": "Consider again the network shown above.  The links again have transmission rates of R1 = R2 = 100 Mbps (i.e., 100 x 106 bits per second), and each packet is 1 Mbit (106 bits) in size. Assume that the  propagation delay is 1 msec per link. What is the end-to-end delay of a packet from when it first begins transmission at the sender, until it is received in full by the server at the end of the rightmost link.  Assume store-and forward packet transmission.  You can assume the queueing delay is zero.",
+      "offered-answers": [
+        {
+          "answer": "22 msec",
+          "isCorrect": true
+        },
+        {
+          "answer": "2.1 msec",
+          "isCorrect": false
+        },
+        {
+          "answer": "1.1 msec",
+          "isCorrect": false
+        },
+        {
+          "answer": "2.01 msec",
+          "isCorrect": false
+        },
+        {
+          "answer": "2 x 106 msec",
+          "isCorrect": false
+        }
+      ]
+    },
+    {
+      "number": "14",
+      "topic": "1.4-03c. Performance: Maximum Throughput",
+      "question": "Consider again the network shown above.  The links again have transmission rates of R1 = R2 = 100 Mbps Assume that the link R2 is fairly shared (as we've seen is done via TCP) between the two sessions. What is the maximum end-to-end throughput achieved by each session, assuming both sessions are sending at the maximum rate possible?",
+      "offered-answers": [
+        {
+          "answer": "50 Mbps",
+          "isCorrect": true
+        },
+        {
+          "answer": "100 Mbps",
+          "isCorrect": false
+        },
+        {
+          "answer": "1 Mbps",
+          "isCorrect": false
+        },
+        {
+          "answer": "25 Mbps",
+          "isCorrect": false
+        },
+        {
+          "answer": "200 Mbps",
+          "isCorrect": false
+        }
+      ]
+    },
+    {
+      "number": "15",
+      "topic": "1.4-03d. Performance: Link utilization",
+      "question": "Consider again the network shown above.  What is the utilization of a link connecting the sender to the router, assuming both sessions are sending packets as fast as possible?",
+      "offered-answers": [
+        {
+          "answer": ".5",
+          "isCorrect": true
+        },
+        {
+          "answer": ".1",
+          "isCorrect": false
+        },
+        {
+          "answer": ".25",
+          "isCorrect": false
+        },
+        {
+          "answer": "1.0",
+          "isCorrect": false
+        },
+        {
+          "answer": "100 Mbps",
+          "isCorrect": false
+        }
+      ]
+    },
+    {
+      "number": "16",
+      "topic": "1.4-03e. Performance: Maximum Throughput (2)",
+      "question": "Now consider the network shown below (just an extended version of the network above), with two senders on the left sending packets to a common receiver on the right. The links have transmission rates of R1 = R2 = 100 Mbps, and R3 = 50 Mbps. What is the maximum end-to-end throughput achieved by each session, assuming both sessions are sending at the maximum rate possible?",
+      "offered-answers": [
+        {
+          "answer": "50 Mbps",
+          "isCorrect": false
+        },
+        {
+          "answer": "100 Mbps",
+          "isCorrect": false
+        },
+        {
+          "answer": "1 Mbps",
+          "isCorrect": false
+        },
+        {
+          "answer": "25 Mbps",
+          "isCorrect": true
+        },
+        {
+          "answer": "200 Mbps",
+          "isCorrect": false
+        }
+      ]
+    },
+    {
+      "number": "17",
+      "topic": "1.4-03f. Performance: Link utilization (2)",
+      "question": "Consider the network shown immediately above (i.e., the network with two routers). What is the utilization of a link connecting the sender to the router, assuming both sessions are sending packets as fast as possible?",
+      "offered-answers": [
+        {
+          "answer": ".5",
+          "isCorrect": false
+        },
+        {
+          "answer": ".1",
+          "isCorrect": false
+        },
+        {
+          "answer": ".25",
+          "isCorrect": true
+        },
+        {
+          "answer": "1.0",
+          "isCorrect": false
+        },
+        {
+          "answer": "100 Mbps",
+          "isCorrect": false
+        }
+      ]
+    },
+    {
+      "number": "18",
+      "topic": "1.4-04 Computing Packet Transmission Delay (3)",
+      "question": "Consider the network shown in the figure below, with three links, each with the specified transmission rate and link length. Assume the length of a packet is 8000 bits. What is the transmission delay at link 2? [Note: you can find more problems like this one here.]",
+      "offered-answers": [
+        {
+          "answer": "8 x 10^(-5) secs",
+          "isCorrect": true
+        },
+        {
+          "answer": ".00096 secs",
+          "isCorrect": false
+        },
+        {
+          "answer": "100 secs",
+          "isCorrect": false
+        },
+        {
+          "answer": "12,500 secs",
+          "isCorrect": false
+        },
+        {
+          "answer": "12.5 secs",
+          "isCorrect": false
+        }
+      ]
+    },
+    {
+      "number": "19",
+      "topic": "1.4-04a. Performance: Packet Transmission Delay",
+      "question": "Consider the network shown below, with a sending server on the left, sending packets to two different client receivers on the right. The sender is sending packets to the receivers over separate TCP connections. The links have transmission rates of R1 = 200 Mbps (i.e., 200 x 106 bits per second). Assume initially that R2 = R3 = 25 Mbps. Suppose each packet is 1 Mbit (106 bits) in size. How long does it take a sender to transmit a packet into its link (i.e., the packet transmission delay at the sender)?",
+      "offered-answers": [
+        {
+          "answer": "5 msec",
+          "isCorrect": true
+        },
+        {
+          "answer": "10 msec",
+          "isCorrect": false
+        },
+        {
+          "answer": "1 msec",
+          "isCorrect": false
+        },
+        {
+          "answer": "20 msec",
+          "isCorrect": false
+        },
+        {
+          "answer": "106 msec",
+          "isCorrect": false
+        }
+      ]
+    },
+    {
+      "number": "20",
+      "topic": "1.4-05 Computing Propagation Delay",
+      "question": "Consider the network shown in the figure below, with three links, each with the specified transmission rate and link length. Assume the length of a packet is 8000 bits. The speed of light propagation delay on each link is 3x10^8 m/sec. What is the propagation delay at (along) link 2?",
+      "offered-answers": [
+        {
+          "answer": ".0033 secs",
+          "isCorrect": true
+        },
+        {
+          "answer": ".33 secs",
+          "isCorrect": false
+        },
+        {
+          "answer": "3 secs",
+          "isCorrect": false
+        },
+        {
+          "answer": "3 x 10^8 secs",
+          "isCorrect": false
+        }
+      ]
+    },
+    {
+      "number": "21",
+      "topic": "1.4-05a. Performance: Packet Transmission Delay",
+      "question": "Consider the network shown below, with two senders (A,B) on the left, sending packets to two different receivers (C,D) on the right. Each sender is sending packets to its receivers over a separate TCP connection. The links have transmission rates of R1 = 100 Mbps (i.e., 100 x 106 bits per second) and R2 = 150 Mbps. Suppose each packet is 1 Mbit (106 bits) in size. How long does it take a sender to transmit a packet into its link (i.e., the packet transmission delay at sender A)?",
+      "offered-answers": [
+        {
+          "answer": "5 msec",
+          "isCorrect": false
+        },
+        {
+          "answer": "10 msec",
+          "isCorrect": true
+        },
+        {
+          "answer": "1 msec",
+          "isCorrect": false
+        },
+        {
+          "answer": "20 msec",
+          "isCorrect": false
+        },
+        {
+          "answer": "106 msec",
+          "isCorrect": false
+        }
+      ]
+    },
+    {
+      "number": "22",
+      "topic": "1.4-05f. Performance: Throughput (2)",
+      "question": "Consider now the (new!) network shown below, with a new sender (E) sending to D over a new additional TCP session. The links again have transmission rates of R1 = 100 Mbps (i.e., 100 x 106 bits per second) and R2 = 150 Mbps. What is the maximum end-to-end throughput achieved by the new E-to-D session, assuming all senders are sending to receivers at the maximum rate possible?",
+      "offered-answers": [
+        {
+          "answer": "50 Mbps",
+          "isCorrect": true
+        },
+        {
+          "answer": "25 Mbps",
+          "isCorrect": false
+        },
+        {
+          "answer": "75 Mbps",
+          "isCorrect": false
+        },
+        {
+          "answer": "100 Mbps",
+          "isCorrect": false
+        },
+        {
+          "answer": "150 Mbps",
+          "isCorrect": false
+        }
+      ]
+    },
+    {
+      "number": "23",
+      "topic": "1.4-06 Computing throughput: a simple scenario",
+      "question": "What is the maximum throughput achievable between sender and receiver in the scenario shown below?",
+      "offered-answers": [
+        {
+          "answer": "1.5 Mbps",
+          "isCorrect": true
+        },
+        {
+          "answer": "10 Mbps",
+          "isCorrect": false
+        },
+        {
+          "answer": "11.5 Mbps",
+          "isCorrect": false
+        }
+      ]
+    },
+    {
+      "number": "24",
+      "topic": "1.4-06a. Performance: End-to-end delay",
+      "question": "Consider the scenario shown below, with 10 different servers (four shown) connected to 10 different clients over ten three-hop paths. The pairs share a common middle hop with a transmission capacity of R = 200 Mbps. Each link from a server has to the shared link has a transmission capacity of RS = 25 Mbps. Each link from the shared middle link to a client has a transmission capacity of RC = 50 Mbps. Now consider the three-hop path from Server-10 to host-10, assuming the values of Rs, Rc, and R given above. Assume also that a packet is 1000 bits long, and that each link has a propagation delay of 100 microseconds (1 microsec = 0.000001 sec). You can assume that queueing delay and nodal processing delays are zero. What is the total amount of time from when a server starts sending a packet until a host completely receives that packet?",
+      "offered-answers": [
+        {
+          "answer": "325 microseconds",
+          "isCorrect": false
+        },
+        {
+          "answer": "365 microseconds",
+          "isCorrect": true
+        },
+        {
+          "answer": "735 microseconds",
+          "isCorrect": false
+        },
+        {
+          "answer": "450 microseconds",
+          "isCorrect": false
+        },
+        {
+          "answer": "350 microseconds",
+          "isCorrect": false
+        },
+        {
+          "answer": "555 microseconds",
+          "isCorrect": false
+        }
+      ]
+    },
+    {
+      "number": "25",
+      "topic": "1.4-06b. Performance: Maximum end-end throughput",
+      "question": "Consider the scenario shown below, with 10 different servers (four shown) connected to 10 different clients over ten three-hop paths. The pairs share a common middle hop with a transmission capacity of R = 200 Mbps. Each link from a server has to the shared link has a transmission capacity of RS = 25 Mbps. Each link from the shared middle link to a client has a transmission capacity of RC = 50 Mbps. What is the maximum achievable end-end throughput (in Mbps, give an integer value) for each of ten client-to-server pairs, assuming that the middle link is fairly shared and all servers are trying to send at their maximum rate?",
+      "offered-answers": [
+        {
+          "answer": "20 Mbps",
+          "isCorrect": true
+        },
+        {
+          "answer": "275 Mbps",
+          "isCorrect": false
+        },
+        {
+          "answer": "50 Mbps",
+          "isCorrect": false
+        },
+        {
+          "answer": "200 Mbps",
+          "isCorrect": false
+        },
+        {
+          "answer": "25 Mbps",
+          "isCorrect": false
+        }
+      ]
+    }
+  ]
+}

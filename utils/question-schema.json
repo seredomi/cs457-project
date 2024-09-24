@@ -1,0 +1,40 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "CS 457 Quiz Question",
+    "description": "a single question in a CS 457 Quiz",
+    "type": "object",
+    "properties": {
+        "chapter": {
+            "description": "the chapter review the question appears in",
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 6
+        },
+        "title": {
+            "description": "the bold title which appears before the question. e.g. '1.1-3 What is a protocol?'",
+            "type": "string"
+        },
+        "question": {
+            "description": "the longer question posed",
+            "type": "string"
+        },
+        "offered-answers": {
+            "description": "array of possible answers to choose from (try to maintain order from the quizzes",
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "text": {
+                        "type": "string"
+                    },
+                    "correct": {
+                        "type": "boolean"
+                    }
+                }
+            },
+            "minItems": 1,
+            "uniqueItems": true
+        }
+    },
+    "required": ["chapter", "question", "offered-answers"]
+}

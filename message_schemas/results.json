@@ -1,0 +1,60 @@
+{
+    "$id": "https://example.com/results.schema.json",
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "Results",
+    "description": "Results of quiz, including player names, their answers, and whether they were correct.",
+    "type": "object",
+    "properties": {
+      "message_type": {
+        "type": "string",
+        "pattern": "^results$"
+      },
+      "players": {
+        "type": "array",
+        "description": "Array of players and quiz results",
+        "items": {
+          "type": "object",
+          "properties": {
+            "player_name": {
+              "type": "string",
+              "description": "The name of the player"
+            },
+            "results": {
+              "type": "array",
+              "description": "The players quiz results",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "chapter": {
+                    "type": "integer",
+                    "description": "The chapter the question is from",
+                    "minimum": 1
+                  },
+                  "question": {
+                    "type": "string",
+                    "description": "The quiz question"
+                  },
+                  "submitted_answer": {
+                    "type": "string",
+                    "description": "The answer submitted by the player"
+                  },
+                  "correct_answer": {
+                    "type": "string",
+                    "description": "The correct answer for the question"
+                  },
+                  "is_correct": {
+                    "type": "boolean",
+                    "description": "Whether submitted answer was correct"
+                  }
+                },
+                "required": ["chapter", "question", "submitted_answer", "correct_answer", "is_correct"]
+              }
+            }
+          },
+          "required": ["player_name", "results"]
+        }
+      }
+    },
+    "required": ["message_type", "players"],
+    "additionalProperties": false
+  }

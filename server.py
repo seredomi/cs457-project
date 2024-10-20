@@ -5,10 +5,17 @@ import signal
 import logging
 from typing import List
 import ipaddress
+import json
+from jsonschema import validate, ValidationError
+import os
 
 # configure logging
 logging.basicConfig(level=logging.INFO, format='[%(levelname)s] - %(message)s')
 
+def load_schema(schema_file):
+    with open(os.path.join('message_schemas', schema_file), 'r') as file:
+        return json.load(file)
+    
 class Server:
     def __init__(self, host='127.0.0.1', port_num=5000):
         self.host: str = host
@@ -17,6 +24,17 @@ class Server:
         self.server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self.clients: List[socket.socket] = []
         self.running = False
+        
+        self.schemas = {
+            "join_game": load_schema('join_game.json'),
+            "start_game": load_schema('start_game.json'),
+            "quiz_answer": load_schema('quiz_answer.json'),
+            "quiz_question": load_schema('quiz_question.json'),
+            "results": load_schema('results.json'),
+            "new_connection_prompt": load_schema('new_connection_prompt.json')
+            # add as needed
+        }
+
 
     def start(self):
         # attempt to connect
@@ -70,6 +88,31 @@ class Server:
             self.clients.remove(client_socket)
             client_socket.close()
             logging.info(f"Connection from {addr} closed")
+            
+    
+    
+    def handle_message(self, message, client_socket):
+        message_type = message.get('message_type', 'unknown')
+        
+        logging.info(f"Processing message of type: {message_type}")
+
+        if message_type not in self.schemas:
+            logging.error(f"Unknown message type: {message_type}")
+            client_socket.send(json.dumps({"error": "Unknown message type"}).encode('utf-8'))
+            return
+
+        # echo back to the client
+        response_message = f"received {message_type}"
+        logging.info(f"Sending response: {response_message}")
+        client_socket.send(json.dumps({"response": response_message}).encode('utf-8'))
+
+        # could still validate against schema
+        try:
+            validate(instance=message, schema=self.schemas[message_type])
+            logging.info(f"Message of type {message_type} is valid.")
+        except ValidationError as e:
+            logging.error(f"Invalid {message_type} message: {e}")
+            client_socket.send(json.dumps({"error": str(e)}).encode('utf-8'))
 
     # send a message to all clients
     def broadcast(self, message):

@@ -1,0 +1,23 @@
+{
+    "$id": "https://example.com/new_connection_prompt.schema.json",
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "new_connection_prompt",
+    "type": "object",
+    "properties": {
+      "message_type": {
+        "type": "string",
+        "pattern": "^new_connection_prompt$"
+      },
+      "welcome_message": {
+        "description": "Welcome message sent to the client upon connection",
+        "type": "string"
+      },
+      "instructions": {
+        "description": "Instructions or game rules provided to the player",
+        "type": "string"
+      }
+    },
+    "required": ["message_type", "welcome_message", "instructions"],
+    "additionalProperties": false
+  }
+  

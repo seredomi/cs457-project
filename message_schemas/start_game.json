@@ -1,0 +1,40 @@
+{
+  "$id": "https://example.com/address.schema.json",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "start_game",
+  "type": "object",
+  "properties": {
+    "message_type": {
+      "type": "string",
+      "pattern": "^start_game$"
+    },
+    "player_name": {
+      "description": "name set by player",
+      "type": "string"
+    },
+    "is_private": {
+      "description": "is the game private",
+      "type": "boolean"
+    },
+    {
+    "password": {
+      "description": "password set by player",
+      "type": "string"
+    },
+    "chapters": {
+      "description": "chapters selected by player",
+      "type": "array",
+      "items": {
+        "description": "a chapter",
+        "type": "string",
+        "enum": [ "ch1", "ch2", "ch3", "ch4", "ch5", "ch6", "ch7" ]
+      }
+    },
+    "success_message": {
+      "description": "success message returned by the server",
+      "type": "string"
+    }
+  },
+  "required": [ "message_type", "player_name", "is_private", "chapters" ],
+  "additionalProperties": false
+}

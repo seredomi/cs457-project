@@ -1,19 +1,19 @@
 {
   "$id": "https://example.com/address.schema.json",
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "title": "join_game",
+  "title": "quiz_answer",
   "type": "object",
   "properties": {
     "message_type": {
       "type": "string",
-      "pattern": "^join_game$"
+      "pattern": "^quiz_answer"
     },
-    "game_id": {
-      "description": "id of game session to be joined",
+    "question": {
+      "description": "the question being asked",
       "type": "string"
     },
-    "player_name": {
-      "description": "name set by player",
+    "answer": {
+      "description": "answer chosen by player",
       "type": "string"
     },
     "success_message": {
@@ -21,6 +21,6 @@
       "type": "string"
     }
   },
-  "required": [ "message_type", "game_id", "player_name" ],
+  "required": [ "message_type", "question", "answer" ],
   "additionalProperties": false
 }

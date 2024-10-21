@@ -60,24 +60,26 @@ class Client:
 
     # loop runs to take user input and send to server
     def send_messages(self):
+        temp_shortcut_map = {
+            'ncp': "new_connection_prompt",
+            'sg': "start_game",
+            'jg': "join_game",
+            'qq': "quiz_question",
+            'qa': "quiz_answer",
+            'r': "results"
+        }
+
         while self.running:
             try:
                 # time sleep is a temp fix for race condition of server response coming in after prompt, which looks confusing for user
                 # in the future, info logs will only be printed via a -v flag, so this shouldn't be an issue
                 time.sleep(0.1)
-                message = input("""\nEnter message type
-- 'ncp' to send new_connection_prompt
-- 'sg' to send start_game
-- 'jg' to send join_game
-- 'q' to exit\n""")
-                if message.lower() == 'q':
+                message = input("\nEnter message type\n" + "\n".join([f" - '{k}' to send {v}" for k, v in temp_shortcut_map.items()]) + "\n' - q' to exit\n")
+                message = message.lower()
+                if message == 'q':
                     break
-                elif message.lower() == 'ncp':
-                    send_message(MOCKS['new_connection_prompt'], self.client_socket)
-                elif message.lower() == 'sg':
-                    send_message(MOCKS['start_game'], self.client_socket)
-                elif message.lower() == 'jg':
-                    send_message(MOCKS['join_game'], self.client_socket)
+                elif message in temp_shortcut_map:
+                    send_message(MOCKS[temp_shortcut_map[message]], self.client_socket)
                 else:
                     logging.error("Invalid input. Please try again.")
                     continue

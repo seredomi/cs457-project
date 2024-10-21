@@ -17,24 +17,6 @@ def load_SCHEMAS():
 
 SCHEMAS = load_SCHEMAS()
 
-MOCKS = {
-    "new_connection_prompt": {
-        "message_type": "new_connection_prompt",
-        "welcome_message": "Welcome to the server!",
-        "instructions": "Enter your name and press enter."
-    },
-    "join_game": {
-        "message_type": "join_game",
-        "player_name": "Alice",
-        "game_id": "abc"
-    },
-    "start_game": {
-        "message_type": "start_game",
-        "player_name": "Bob",
-        "is_private": False,
-        "chapters": ["ch1", "ch2", "ch3"]
-    }
-}
 
 # handle messages based on schema
 def receive_message(message: str, socket):
@@ -78,3 +60,62 @@ def send_message(message: Dict[str, Any], socket):
     # send it!
     logging.info(f"Sending message of type: {message_type}")
     socket.send(json.dumps(message).encode('utf-8'))
+
+
+MOCKS = {
+    "new_connection_prompt": {
+        "message_type": "new_connection_prompt",
+        "welcome_message": "Welcome to the server!",
+        "instructions": "Enter your name and press enter.",
+        "games_available": ["abc", "def", "ghi"],
+        "chapters": [1, 2, 3]
+    },
+    "start_game": {
+        "message_type": "start_game",
+        "player_name": "Bob",
+        "is_private": False,
+        "chapters": [1, 3]
+    },
+    "join_game": {
+        "message_type": "join_game",
+        "player_name": "Alice",
+        "game_id": "abc"
+    },
+    "quiz_question": {
+        "message_type": "quiz_question",
+        "chapter": 1,
+        "question": "What is the capital of France?",
+        "possible_answers": ["Paris", "London", "Berlin", "Madrid"]
+    },
+    "quiz_answer": {
+        "message_type": "quiz_answer",
+        "question": "What is the capital of France?",
+        "answer": "Madrid"
+    },
+    "results": {
+        "message_type": "results",
+        "players": [
+            {
+                "player_name": "Alice",
+                "results": [
+                    {
+                        "chapter": 1,
+                        "question": "What is the capital of France?",
+                        "answer": "Paris",
+                        "submitted_answer": "Paris",
+                        "correct_answer": "Paris",
+                        "is_correct": True
+                    },
+                    {
+                        "chapter": 2,
+                        "question": "What is the capital of Germany?",
+                        "answer": "Berlin",
+                        "submitted_answer": "Madrid",
+                        "correct_answer": "Berlin",
+                        "is_correct": False
+                    }
+                ]
+            }
+        ]
+    }
+}

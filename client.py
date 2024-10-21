@@ -4,6 +4,7 @@ import threading
 import logging
 import time
 import ipaddress
+from messages import send_message, receive_message, MOCKS
 
 # configure logging
 logging.basicConfig(level=logging.INFO, format='[%(levelname)s] - %(message)s')
@@ -64,10 +65,24 @@ class Client:
                 # time sleep is a temp fix for race condition of server response coming in after prompt, which looks confusing for user
                 # in the future, info logs will only be printed via a -v flag, so this shouldn't be an issue
                 time.sleep(0.1)
-                message = input("\nEnter message ('quit' to exit):\n")
-                self.client_socket.send(message.encode('utf-8'))
-                if message.lower() == 'quit':
+                message = input("""\nEnter message type
+- 'ncp' to send new_connection_prompt
+- 'sg' to send start_game
+- 'jg' to send join_game
+- 'q' to exit\n""")
+                if message.lower() == 'q':
                     break
+                elif message.lower() == 'ncp':
+                    send_message(MOCKS['new_connection_prompt'], self.client_socket)
+                elif message.lower() == 'sg':
+                    send_message(MOCKS['start_game'], self.client_socket)
+                elif message.lower() == 'jg':
+                    send_message(MOCKS['join_game'], self.client_socket)
+                else:
+                    logging.error("Invalid input. Please try again.")
+                    continue
+
+
             except Exception as e:
                 if self.running: logging.error(f"Error sending message: {e}")
                 self.running = False

@@ -8,6 +8,18 @@ import ipaddress
 # configure logging
 logging.basicConfig(level=logging.INFO, format='[%(levelname)s] - %(message)s')
 
+class GameState:
+    def __init__(self):
+        self.game_over = False
+        self.last_response = None
+        self.attempts = 0
+
+    def update(self, response):
+        self.last_response = response
+        self.attempts += 1
+        if response == 'CORRECT':
+            self.game_over = True
+
 class Client:
     def __init__(self, host='localhost', port=50000):
         self.host: str = host

@@ -1,44 +1,80 @@
 import json
 import os
+import random
 from jsonschema import validate, ValidationError
 import logging
+from typing import Dict, Any
 
 # load schema
 def load_schema(schema_file):
     with open(os.path.join('message_schemas', schema_file), 'r') as file:
         return json.load(file)
 
+# preload SCHEMAS 
+def load_SCHEMAS():
+    SCHEMAS = os.listdir('message_schemas')
+    return {schema.split('.')[0]: load_schema(schema) for schema in SCHEMAS if schema.endswith('.json')}
+
+SCHEMAS = load_SCHEMAS()
+
+MOCKS = {
+    "new_connection_prompt": {
+        "message_type": "new_connection_prompt",
+        "welcome_message": "Welcome to the server!",
+        "instructions": "Enter your name and press enter."
+    },
+    "join_game": {
+        "message_type": "join_game",
+        "player_name": "Alice",
+        "game_id": "abc"
+    },
+    "start_game": {
+        "message_type": "start_game",
+        "player_name": "Bob",
+        "is_private": False,
+        "chapters": ["ch1", "ch2", "ch3"]
+    }
+}
+
 # handle messages based on schema
-def handle_message(message, client_socket, schemas):
-    message_type = message.get('message_type', 'unknown')
+def receive_message(message: str, socket):
+    logging.info(f"Received message: {message}")
+    
+    # parse into object
+    try:
+        message_obj: Dict[str, Any] = json.loads(message)
+    except Exception as e:
+        logging.error(f"Error parsing json message into object: {e}")
+        socket.send(json.dumps({"error": "Invalid JSON message"}).encode('utf-8'))
+        return
+    message_type = message_obj.get('message_type', 'unknown')
     
     logging.info(f"Processing message of type: {message_type}")
 
-    if message_type not in schemas:
+    if message_type not in SCHEMAS:
         logging.error(f"Unknown message type: {message_type}")
-        client_socket.send(json.dumps({"error": "Unknown message type"}).encode('utf-8'))
+        socket.send(json.dumps({"error": f"Unknown message type {message_type}"}).encode('utf-8'))
         return
-
-    # echo back to client
-    response_message = f"received {message_type}"
-    logging.info(f"Sending response: {response_message}")
-    client_socket.send(json.dumps({"response": response_message}).encode('utf-8'))
 
     # validate against schema
     try:
-        validate(instance=message, schema=schemas[message_type])
+        validate(instance=message_obj, schema=SCHEMAS[message_type])
         logging.info(f"Message of type {message_type} is valid.")
     except ValidationError as e:
         logging.error(f"Invalid {message_type} message: {e}")
-        client_socket.send(json.dumps({"error": str(e)}).encode('utf-8'))
+        socket.send(json.dumps({"error": str(e)}).encode('utf-8'))
 
-# preload schemas 
-def load_schemas():
-    return {
-        "join_game": load_schema('join_game.json'),
-        "start_game": load_schema('start_game.json'),
-        "quiz_answer": load_schema('quiz_answer.json'),
-        "quiz_question": load_schema('quiz_question.json'),
-        "results": load_schema('results.json'),
-        "new_connection_prompt": load_schema('new_connection_prompt.json')
-    }
+def send_message(message: Dict[str, Any], socket):
+    message_type = message.get('message_type', 'unknown')
+
+    # validate against schema
+    try:
+        validate(instance=message, schema=SCHEMAS[message_type])
+        logging.info(f"Message of type {message_type} is valid.")
+    except ValidationError as e:
+        logging.error(f"Invalid {message_type} message: {e}")
+        return
+
+    # send it!
+    logging.info(f"Sending message of type: {message_type}")
+    socket.send(json.dumps(message).encode('utf-8'))

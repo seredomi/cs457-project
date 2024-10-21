@@ -1,0 +1,34 @@
+{
+  "$id": "https://example.com/address.schema.json",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "quiz_question",
+  "type": "object",
+  "properties": {
+    "message_type": {
+      "type": "string",
+      "pattern": "^quiz_question$"
+    },
+    "chapter": {
+      "description": "chapter of this question",
+      "type": "integer"
+    },
+    "question": {
+      "description": "question",
+      "type": "string"
+    },
+    "possible_answers": {
+      "description": "array of answers",
+      "type": "array",
+      "items": {
+        "description": "an answer",
+        "type": "string"
+      }
+    },
+    "success_message": {
+      "description": "success message returned by the server",
+      "type": "string"
+    }
+  },
+  "required": [ "message_type", "chapter", "question", "possible_answers" ],
+  "additionalProperties": false
+}

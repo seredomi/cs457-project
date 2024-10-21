@@ -5,6 +5,7 @@ import signal
 import logging
 from typing import List
 import ipaddress
+from messages import receive_message, MOCKS
 
 # configure logging
 logging.basicConfig(level=logging.INFO, format='[%(levelname)s] - %(message)s')
@@ -58,11 +59,9 @@ class Server:
                 try:
                     client_socket.settimeout(1.0)
                     # blocking call awaits message from client
-                    data = client_socket.recv(1024).decode('utf-8')
-                    if not data: break
-                    # simple echo
-                    logging.info(f"Received from {addr}: {data}")
-                    self.broadcast(f"Client {addr}: {data}")
+                    message = client_socket.recv(1024).decode('utf-8')
+                    if not message: break
+                    receive_message(message, client_socket)
                 except socket.timeout: continue
                 except Exception as e: logging.error(f"Error handling client {addr}: {e}")
         # protocol for removing client

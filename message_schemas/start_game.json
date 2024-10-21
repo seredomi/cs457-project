@@ -16,7 +16,6 @@
       "description": "is the game private",
       "type": "boolean"
     },
-    {
     "password": {
       "description": "password set by player",
       "type": "string"

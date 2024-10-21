@@ -21,6 +21,6 @@
       "type": "string"
     }
   },
-  "required": [ "game_id", "player_name" ],
+  "required": [ "message_type", "game_id", "player_name" ],
   "additionalProperties": false
 }

@@ -15,9 +15,28 @@
       "instructions": {
         "description": "Instructions or game rules provided to the player",
         "type": "string"
+      },
+      "current_games": {
+        "description": "list of current game IDs",
+        "type": "array",
+        "items": {
+          "description": "a game ID",
+          "type": "string"
+        }
+      },
+      "chapter_list": {
+        "description": "list of chapters available",
+        "type": "array",
+        "items": {
+          "description": "a chapter",
+          "type": "integer"
+        }
+      },
+      "success_message": {
+        "description": "success message returned by the server",
+        "type": "string"
       }
     },
     "required": ["message_type", "welcome_message", "instructions"],
     "additionalProperties": false
   }
-  

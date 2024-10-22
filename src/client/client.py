@@ -4,7 +4,7 @@ import threading
 import logging
 import time
 import ipaddress
-from messages import send_message, receive_message, MOCKS
+from src.messages import send_message, receive_message, MOCKS
 
 # configure logging
 logging.basicConfig(level=logging.INFO, format='[%(levelname)s] - %(message)s')

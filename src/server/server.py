@@ -5,7 +5,7 @@ import signal
 import logging
 from typing import List
 import ipaddress
-from messages import receive_message, MOCKS
+from src.messages import receive_message, MOCKS
 
 # configure logging
 logging.basicConfig(level=logging.INFO, format='[%(levelname)s] - %(message)s')

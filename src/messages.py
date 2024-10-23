@@ -5,23 +5,23 @@ from jsonschema import validate, ValidationError
 import logging
 from typing import Dict, Any
 
-# load schema
-def load_schema(schema_file):
-    with open(os.path.join('message_schemas', schema_file), 'r') as file:
-        return json.load(file)
+SCHEMAS_DIR = 'src/message_schemas'
 
-# preload SCHEMAS 
-def load_SCHEMAS():
-    SCHEMAS = os.listdir('message_schemas')
-    return {schema.split('.')[0]: load_schema(schema) for schema in SCHEMAS if schema.endswith('.json')}
+# preload SCHEMAS
+def load_schemas():
+    def load_schema(schema_file):
+        with open(os.path.join(SCHEMAS_DIR, schema_file), 'r') as file:
+            return json.load(file)
 
-SCHEMAS = load_SCHEMAS()
+    schemas = os.listdir(SCHEMAS_DIR)
+    return {schema.split('.')[0]: load_schema(schema) for schema in schemas if schema.endswith('.json')}
 
+SCHEMAS = load_schemas()
 
 # handle messages based on schema
 def receive_message(message: str, socket):
     logging.info(f"Received message: {message}")
-    
+
     # parse into object
     try:
         message_obj: Dict[str, Any] = json.loads(message)
@@ -30,7 +30,7 @@ def receive_message(message: str, socket):
         socket.send(json.dumps({"error": "Invalid JSON message"}).encode('utf-8'))
         return
     message_type = message_obj.get('message_type', 'unknown')
-    
+
     logging.info(f"Processing message of type: {message_type}")
 
     if message_type not in SCHEMAS:

@@ -6,6 +6,7 @@ import logging
 from typing import List
 import ipaddress
 from src.messages import receive_message, MOCKS
+from src.server.player_class import Player
 
 # configure logging
 logging.basicConfig(level=logging.INFO, format='[%(levelname)s] - %(message)s')
@@ -17,7 +18,14 @@ class Server:
         self.server_socket: socket.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self.clients: List[socket.socket] = []
+        self.players: List[Player] = []
         self.running = False
+
+    def print_players(self):
+        print("\nPlayers:")
+        for i, player in enumerate(self.players):
+            print(f"{i + 1}. {str(player)}")
+        print()
 
     def start(self):
         # attempt to connect
@@ -40,6 +48,9 @@ class Server:
                     # new thread for each new connection
                     client_thread = threading.Thread(target=self.handle_client, args=(client_socket, addr))
                     client_thread.start()
+                    self.players.append(Player(client_socket, self))
+                    self.print_players()
+
                 except socket.timeout: continue
                 except Exception as e:
                     if self.running:
@@ -53,7 +64,6 @@ class Server:
     def handle_client(self, client_socket, addr):
         try:
             logging.info(f"New connection from {addr}")
-            self.clients.append(client_socket)
 
             while self.running:
                 try:
@@ -66,9 +76,10 @@ class Server:
                 except Exception as e: logging.error(f"Error handling client {addr}: {e}")
         # protocol for removing client
         finally:
-            self.clients.remove(client_socket)
+            self.players.remove(client_socket)
             client_socket.close()
             logging.info(f"Connection from {addr} closed")
+            self.print_players()
 
     # send a message to all clients
     def broadcast(self, message):

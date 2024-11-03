@@ -4,39 +4,41 @@
     "title": "new_connection_prompt",
     "type": "object",
     "properties": {
-      "message_type": {
-        "type": "string",
-        "pattern": "^new_connection_prompt$"
-      },
-      "welcome_message": {
-        "description": "Welcome message sent to the client upon connection",
-        "type": "string"
-      },
-      "instructions": {
-        "description": "Instructions or game rules provided to the player",
-        "type": "string"
-      },
-      "current_games": {
-        "description": "list of current game IDs",
-        "type": "array",
-        "items": {
-          "description": "a game ID",
-          "type": "string"
+        "message_type": {
+            "type": "string",
+            "pattern": "^new_connection_prompt$"
+        },
+        "current_games": {
+            "description": "list of current game IDs",
+            "type": "array",
+            "items": {
+                "description": "a game ID",
+                "type": "string"
+            }
+        },
+        "chapters_available": {
+            "description": "list of chapters available",
+            "type": "array",
+            "items": {
+                "description": "a chapter",
+                "type": "integer"
+            }
+        },
+        "max_questions": {
+            "description": "maximum number of questions in a game",
+            "type": "integer"
+        },
+        "success_message": {
+            "description": "success message returned by the server",
+            "type": "string"
         }
-      },
-      "chapter_list": {
-        "description": "list of chapters available",
-        "type": "array",
-        "items": {
-          "description": "a chapter",
-          "type": "integer"
-        }
-      },
-      "success_message": {
-        "description": "success message returned by the server",
-        "type": "string"
-      }
     },
-    "required": ["message_type", "welcome_message", "instructions"],
+    "required": [
+        "message_type",
+        "games_available",
+        "chapters_available",
+        "max_questions",
+        "success_message"
+    ],
     "additionalProperties": false
-  }
+}

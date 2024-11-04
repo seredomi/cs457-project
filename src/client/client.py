@@ -24,18 +24,10 @@ def join_game_dialog(curr_games: List[str] = [], curr_players: List[str] = []):
         print("Game not found or invalid name. Please try again.")
         game_name = input()
 
-    print("Is this a private game? Enter 'yes' or 'no':")
-    is_private = input().strip().lower() == 'yes'
-    password = ""
-    if is_private:
-        print("Enter the game password:")
-        password = input()
-
     return {
         "message_type": "join_game",
         "player_name": player_name,
         "game_name": game_name,
-        "password": password,
     }
 
 class Client:
@@ -118,7 +110,7 @@ class Client:
                     logging.error("Invalid input. Please try again.")
                     continue
 
-                
+
             except Exception as e:
                 if self.running: logging.error(f"Error sending message: {e}")
                 self.running = False

@@ -1,10 +1,12 @@
 from __future__ import annotations
 from typing import Union
 import socket
+import uuid
 
 class Player:
     def __init__(self, sock: socket.socket, socket_thread):
         self.sock = sock
+        self.id = uuid.uuid1()
         self.name = None
         self.curr_game = None
         self.socket_thread = socket_thread
@@ -18,5 +20,5 @@ class Player:
         elif isinstance(other, Player):
             return self.sock == other.sock
         elif isinstance(other, str):
-            return self.name == other
+            return self.id == other
         else: return False

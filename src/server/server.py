@@ -4,6 +4,7 @@ import threading
 import signal
 import logging
 import json
+import uuid
 from typing import List
 import ipaddress
 from src.messages import send_message, receive_message, MOCKS
@@ -76,8 +77,16 @@ class Server:
                     receive_message(message, client_socket)
                     msg_obj = json.loads(message)
                     msg_type = msg_obj["message_type"]
-                    if msg_type == "start_game":
-                        logging.info(f"Starting game for {addr}")
+                    if msg_type == "create_game":
+                        player_name = msg_obj["player_name"]
+                        game_name = msg_obj["game_name"]
+                        pi = self.players.index(client_socket)
+                        self.players[pi].curr_game = game_name
+                        self.players[pi].name = player_name
+
+                        # TODO: actually instantiate the game, add to games, and start it
+                        logging.info(f"Player {player_name} wants to start a game named {game_name}")
+                        self.print_players()
 
                 except socket.timeout: continue
                 except Exception as e: logging.error(f"Error handling client {addr}: {e}")

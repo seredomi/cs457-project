@@ -3,9 +3,10 @@ import socket
 import threading
 import signal
 import logging
+import json
 from typing import List
 import ipaddress
-from src.messages import receive_message, MOCKS
+from src.messages import send_message, receive_message, MOCKS
 from src.server.player_class import Player
 
 # configure logging
@@ -65,6 +66,7 @@ class Server:
         try:
             logging.info(f"New connection from {addr}")
 
+            send_message(MOCKS["new_connection_prompt"], client_socket)
             while self.running:
                 try:
                     client_socket.settimeout(1.0)
@@ -72,6 +74,11 @@ class Server:
                     message = client_socket.recv(1024).decode('utf-8')
                     if not message: break
                     receive_message(message, client_socket)
+                    msg_obj = json.loads(message)
+                    msg_type = msg_obj["message_type"]
+                    if msg_type == "start_game":
+                        logging.info(f"Starting game for {addr}")
+
                 except socket.timeout: continue
                 except Exception as e: logging.error(f"Error handling client {addr}: {e}")
         # protocol for removing client
@@ -94,7 +101,7 @@ class Server:
         logging.info("Shutting down server...")
         self.running = False
         # notifies clients upon shutdown, which they use to shutdown themselves
-        self.broadcast("SERVER_SHUTDOWN")
+        self.broadcast({"message_type": "server_shutdown"})
 
     def cleanup(self):
         logging.info("Cleaning up server resources...")

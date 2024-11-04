@@ -4,10 +4,31 @@ import threading
 import logging
 import time
 import ipaddress
+import re
+from typing import List
 from src.messages import send_message, receive_message, MOCKS
 
 # configure logging
 logging.basicConfig(level=logging.INFO, format='[%(levelname)s] - %(message)s')
+
+def join_game_dialog(curr_games: List[str] = [], curr_players: List[str] = []):
+    print("Enter your player name. No spaces or special characters allowed:")
+    player_name = input()
+    while not re.match("^[a-zA-Z0-9_]*$", player_name) or player_name in curr_players or len(player_name) < 1:
+        print("Invalid player name or name already taken. Please try again.")
+        player_name = input()
+
+    print("Enter the game name to join. It should match an existing game name:")
+    game_name = input()
+    while not re.match("^[a-zA-Z0-9_]*$", game_name) or game_name not in curr_games or len(game_name) < 1:
+        print("Game not found or invalid name. Please try again.")
+        game_name = input()
+
+    return {
+        "message_type": "join_game",
+        "player_name": player_name,
+        "game_name": game_name,
+    }
 
 class Client:
     def __init__(self, host='localhost', port=50000):
@@ -63,6 +84,7 @@ class Client:
         temp_shortcut_map = {
             'ncp': "new_connection_prompt",
             'sg': "start_game",
+            'stg': "stop_game",
             'jg': "join_game",
             'qq': "quiz_question",
             'qa': "quiz_answer",
@@ -78,6 +100,10 @@ class Client:
                 message = message.lower()
                 if message == 'q':
                     break
+                elif message == 'jg':
+                # Call join_game_dialog to get input details for joining a game
+                    join_game_data = join_game_dialog(curr_games=["game1", "game2"], curr_players=["player1", "player2"])
+                    send_message(join_game_data, self.client_socket)
                 elif message in temp_shortcut_map:
                     send_message(MOCKS[temp_shortcut_map[message]], self.client_socket)
                 else:

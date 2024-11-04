@@ -101,6 +101,8 @@ class Client:
 
         while self.running:
             try:
+                # time sleep is a temp fix for race condition of server response coming in after prompt, which looks confusing for user
+                # in the future, info logs will only be printed via a -v flag, so this shouldn't be an issue
                 time.sleep(0.1)
                 message = input("\nEnter message type\n" + "\n".join([f" - '{k}' to send {v}" for k, v in temp_shortcut_map.items()]) + "\n' - q' to exit\n")
                 message = message.lower()
@@ -115,6 +117,8 @@ class Client:
                 else:
                     logging.error("Invalid input. Please try again.")
                     continue
+
+                
             except Exception as e:
                 if self.running: logging.error(f"Error sending message: {e}")
                 self.running = False

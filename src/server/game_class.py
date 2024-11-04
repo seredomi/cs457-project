@@ -8,13 +8,16 @@ class Game:
         game_id: str,
         selected_chapters: List[int],
         owner_id: str,
+        owner_name: str,
         all_game_ids: List[str],
     ):
-        self.generate_game_id()
-        while self.game_id in all_game_ids:  # ensure game ID is unique
-            self.generate_game_id()
+        # self.generate_game_id()
+        # while self.game_id in all_game_ids:  # ensure game ID is unique
+        #     self.generate_game_id()
 
+        self.game_id = game_id
         self.owner_id = owner_id
+        self.owner_name = owner_name
         self.player_responses: Dict[str, Optional[int]] = {self.owner_id: None}   # responses from players
         self.questions: List[Any] = []  # to be loaded with quiz data
         self.current_question_index = -1  # index of current question
@@ -55,13 +58,17 @@ class Game:
         # check for response from all players for current q
         return all(response is not None for response in self.player_responses.values())
 
-    def __str__(self):
+    def info(self):
         return (
             f"Game ID: {self.game_id}, "
-            f"Owner: {self.owner_id}, "
+            f"Owner: {self.owner_name}, "
             f"Players: {" ".join(self.player_responses.keys())}, "
             f"Current Question: {self.current_question_index + 1}/{len(self.questions)}"
         )
+
+    def __str__(self):
+        return f"id: {self.game_id} owner: {self.owner_name} curr q: {sum([1 if not None else 0 for val in self.player_responses.values()])}/{len(self.player_responses.keys())} all qs: {self.current_question_index + 1}/{len(self.questions)}"
+
     def __eq__(self, other: Any):
         if isinstance(other, str):
             return self.game_id == other

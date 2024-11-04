@@ -11,6 +11,7 @@ import ipaddress
 from src.messages import send_message, receive_message, MOCKS
 from src.server.player_class import Player
 from src.server.game_class import Game
+from src.server.quiz_loader import QuizDataLoader
 
 # configure logging
 logging.basicConfig(level=logging.INFO, format="[%(levelname)s] - %(message)s")
@@ -28,10 +29,13 @@ class Server:
         self.curr_games: List[Game] = []
         self.client_mapping = {}
 
-    def print_players(self):
+    def print_info(self):
         print("\nPlayers:")
         for i, player in enumerate(self.players):
             print(f"{i + 1}. {str(player)}")
+        print("Games:")
+        for i, game in enumerate(self.curr_games):
+            print(f"{i + 1}. {str(game)}")
         print()
 
     def start(self):
@@ -53,12 +57,12 @@ class Server:
                     # blocking call awaits new connections
                     client_socket, addr = self.server_socket.accept()
                     # new thread for each new connection
+                    self.players.append(Player(client_socket))
                     client_thread = threading.Thread(
                         target=self.handle_client, args=(client_socket, addr)
                     )
                     client_thread.start()
-                    self.players.append(Player(client_socket, self))
-                    self.print_players()
+                    self.print_info()
 
                 except socket.timeout: continue
                 except Exception as e:
@@ -75,7 +79,6 @@ class Server:
     def handle_client(self, client_socket, addr):
         try:
             logging.info(f"New connection from {addr}")
-            self.players.append(Player(client_socket))
 
             send_message(MOCKS["new_connection_prompt"], client_socket)
             while self.running:
@@ -96,7 +99,7 @@ class Server:
                         self.players[pi].name = player_name
 
                         logging.info(f"Player {player_name} wants to start a game named {game_name}")
-                        self.print_players()
+                        self.print_info()
                         self.handle_create_game(msg_obj, self.players[pi].id)
 
                     elif msg_type == "join_game":
@@ -109,18 +112,20 @@ class Server:
 
                     else:
                         logging.error(f"unknown message type from {addr}")
-                        error_message = {"message_type": "error", "message": "unknown message type."}
-                        send_message(error_message, client_socket)
+                        raise Exception("unknown message type")
 
                 except socket.timeout:
                     continue
                 except Exception as e:
                     logging.error(f"error handling client {addr}: {e}")
+                    error_message = {"message_type": "error", "message": str(e)}
+                    send_message(error_message, client_socket)
                     break
         finally:
             self.players.remove(client_socket)
             client_socket.close()
             logging.info(f"connection from {addr} closed")
+            self.print_info()
 
     def get_client_socket_by_id(self, player_id):
         return self.client_mapping.get(player_id)
@@ -128,13 +133,15 @@ class Server:
     # start game
     def handle_create_game(self, msg_obj, player_id):
         pi = self.players.index(player_id)
-        game_id = msg_obj.get("game_id")
-        gi = self.curr_games.index(game_id)
+        game_id = msg_obj.get("game_name", "unknown_game_id")
+        self.print_info()
+        # gi = self.curr_games.index(game_id)
         selected_chapters = msg_obj.get("chapters", [])
 
         try:
             # check if game exists
-            if gi != -1: raise Exception(f"Game {game_id} already exists")
+            # if gi != -1: raise Exception(f"Game {game_id} already exists")
+            self.print_info()
 
             # new game
             new_game = Game(
@@ -144,6 +151,7 @@ class Server:
                 owner_id = player_id
             )
             self.curr_games.append(new_game)  # add new game to curr_games
+            self.print_info()
 
             # confirmation
             response = {
@@ -265,6 +273,7 @@ if __name__ == "__main__":
         # instantiate server based on args
         server = Server(ip, port)
 
+
     # no args -- use defaults
     elif len(sys.argv) == 1:
         logging.info("No arguments passed. Using default IP address and port number")
@@ -276,6 +285,10 @@ if __name__ == "__main__":
             f"Bad arguments: {' '.join(sys.argv)}.\nUsage: server.py [IP address] [port number]"
         )
         exit(1)
+
+    # qd_loader = QuizDataLoader()
+    # qd_loader.load_quiz_files()
+    # qd_data = qd_loader.get_quiz_data()
 
     # start the server!
     server.start()

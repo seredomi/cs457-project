@@ -6,7 +6,7 @@ import uuid
 class Player:
     def __init__(self, sock: socket.socket):
         self.sock = sock
-        self.id = uuid.uuid1()
+        self.id = str(uuid.uuid1())
         self.name = None
         self.curr_game = None
         # self.socket_thread = socket_thread

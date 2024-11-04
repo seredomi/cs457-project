@@ -8,29 +8,10 @@ import json
 import re
 from typing import List
 from src.messages import send_message, receive_message, MOCKS
-from src.client.dialogs import new_connection_dialog, create_game_dialog
+from src.client.dialogs import new_connection_dialog, create_game_dialog, join_game_dialog
 
 # configure logging
 logging.basicConfig(level=logging.INFO, format='[%(levelname)s] - %(message)s')
-
-def join_game_dialog(curr_games: List[str] = [], curr_players: List[str] = []):
-    print("Enter your player name. No spaces or special characters allowed:")
-    player_name = input()
-    while not re.match("^[a-zA-Z0-9_]*$", player_name) or player_name in curr_players or len(player_name) < 1:
-        print("Invalid player name or name already taken. Please try again.")
-        player_name = input()
-
-    print("Enter the game name to join. It should match an existing game name:")
-    game_name = input()
-    while not re.match("^[a-zA-Z0-9_]*$", game_name) or game_name not in curr_games or len(game_name) < 1:
-        print("Game not found or invalid name. Please try again.")
-        game_name = input()
-
-    return {
-        "message_type": "join_game",
-        "player_name": player_name,
-        "game_name": game_name,
-    }
 
 class Client:
     def __init__(self, host='localhost', port=5000):

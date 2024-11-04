@@ -7,8 +7,10 @@ import json
 import uuid
 from typing import List
 import ipaddress
+
 from src.messages import send_message, receive_message, MOCKS
 from src.server.player_class import Player
+from src.server.game_class import Game
 
 # configure logging
 logging.basicConfig(level=logging.INFO, format="[%(levelname)s] - %(message)s")
@@ -74,7 +76,6 @@ class Server:
     # gets called for each incoming connection
     def handle_client(self, client_socket, addr):
         try:
-            player_id = str(addr)
             logging.info(f"New connection from {addr}")
             self.clients.append(client_socket)
 
@@ -98,9 +99,8 @@ class Server:
                         # TODO: actually instantiate the game, add to games, and start it
                         logging.info(f"Player {player_name} wants to start a game named {game_name}")
                         self.print_players()
+                        self.handle_start_game(msg_obj, client_socket, self.players[pi].id)
 
-                    if msg_type == "start_game":
-                        self.handle_start_game(message, client_socket, addr)
                     elif msg_type == "join_game":
                         self.handle_join_game(message, client_socket, addr)
                     else:
@@ -122,17 +122,17 @@ class Server:
         return self.client_mapping.get(player_id)
 
     # start game
-    def handle_start_game(self, message, client_socket, addr):
+    def handle_start_game(self, message, client_socket, player_id):
         try:
             message_obj = json.loads(message)
             game_id = message_obj.get("game_id")
             selected_chapters = message_obj.get("chapters", [])
-            owner_id = str(addr)
+            owner_id = str(player_id)
 
             # check if game exists
             if any(game.game_id == game_id for game in self.curr_games):
-                error_message = {"error": "game ID already exists. try again"}
-                send_message(error_message, client_socket, self.logger)
+                error_message = {"message_type": "error", "message": "game ID already exists. try again"}
+                send_message(error_message, client_socket)
                 return
 
             # new game
@@ -141,19 +141,20 @@ class Server:
                 selected_chapters=selected_chapters,
                 owner_id=owner_id,
                 all_game_ids=[game.game_id for game in self.curr_games],
+                all_questions=[]
             )
             self.curr_games.append(new_game)  # add new game to curr_games
 
             # confirmation
             response = {"status": "game_created", "game_id": game_id}
-            send_message(response, client_socket, self.logger)
-            self.logger.info(f"Game {game_id} created successfully by {owner_id}")
+            send_message(response, client_socket)
+            logging.info(f"Game {game_id} created successfully by {owner_id}")
 
             self.broadcast_game_state(new_game)  # broadcast
 
         except json.JSONDecodeError:
             error_message = {"error": "invalid msg format. couldn't parse."}
-            send_message(error_message, client_socket, self.logger)
+            send_message(error_message, client_socket)
 
     # join game
     def handle_join_game(self, message, client_socket, addr):
@@ -172,8 +173,8 @@ class Server:
             game.add_player(player_id)
 
             response = {"status": "joined_game", "game_id": game_id}
-            send_message(response, client_socket, self.logger)
-            self.logger.info(f"Player {addr} joined game {game_id}")
+            send_message(response, client_socket)
+            logging.info(f"Player {addr} joined game {game_id}")
 
             self.broadcast_game_state(game)
 
@@ -185,14 +186,13 @@ class Server:
     def delete_game(self, game_id):
         try:
             # find game by game_id in curr_games
-            game = next((g for g in self.curr_games if g.game_id == game_id), None)
-            if not game:
+            gi = self.curr_games.index(game_id)
+            if gi == -1:
                 logging.error(f"game {game_id} not found for deletion.")
                 return
-
-            # remove game from curr_games
-            self.curr_games.remove(game)
+            self.curr_games.pop(gi)
             logging.info(f"game {game_id} deleted successfully.")
+
             # notify all connected players in game about deletion
             game_state = {"message_type": "game_deleted", "game_id": game_id}
             for player_id in game.connected_players:

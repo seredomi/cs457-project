@@ -57,3 +57,22 @@ def create_game_dialog(available_chapters: List[int] = [1, 2, 3], max_questions:
         "chapters": chapters,
         "num_questions": num_questions,
     }
+
+def join_game_dialog(curr_games: List[str] = [], curr_players: List[str] = []):
+    print("Enter your player name. No spaces or special characters allowed:")
+    player_name = input()
+    while not re.match("^[a-zA-Z0-9_]*$", player_name) or player_name in curr_players or len(player_name) < 1:
+        print("Invalid player name or name already taken. Please try again.")
+        player_name = input()
+
+    print("Enter the game name to join. It should match an existing game name:")
+    game_name = input()
+    while not re.match("^[a-zA-Z0-9_]*$", game_name) or game_name not in curr_games or len(game_name) < 1:
+        print("Game not found or invalid name. Please try again.")
+        game_name = input()
+
+    return {
+        "message_type": "join_game",
+        "player_name": player_name,
+        "game_name": game_name,
+    }

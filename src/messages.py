@@ -1,6 +1,7 @@
 import json
 import os
 import random
+import socket
 from jsonschema import validate, ValidationError
 import logging
 from typing import Dict, Any
@@ -46,7 +47,7 @@ def receive_message(message: str, socket):
         logging.error(f"Invalid {message_type} message: {e}")
         socket.send(json.dumps({"error": str(e)}).encode('utf-8'))
 
-def send_message(message: Dict[str, Any], socket):
+def send_message(message: Dict[str, Any], socket: socket.socket):
     message_type = message.get('message_type', 'unknown')
 
     # validate against schema

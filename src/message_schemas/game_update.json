@@ -10,10 +10,18 @@
         },
         "subtype": {
             "type": "string",
-            "pattern": "^(player_join|player_leave|game_end|response_update)$"
+            "pattern": "^(game_created|player_join|player_leave|game_end|response_update)$"
         },
         "message": {
             "description": "descriptive message",
+            "type": "string"
+        },
+        "game_id": {
+            "description": "game id",
+            "type": "string"
+        },
+        "player_id": {
+            "description": "player id",
             "type": "string"
         },
         "success_message": {
@@ -21,6 +29,6 @@
             "type": "string"
         }
     },
-    "required": ["message_type", "subtype", "message"],
+    "required": ["message_type", "subtype"],
     "additionalProperties": true
 }

@@ -4,12 +4,12 @@ import socket
 import uuid
 
 class Player:
-    def __init__(self, sock: socket.socket, socket_thread):
+    def __init__(self, sock: socket.socket):
         self.sock = sock
         self.id = uuid.uuid1()
         self.name = None
         self.curr_game = None
-        self.socket_thread = socket_thread
+        # self.socket_thread = socket_thread
 
     def __str__(self):
         return f"{self.name if self.name else "no_name"} in game {self.curr_game if self.curr_game else "no_game"} {self.sock.getpeername()}"

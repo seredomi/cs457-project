@@ -8,7 +8,7 @@ import json
 import re
 from typing import List
 from src.messages import send_message, receive_message, MOCKS
-from src.client.dialogs import new_connection_dialog, create_game_dialog, join_game_dialog
+from src.client.dialogs import new_connection_dialog, create_game_dialog, join_game_dialog, quiz_question_dialog
 
 # configure logging
 logging.basicConfig(level=logging.INFO, format='[%(levelname)s] - %(message)s')
@@ -84,6 +84,16 @@ class Client:
                         send_message(join_game, self.sock)
                     elif decision == 3:
                         self.disconnect()
+                
+                elif msg_type == "quiz_question":
+                    # use quiz_question_dialog to get the user answer
+                    user_answer = quiz_question_dialog(msg_obj)
+                    answer_message = {
+                        "message_type": "quiz_answer",
+                        "question": msg_obj.get("question"),
+                        "answer": user_answer
+                    }
+                    send_message(answer_message, self.sock)
 
             except socket.timeout: continue
             except Exception as e:

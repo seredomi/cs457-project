@@ -4,52 +4,39 @@ import threading
 import logging
 import time
 import ipaddress
+import json
 import re
 from typing import List
 from src.messages import send_message, receive_message, MOCKS
+from src.client.dialogs import new_connection_dialog, create_game_dialog, join_game_dialog
 
 # configure logging
 logging.basicConfig(level=logging.INFO, format='[%(levelname)s] - %(message)s')
 
-def join_game_dialog(curr_games: List[str] = [], curr_players: List[str] = []):
-    print("Enter your player name. No spaces or special characters allowed:")
-    player_name = input()
-    while not re.match("^[a-zA-Z0-9_]*$", player_name) or player_name in curr_players or len(player_name) < 1:
-        print("Invalid player name or name already taken. Please try again.")
-        player_name = input()
-
-    print("Enter the game name to join. It should match an existing game name:")
-    game_name = input()
-    while not re.match("^[a-zA-Z0-9_]*$", game_name) or game_name not in curr_games or len(game_name) < 1:
-        print("Game not found or invalid name. Please try again.")
-        game_name = input()
-
-    return {
-        "message_type": "join_game",
-        "player_name": player_name,
-        "game_name": game_name,
-    }
-
 class Client:
-    def __init__(self, host='localhost', port=50000):
+    def __init__(self, host='localhost', port=5000):
         self.host: str = host
         self.port: int = port
-        self.client_socket: socket.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.sock: socket.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.running: bool = False
         self.receive_thread = None
+        self.curr_games = []
+        self.max_questions = -1
+        self.available_chapters = []
 
     # connect to server
     def connect(self):
         try:
             logging.info(f"Attempting to connect to {self.host}:{self.port}")
-            self.client_socket.connect((self.host, self.port))
+            self.sock.connect((self.host, self.port))
             logging.info(f"Connected to server at {self.host}:{self.port}")
             self.running = True
             # new thread for receiving messages
-            self.receive_thread = threading.Thread(target=self.receive_messages)
-            self.receive_thread.start()
+            # self.receive_thread = threading.Thread(target=self.receive_messages)
+            # self.receive_thread.start()
+            self.receive_messages()
             # loop for sending messages
-            self.send_messages()
+            # self.send_messages()
         except ConnectionRefusedError: logging.error("Connection failed. Server might be offline.")
         except Exception as e: logging.error(f"An error occurred: {e}")
         return
@@ -58,19 +45,46 @@ class Client:
     def receive_messages(self):
         while self.running:
             try:
-                self.client_socket.settimeout(1.0)
+                self.sock.settimeout(1.0)
                 # blocking call awaits message from server
-                message = self.client_socket.recv(1024).decode('utf-8')
+                message = self.sock.recv(1024).decode('utf-8')
                 if not message:
                     logging.info("Server connection closed.")
                     self.running = False
                     break
+                receive_message(message, self.sock)
+                msg_obj = json.loads(message)
+                logging.info(f"Received message: {message}")
+
+                msg_type = msg_obj.get("message_type")
+
                 # server has shut down
-                if message == "SERVER_SHUTDOWN":
+                if msg_type == "server_shutdown":
                     logging.info("Server is shutting down. Press enter to exit")
                     self.running = False
                     break
-                logging.info(f"Received message: {message}")
+                if msg_type == "new_connection_prompt":
+                    self.curr_players = msg_obj.get("current_players")
+                    self.curr_games = msg_obj.get("current_games")
+                    self.max_questions = msg_obj.get("max_questions")
+                    self.available_chapters = msg_obj.get("chapters_available")
+
+                    decision = -1
+                    decision = new_connection_dialog(len(self.curr_games) > 0)
+                    if decision == 1:
+                        create_game = create_game_dialog(
+                            self.available_chapters,
+                            self.max_questions,
+                            self.curr_games,
+                            self.curr_players
+                        )
+                        send_message(create_game, self.sock)
+                    elif decision == 2:
+                        join_game = join_game_dialog(self.curr_games)
+                        send_message(join_game, self.sock)
+                    elif decision == 3:
+                        self.disconnect()
+
             except socket.timeout: continue
             except Exception as e:
                 if self.running:
@@ -79,48 +93,10 @@ class Client:
                 break
         return
 
-    # loop runs to take user input and send to server
-    def send_messages(self):
-        temp_shortcut_map = {
-            'ncp': "new_connection_prompt",
-            'sg': "start_game",
-            'stg': "stop_game",
-            'jg': "join_game",
-            'qq': "quiz_question",
-            'qa': "quiz_answer",
-            'r': "results"
-        }
-
-        while self.running:
-            try:
-                # time sleep is a temp fix for race condition of server response coming in after prompt, which looks confusing for user
-                # in the future, info logs will only be printed via a -v flag, so this shouldn't be an issue
-                time.sleep(0.1)
-                message = input("\nEnter message type\n" + "\n".join([f" - '{k}' to send {v}" for k, v in temp_shortcut_map.items()]) + "\n' - q' to exit\n")
-                message = message.lower()
-                if message == 'q':
-                    break
-                elif message == 'jg':
-                # Call join_game_dialog to get input details for joining a game
-                    join_game_data = join_game_dialog(curr_games=["game1", "game2"], curr_players=["player1", "player2"])
-                    send_message(join_game_data, self.client_socket)
-                elif message in temp_shortcut_map:
-                    send_message(MOCKS[temp_shortcut_map[message]], self.client_socket)
-                else:
-                    logging.error("Invalid input. Please try again.")
-                    continue
-
-
-            except Exception as e:
-                if self.running: logging.error(f"Error sending message: {e}")
-                self.running = False
-                break
-        return
-
     def disconnect(self):
         logging.info("Disconnecting from server...")
         self.running = False
-        self.client_socket.close()
+        self.sock.close()
 
 if __name__ == "__main__":
     client= None

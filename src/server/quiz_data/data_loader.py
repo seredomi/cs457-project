@@ -3,10 +3,13 @@ import logging
 import os
 from typing import List, Dict, Union
 
+QUIZ_DATA_DIR = 'src/server/quiz_data'
+
 class QuizDataLoader:
-    def __init__(self, directory: str):
+    def __init__(self, directory: str = QUIZ_DATA_DIR):
         self.directory = directory
         self.quiz_data: List[Dict[str, Union[int, List[Dict]]]] = []  # adjust
+        self.load_quiz_files()
 
     def load_quiz_files(self):
         logging.info(f"loading quiz data from directory: {self.directory}")
@@ -29,6 +32,7 @@ class QuizDataLoader:
                 except (json.JSONDecodeError, FileNotFoundError) as e:
                     logging.error(f"error loading file {filename}: {e}")
 
+    # TODO: use json validator lol
     def validate_quiz_format(self, data) -> bool:
         if "number" not in data or "questions" not in data:
             logging.error(f"missing 'number' or 'questions' in quiz data: {data}")

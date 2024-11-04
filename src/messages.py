@@ -1,6 +1,7 @@
 import json
 import os
 import random
+import socket
 from jsonschema import validate, ValidationError
 import logging
 from typing import Dict, Any
@@ -46,7 +47,7 @@ def receive_message(message: str, socket):
         logging.error(f"Invalid {message_type} message: {e}")
         socket.send(json.dumps({"error": str(e)}).encode('utf-8'))
 
-def send_message(message: Dict[str, Any], socket):
+def send_message(message: Dict[str, Any], socket: socket.socket):
     message_type = message.get('message_type', 'unknown')
 
     # validate against schema
@@ -65,16 +66,17 @@ def send_message(message: Dict[str, Any], socket):
 MOCKS = {
     "new_connection_prompt": {
         "message_type": "new_connection_prompt",
-        "welcome_message": "Welcome to the server!",
-        "instructions": "Enter your name and press enter.",
-        "games_available": ["abc", "def", "ghi"],
-        "chapters": [1, 2, 3]
+        "current_games": ["abc", "def", "ghi"],
+        "current_players": ["jim", "andy", "max"],
+        "chapters_available": [1, 2, 3],
+        "max_questions": 20
     },
-    "start_game": {
+    "create_game": {
         "message_type": "start_game",
         "player_name": "Bob",
         "is_private": False,
-        "chapters": [1, 3]
+        "chapters": [1, 3],
+        "num_questions": 10
     },
     "join_game": {
         "message_type": "join_game",

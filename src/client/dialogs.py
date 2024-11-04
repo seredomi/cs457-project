@@ -26,7 +26,7 @@ def create_game_dialog(available_chapters: List[int] = [1, 2, 3], max_questions:
     print("enter a game name. can't be a current game name. no spaces or funny characters allowed ")
     game_name = input()
     while not re.match("^[a-zA-Z0-9_]*$", game_name) or game_name in curr_games or len(game_name) < 1:
-        print("game already exists. please try again.")
+        print("invalid game name. please try again.")
         game_name = input()
 
     print("select chapters from the following list: " + " ".join([str(ch) for ch in available_chapters]))
@@ -50,6 +50,7 @@ def create_game_dialog(available_chapters: List[int] = [1, 2, 3], max_questions:
 
     return {
         "message_type": "create_game",
+        "game_name": game_name,
         "player_name": player_name,
         "is_private": False,
         "password": "",

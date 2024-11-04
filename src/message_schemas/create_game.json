@@ -12,6 +12,10 @@
             "description": "name set by player",
             "type": "string"
         },
+        "game_name": {
+            "description": "name set by player",
+            "type": "string"
+        },
         "is_private": {
             "description": "is the game private",
             "type": "boolean"

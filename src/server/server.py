@@ -4,6 +4,7 @@ import threading
 import signal
 import logging
 import json
+from typing_extensions import NewType
 import uuid
 from typing import List
 import ipaddress
@@ -80,7 +81,15 @@ class Server:
         try:
             logging.info(f"New connection from {addr}")
 
-            send_message(MOCKS["new_connection_prompt"], client_socket)
+            new_connection_prompt = {
+                "message_type": "new_connection_prompt",
+                "current_games": [game.game_id for game in self.curr_games] if len(self.curr_games) > 0 else [],
+                "current_players": [player.name if player.name is not None else "" for player in self.players] if len(self.players) > 0 else [],
+                "chapters_available": [1, 2],
+                "max_questions": 20
+            }
+            send_message(new_connection_prompt, client_socket)
+
             while self.running:
                 try:
                     client_socket.settimeout(1.0)
@@ -148,10 +157,10 @@ class Server:
                 game_id=game_id,
                 selected_chapters=selected_chapters,
                 all_game_ids=[game.game_id for game in self.curr_games],
-                owner_id = player_id
+                owner_id = player_id,
+                owner_name = self.players[pi].name
             )
             self.curr_games.append(new_game)  # add new game to curr_games
-            self.print_info()
 
             # confirmation
             response = {
@@ -163,6 +172,7 @@ class Server:
             }
             logging.info(f"Game {game_id} created successfully by {player_id}")
             self.broadcast(response)
+            self.print_info()
 
         except Exception as e:
             error_message = {"message_type": "error", "message": f"error creating game: {e}"}
@@ -171,7 +181,7 @@ class Server:
     # join game
     def handle_join_game(self, msg_obj, player_id):
         pi = self.players.index(player_id)
-        game_id = msg_obj.get("game_id")
+        game_id = msg_obj.get("game_name")
         gi = self.curr_games.index(game_id)
 
         try:
@@ -191,6 +201,7 @@ class Server:
             logging.info(f"Player {player_id} joined game {game_id}")
 
             self.broadcast(response)
+            self.print_info()
 
         except Exception as e:
             error_message = {"message_type": "error", "message": f"error joining game: {e}"}

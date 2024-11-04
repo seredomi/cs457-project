@@ -67,7 +67,7 @@ class Game:
         )
 
     def __str__(self):
-        return f"id: {self.game_id} owner: {self.owner_name} curr q: {sum([1 if not None else 0 for val in self.player_responses.values()])}/{len(self.player_responses.keys())} all qs: {self.current_question_index + 1}/{len(self.questions)}"
+        return f"id: {self.game_id} owner: {self.owner_name} curr q: {sum([1 if not val is None else 0 for val in self.player_responses.values()])}/{len(self.player_responses.keys())} all qs: {self.current_question_index + 1}/{len(self.questions)}"
 
     def __eq__(self, other: Any):
         if isinstance(other, str):

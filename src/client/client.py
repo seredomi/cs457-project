@@ -67,13 +67,21 @@ class Client:
                     self.curr_players = msg_obj.get("current_players")
                     self.curr_games = msg_obj.get("current_games")
                     self.max_questions = msg_obj.get("max_questions")
-                    self.available_chapters = msg_obj.get("available_chapters")
+                    self.available_chapters = msg_obj.get("chapters_available")
 
                     decision = -1
-                    decision = new_connection_dialog()
+                    decision = new_connection_dialog(len(self.curr_games) > 0)
                     if decision == 1:
-                        create_game = create_game_dialog()
+                        create_game = create_game_dialog(
+                            self.available_chapters,
+                            self.max_questions,
+                            self.curr_games,
+                            self.curr_players
+                        )
                         send_message(create_game, self.sock)
+                    elif decision == 2:
+                        join_game = join_game_dialog(self.curr_games)
+                        send_message(join_game, self.sock)
                     elif decision == 3:
                         self.disconnect()
 

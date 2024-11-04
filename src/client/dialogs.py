@@ -1,22 +1,24 @@
 from typing import List
 import re
 
-def new_connection_dialog():
+def new_connection_dialog(games_exist: bool = False):
+    print("\n-------------------------------------------")
     print("welcome. please select an option:")
     print("1. start a new game")
-    print("2. join an existing game")
+    if games_exist: print("2. join an existing game")
     print("3. exit")
     option = input("Enter the number of your choice: ")
-    if option not in ['1', '2', '3']:
+    options = ['1', '3']
+    if games_exist: options.append('2')
+    if option not in options:
         print("Invalid choice. please try again.")
-        return new_connection_dialog()
-    if option == '2':
-        print("not implemented yet. please select another option.")
         return new_connection_dialog()
     return int(option)
 
 def create_game_dialog(available_chapters: List[int] = [1, 2, 3], max_questions: int = 20, curr_games: List[str] = [], curr_players: List[str] = []):
 
+    print("\n-------------------------------------------")
+    print("creating a new game...\n")
     print("enter a player name. no spaces or funny characters allowed ")
     player_name = input()
     while not re.match("^[a-zA-Z0-9_]*$", player_name) or player_name in curr_players or len(player_name) < 1:
@@ -59,13 +61,16 @@ def create_game_dialog(available_chapters: List[int] = [1, 2, 3], max_questions:
     }
 
 def join_game_dialog(curr_games: List[str] = [], curr_players: List[str] = []):
+
+    print("\n-------------------------------------------")
+    print("joining an existing game...\n")
     print("Enter your player name. No spaces or special characters allowed:")
     player_name = input()
     while not re.match("^[a-zA-Z0-9_]*$", player_name) or player_name in curr_players or len(player_name) < 1:
-        print("Invalid player name or name already taken. Please try again.")
+        print("invalid player name or name already taken. Please try again.")
         player_name = input()
 
-    print("Enter the game name to join. It should match an existing game name:")
+    print(f"enter the game name to join. available games: {', '.join(curr_games)}")
     game_name = input()
     while not re.match("^[a-zA-Z0-9_]*$", game_name) or game_name not in curr_games or len(game_name) < 1:
         print("Game not found or invalid name. Please try again.")

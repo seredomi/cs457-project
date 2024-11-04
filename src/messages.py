@@ -65,11 +65,12 @@ def send_message(message: Dict[str, Any], socket):
 MOCKS = {
     "new_connection_prompt": {
         "message_type": "new_connection_prompt",
-        "games_available": ["abc", "def", "ghi"],
+        "current_games": ["abc", "def", "ghi"],
+        "current_players": ["jim", "andy", "max"],
         "chapters_available": [1, 2, 3],
         "max_questions": 20
     },
-    "start_game": {
+    "create_game": {
         "message_type": "start_game",
         "player_name": "Bob",
         "is_private": False,

@@ -10,7 +10,10 @@ def new_connection_dialog():
     if option not in ['1', '2', '3']:
         print("Invalid choice. please try again.")
         return new_connection_dialog()
-    return option
+    if option == '2':
+        print("not implemented yet. please select another option.")
+        return new_connection_dialog()
+    return int(option)
 
 def create_game_dialog(available_chapters: List[int] = [1, 2, 3], max_questions: int = 20, curr_games: List[str] = [], curr_players: List[str] = []):
 
@@ -40,16 +43,16 @@ def create_game_dialog(available_chapters: List[int] = [1, 2, 3], max_questions:
     num_questions = 0
     try: num_questions = int(input())
     except: pass
-    while num_questions < 1 or num_questions > num_questions:
+    while num_questions < 1 or num_questions > max_questions:
         print("invalid input. please try again.")
-        try: max_questions = int(input())
+        try: num_questions = int(input())
         except: pass
 
     return {
-        "message_type": "start_game",
+        "message_type": "create_game",
         "player_name": player_name,
         "is_private": False,
         "password": "",
         "chapters": chapters,
-        "num_questions": max_questions,
+        "num_questions": num_questions,
     }

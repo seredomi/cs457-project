@@ -16,6 +16,14 @@
                 "type": "string"
             }
         },
+        "current_players": {
+            "description": "list of current player IDs",
+            "type": "array",
+            "items": {
+                "description": "a player ID",
+                "type": "string"
+            }
+        },
         "chapters_available": {
             "description": "list of chapters available",
             "type": "array",
@@ -35,10 +43,10 @@
     },
     "required": [
         "message_type",
-        "games_available",
+        "current_games",
+        "current_players",
         "chapters_available",
-        "max_questions",
-        "success_message"
+        "max_questions"
     ],
     "additionalProperties": false
 }

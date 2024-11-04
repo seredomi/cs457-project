@@ -1,12 +1,12 @@
 {
     "$id": "https://example.com/address.schema.json",
     "$schema": "http://json-schema.org/draft-07/schema#",
-    "title": "start_game",
+    "title": "create_game",
     "type": "object",
     "properties": {
         "message_type": {
             "type": "string",
-            "pattern": "^start_game$"
+            "pattern": "^create_game$"
         },
         "player_name": {
             "description": "name set by player",

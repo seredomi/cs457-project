@@ -63,6 +63,7 @@ class Client:
         temp_shortcut_map = {
             'ncp': "new_connection_prompt",
             'sg': "start_game",
+            'stg': "stop_game",
             'jg': "join_game",
             'qq': "quiz_question",
             'qa': "quiz_answer",

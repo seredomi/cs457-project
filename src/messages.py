@@ -76,6 +76,10 @@ MOCKS = {
         "is_private": False,
         "chapters": [1, 3]
     },
+    "stop_game": {
+        "message_type": "stop_game",
+        "player_name": "Bob"
+    },
     "join_game": {
         "message_type": "join_game",
         "player_name": "Alice",

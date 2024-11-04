@@ -11,7 +11,7 @@ import ipaddress
 from src.messages import send_message, receive_message, MOCKS
 from src.server.player_class import Player
 from src.server.game_class import Game
-from src.server.quiz_loader import QuizDataLoader
+from src.server.quiz_data.data_loader import QuizDataLoader
 
 # configure logging
 logging.basicConfig(level=logging.INFO, format="[%(levelname)s] - %(message)s")

@@ -6,33 +6,23 @@ class Game:
     def __init__(
         self,
         game_id: str,
-        selected_chapters: List[int],
         owner_id: str,
         owner_name: str,
-        all_game_ids: List[str],
+        questions: List[Any],
     ):
-        # self.generate_game_id()
-        # while self.game_id in all_game_ids:  # ensure game ID is unique
-        #     self.generate_game_id()
-
         self.game_id = game_id
         self.owner_id = owner_id
         self.owner_name = owner_name
         self.player_responses: Dict[str, Optional[int]] = {
             self.owner_id: None
         }  # responses from players
-        self.questions: List[Any] = []  # to be loaded with quiz data
+        self.questions = questions
         self.current_question_index = -1  # index of current question
-        self.selected_chapters = selected_chapters
 
     def generate_game_id(self):
         self.game_id: str = "".join(
             [chr(random.randint(65, 90)) for _ in range(3)]
         )  # a-z
-
-    def load_questions(self, questions: List[Any]):
-        # load questions from quizdataloader
-        self.questions = []
 
     def add_player(self, player_id: str):
         if player_id not in self.player_responses:

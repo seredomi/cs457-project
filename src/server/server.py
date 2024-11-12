@@ -1,8 +1,10 @@
+from logging import PercentStyle
 import sys
 import socket
 import threading
 import signal
 import json
+import random
 from typing import List
 import ipaddress
 from prettytable import PrettyTable
@@ -36,10 +38,8 @@ class Server:
         self.populate_chapters_available()
 
     def populate_chapters_available(self):
-        for i in range(len(self.quiz_data)):
-            self.chapters_available[str(self.quiz_data[i]["number"])] = len(
-                self.quiz_data[i]["questions"]
-            )
+        for chapter, questions in self.quiz_data.items():
+            self.chapters_available[chapter] = len(questions)
 
     def print_info(self):
         player_table = PrettyTable()
@@ -179,8 +179,28 @@ class Server:
         pi = self.players.index(player_id)
         game_id = msg_obj.get("game_name", "unknown_game_id")
         self.print_info()
-        # gi = self.curr_games.index(game_id)
+
+        # client has returned a set of chapters and the total number of questions to be included
+        # we need to create a subset of self.quiz_data that includes only the selected chapters
+        # and also only the number of questions requested, with respect to the number of questions in each chapter
         selected_chapters = msg_obj.get("chapters", [])
+        num_questions = msg_obj.get("num_questions", 0)
+        total_possible_questions = sum(
+            [len(self.quiz_data[chapter]) for chapter in selected_chapters]
+        )
+        percentage_per_chapter = num_questions / total_possible_questions
+        questions = []
+        for i, ch in enumerate(selected_chapters):
+            full_chapter = self.quiz_data[ch]
+            random.shuffle(full_chapter)
+            questions.extend(full_chapter[0:int(percentage_per_chapter * len(full_chapter))])
+
+            # if last chapter and not enough questions, add more
+            if i == len(selected_chapters) - 1 and len(questions) < num_questions:
+                start = int(percentage_per_chapter * len(full_chapter))
+                remainder = num_questions - len(questions)
+                end = start + remainder if start + remainder < len(full_chapter) else len(full_chapter)
+                questions.extend(full_chapter[start : end])
 
         try:
             # check if game exists
@@ -190,10 +210,9 @@ class Server:
             # new game
             new_game = Game(
                 game_id=game_id,
-                selected_chapters=selected_chapters,
-                all_game_ids=[game.game_id for game in self.curr_games],
                 owner_id=player_id,
                 owner_name=self.players[pi].name,
+                questions=questions,
             )
             self.curr_games.append(new_game)  # add new game to curr_games
 

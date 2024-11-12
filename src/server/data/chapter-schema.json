@@ -2,11 +2,9 @@
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "title": "CS 457 Chapter Review Quiz",
     "type": "object",
-    "number": {
-        "type": "integer",
-        "description": "the chapter number",
-        "minimum": 1,
-        "maximum": 7
+    "chapter": {
+        "type": "string",
+        "description": "the chapter number"
     },
     "questions": {
         "type": "array",
@@ -15,9 +13,18 @@
             "type": "object",
             "description": "question object",
             "properties": {
-                "number": { "type": "string", "description": "the number of the question in the canvas quiz" },
-                "topic": { "type": "string", "description": "the bold broader topic ex: 1.1-3 What is a protocol?" },
-                "question": { "type": "string", "description": "the text of the question" },
+                "number": {
+                    "type": "string",
+                    "description": "the number of the question in the canvas quiz"
+                },
+                "topic": {
+                    "type": "string",
+                    "description": "the bold broader topic ex: 1.1-3 What is a protocol?"
+                },
+                "question": {
+                    "type": "string",
+                    "description": "the text of the question"
+                },
                 "offered-answers": {
                     "type": "array",
                     "description": "array of offered possible answers",
@@ -44,5 +51,5 @@
         "minItems": 1,
         "uniqueItems": true
     },
-    "required": ["number", "questions"]
+    "required": ["chapter", "questions"]
 }

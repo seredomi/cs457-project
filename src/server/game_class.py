@@ -1,6 +1,7 @@
 from typing import List, Any, Dict, Optional
 import random
 
+
 class Game:
     def __init__(
         self,

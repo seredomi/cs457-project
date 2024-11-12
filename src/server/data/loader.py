@@ -1,16 +1,23 @@
 import json
+from jsonschema import validate, ValidationError
 import logging
 import os
-from typing import List, Dict, Union
 
-QUIZ_DATA_DIR = "src/server/quiz_data"
+QUIZ_DATA_DIR = "src/server/data/chapters/"
+QUIZ_SCHEMA = "src/server/data/chapter-schema.json"
 
 
 class QuizDataLoader:
-    def __init__(self, directory: str = QUIZ_DATA_DIR):
+    def __init__(self, logger, directory: str = QUIZ_DATA_DIR):
+        self.logger = logger
         self.directory = directory
-        self.quiz_data: List[Dict[str, Union[int, List[Dict]]]] = []  # adjust
+        self.quiz_schema = self.load_quiz_schema()
+        self.quiz_data = []
         self.load_quiz_files()
+
+    def load_quiz_schema(self):
+        with open(QUIZ_SCHEMA, "r") as file:
+            return json.load(file)
 
     def load_quiz_files(self):
         logging.info(f"loading quiz data from directory: {self.directory}")
@@ -33,26 +40,10 @@ class QuizDataLoader:
                 except (json.JSONDecodeError, FileNotFoundError) as e:
                     logging.error(f"error loading file {filename}: {e}")
 
-    # TODO: use json validator lol
-    def validate_quiz_format(self, data) -> bool:
-        if "number" not in data or "questions" not in data:
-            logging.error(f"missing 'number' or 'questions' in quiz data: {data}")
+    def validate_quiz_format(self, data):
+        try:
+            validate(instance=data, schema=self.quiz_schema)
+        except ValidationError as e:
+            logging.error(f"Invalid quiz format: {e}")
             return False
-
-        # validate question structure
-        for question in data["questions"]:
-            if not all(
-                key in question
-                for key in ("number", "topic", "question", "offered-answers")
-            ):
-                logging.error(f"missing required keys in quiz question: {question}")
-                return False
-            if not isinstance(question["offered-answers"], list) or not isinstance(
-                question["question"], str
-            ):
-                logging.error(f"invalid types in quiz question: {question}")
-                return False
         return True
-
-    def get_quiz_data(self) -> List[Dict[str, Union[int, List[Dict]]]]:
-        return self.quiz_data

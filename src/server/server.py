@@ -10,7 +10,7 @@ from prettytable import PrettyTable
 from src.utils.messages import send_message, receive_message
 from src.server.player_class import Player
 from src.server.game_class import Game
-from src.server.quiz_data.data_loader import QuizDataLoader
+from src.server.data.loader import QuizDataLoader
 from src.utils.display import print_header
 
 # configure logging
@@ -31,6 +31,7 @@ class Server:
         self.running = False
         self.curr_games: List[Game] = []
         self.logger = logger
+        self.quiz_data = QuizDataLoader(self.logger).quiz_data
 
     def print_info(self):
         player_table = PrettyTable()
@@ -338,9 +339,8 @@ if __name__ == "__main__":
         )
         exit(1)
 
-    qd_loader = QuizDataLoader()
-    qd_loader.load_quiz_files()
-    qd_data = qd_loader.get_quiz_data()
+    with open("temp.json", "w") as f:
+        json.dump(server.quiz_data, f, indent=4)
 
     # start the server!
     server.start()

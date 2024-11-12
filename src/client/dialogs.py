@@ -70,13 +70,17 @@ def create_game_dialog(
         except Exception:
             pass
 
-    print(f"\nenter the total number of questions. max is {sum(ch['questions'] for ch in available_chapters)}")
+    print(
+        f"\nenter the total number of questions. max is {sum(ch['questions'] for ch in available_chapters)}"
+    )
     num_questions = 0
     try:
         num_questions = int(input())
     except Exception:
         pass
-    while num_questions < 1 or num_questions > sum(ch["questions"] for ch in available_chapters):
+    while num_questions < 1 or num_questions > sum(
+        ch["questions"] for ch in available_chapters
+    ):
         print("\ninvalid input. please try again.")
         try:
             num_questions = int(input())

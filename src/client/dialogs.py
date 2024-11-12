@@ -22,10 +22,7 @@ def new_connection_dialog(games_exist: bool = False):
 
 
 def create_game_dialog(
-    available_chapters: List[Dict[str, int]] = [
-        {"chapter": 1, "questions": 20},
-        {"chapter": 2, "questions": 5},
-    ],
+    available_chapters: Dict[str, int] = {"1": 20, "2": 5},
     curr_games: List[str] = [],
     curr_players: List[str] = [],
 ):
@@ -54,33 +51,31 @@ def create_game_dialog(
 
     print(
         "\nselect chapters from the following list: "
-        + " ".join([str(ch) for ch in available_chapters])
+        + " ".join([ch for ch in available_chapters])
     )
     print("enter chapters as a space separated list (ex: '1 3')")
     chapters = []
     try:
-        chapters = [int(ch) for ch in input().split()]
+        chapters = [ch for ch in input().split()]
     except Exception:
         pass
 
     while len(chapters) < 1 or (not all(ch in available_chapters for ch in chapters)):
         print("\ninvalid input. please try again.")
         try:
-            chapters = [int(ch) for ch in input().split()]
+            chapters = [ch for ch in input().split()]
         except Exception:
             pass
 
-    print(
-        f"\nenter the total number of questions. max is {sum(ch['questions'] for ch in available_chapters)}"
-    )
+    chapters = {ch: available_chapters[ch] for ch in chapters}
+
+    print(f"\nenter the total number of questions. max is {sum(chapters.values())}")
     num_questions = 0
     try:
         num_questions = int(input())
     except Exception:
         pass
-    while num_questions < 1 or num_questions > sum(
-        ch["questions"] for ch in available_chapters
-    ):
+    while num_questions < 1 or num_questions > sum(chapters.values()):
         print("\ninvalid input. please try again.")
         try:
             num_questions = int(input())
@@ -93,7 +88,7 @@ def create_game_dialog(
         "player_name": player_name,
         "is_private": False,
         "password": "",
-        "chapters": chapters,
+        "chapters": [ch for ch in chapters.keys()],
         "num_questions": num_questions,
     }
 

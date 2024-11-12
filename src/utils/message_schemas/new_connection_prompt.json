@@ -26,19 +26,10 @@
         },
         "chapters_available": {
             "description": "list of chapters available",
-            "type": "array",
-            "items": {
-                "description": "chapter - max question objects",
-                "type": "object",
-                "properties": {
-                    "chapter": {
-                        "description": "chapter ",
-                        "type": "integer"
-                    },
-                    "max_questions": {
-                        "description": "maximum number of questions in this chapter",
-                        "type": "integer"
-                    }
+            "type": "object",
+            "patternProperties": {
+                "^[0-9]+$": {
+                    "type": "integer"
                 }
             }
         },
@@ -51,8 +42,7 @@
         "message_type",
         "current_games",
         "current_players",
-        "chapters_available",
-        "max_questions"
+        "chapters_available"
     ],
     "additionalProperties": false
 }

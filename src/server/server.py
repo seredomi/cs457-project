@@ -32,6 +32,14 @@ class Server:
         self.curr_games: List[Game] = []
         self.logger = logger
         self.quiz_data = QuizDataLoader(self.logger).quiz_data
+        self.chapters_available = {}
+        self.populate_chapters_available()
+
+    def populate_chapters_available(self):
+        for i in range(len(self.quiz_data)):
+            self.chapters_available[str(self.quiz_data[i]["number"])] = len(
+                self.quiz_data[i]["questions"]
+            )
 
     def print_info(self):
         player_table = PrettyTable()
@@ -111,17 +119,9 @@ class Server:
 
             new_connection_prompt = {
                 "message_type": "new_connection_prompt",
-                "current_games": [game.game_id for game in self.curr_games]
-                if len(self.curr_games) > 0
-                else [],
-                "current_players": [
-                    player.name if player.name is not None else ""
-                    for player in self.players
-                ]
-                if len(self.players) > 0
-                else [],
-                "chapters_available": [1, 2],
-                "max_questions": 20,
+                "current_games": [game.game_id for game in self.curr_games],
+                "current_players": [player.name for player in self.players],
+                "chapters_available": self.chapters_available,
             }
             send_message(self.logger, new_connection_prompt, client_socket)
 
@@ -338,9 +338,6 @@ if __name__ == "__main__":
             f"Bad arguments: {' '.join(sys.argv)}.\nUsage: server.py [IP address] [port number]"
         )
         exit(1)
-
-    with open("temp.json", "w") as f:
-        json.dump(server.quiz_data, f, indent=4)
 
     # start the server!
     server.start()

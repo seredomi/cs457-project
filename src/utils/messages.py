@@ -3,10 +3,9 @@ import os
 import random
 import socket
 from jsonschema import validate, ValidationError
-import logging
 from typing import Dict, Any
 
-SCHEMAS_DIR = 'src/message_schemas'
+SCHEMAS_DIR = 'src/utils/message_schemas'
 
 # preload SCHEMAS
 def load_schemas():
@@ -20,46 +19,46 @@ def load_schemas():
 SCHEMAS = load_schemas()
 
 # handle messages based on schema
-def receive_message(message: str, socket):
-    logging.info(f"Received message: {message}")
+def receive_message(logger, message: str, socket):
+    logger.debug(f"Received message: {message}")
 
     # parse into object
     try:
         message_obj: Dict[str, Any] = json.loads(message)
     except Exception as e:
-        logging.error(f"Error parsing json message into object: {e}")
+        logger.error(f"Error parsing json message into object: {e}")
         socket.send(json.dumps({"error": "Invalid JSON message"}).encode('utf-8'))
         return
     message_type = message_obj.get('message_type', 'unknown')
 
-    logging.info(f"Processing message of type: {message_type}")
+    logger.debug(f"Processing message of type: {message_type}")
 
     if message_type not in SCHEMAS:
-        logging.error(f"Unknown message type: {message_type}")
+        logger.error(f"Unknown message type: {message_type}")
         socket.send(json.dumps({"error": f"Unknown message type {message_type}"}).encode('utf-8'))
         return
 
     # validate against schema
     try:
         validate(instance=message_obj, schema=SCHEMAS[message_type])
-        logging.info(f"Message of type {message_type} is valid.")
+        logger.debug(f"Message of type {message_type} is valid.")
     except ValidationError as e:
-        logging.error(f"Invalid {message_type} message: {e}")
+        logger.error(f"Invalid {message_type} message: {e}")
         socket.send(json.dumps({"error": str(e)}).encode('utf-8'))
 
-def send_message(message: Dict[str, Any], socket: socket.socket):
+def send_message(logger, message: Dict[str, Any], socket: socket.socket):
     message_type = message.get('message_type', 'unknown')
 
     # validate against schema
     try:
         validate(instance=message, schema=SCHEMAS[message_type])
-        logging.info(f"Message of type {message_type} is valid.")
+        logger.debug(f"Message of type {message_type} is valid.")
     except ValidationError as e:
-        logging.error(f"Invalid {message_type} message: {e}")
+        logger.error(f"Invalid {message_type} message: {e}")
         return
 
     # send it!
-    logging.info(f"Sending message of type: {message_type}")
+    logger.debug(f"Sending message of type: {message_type}")
     socket.send(json.dumps(message).encode('utf-8'))
 
 

@@ -7,14 +7,18 @@ import ipaddress
 import json
 import re
 from typing import List
-from src.messages import send_message, receive_message, MOCKS
+
+
 from src.client.dialogs import new_connection_dialog, create_game_dialog, join_game_dialog, quiz_question_dialog
+from src.utils.messages import send_message, receive_message, MOCKS
+from src.utils.logger import setup_logger
+
 
 # configure logging
-logging.basicConfig(level=logging.INFO, format='[%(levelname)s] - %(message)s')
+logger = setup_logger("client.log")
 
 class Client:
-    def __init__(self, host='localhost', port=5000):
+    def __init__(self, logger, host='localhost', port=5000):
         self.host: str = host
         self.port: int = port
         self.sock: socket.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -23,22 +27,21 @@ class Client:
         self.curr_games = []
         self.max_questions = -1
         self.available_chapters = []
+        self.logger = logger
 
     # connect to server
     def connect(self):
         try:
-            logging.info(f"Attempting to connect to {self.host}:{self.port}")
+            self.logger.info(f"Attempting to connect to {self.host}:{self.port}")
             self.sock.connect((self.host, self.port))
-            logging.info(f"Connected to server at {self.host}:{self.port}")
+            self.logger.info(f"Connected to server at {self.host}:{self.port}")
             self.running = True
+
             # new thread for receiving messages
-            # self.receive_thread = threading.Thread(target=self.receive_messages)
-            # self.receive_thread.start()
             self.receive_messages()
-            # loop for sending messages
-            # self.send_messages()
-        except ConnectionRefusedError: logging.error("Connection failed. Server might be offline.")
-        except Exception as e: logging.error(f"An error occurred: {e}")
+
+        except ConnectionRefusedError: self.logger.error("Connection failed. Server might be offline.")
+        except Exception as e: self.logger.error(f"An error occurred: {e}")
         return
 
     # loop for receiving messages
@@ -49,18 +52,16 @@ class Client:
                 # blocking call awaits message from server
                 message = self.sock.recv(1024).decode('utf-8')
                 if not message:
-                    logging.info("Server connection closed.")
+                    self.logger.info("Server connection closed.")
                     self.running = False
                     break
-                receive_message(message, self.sock)
+                receive_message(self.logger, message, self.sock)
                 msg_obj = json.loads(message)
-                logging.info(f"Received message: {message}")
-
                 msg_type = msg_obj.get("message_type")
 
                 # server has shut down
                 if msg_type == "server_shutdown":
-                    logging.info("Server is shutting down. Press enter to exit")
+                    self.logger.info("Server is shutting down. Press enter to exit")
                     self.running = False
                     break
                 if msg_type == "new_connection_prompt":
@@ -78,13 +79,14 @@ class Client:
                             self.curr_games,
                             self.curr_players
                         )
-                        send_message(create_game, self.sock)
+                        send_message(self.logger, create_game, self.sock)
                     elif decision == 2:
                         join_game = join_game_dialog(self.curr_games)
-                        send_message(join_game, self.sock)
+                        send_message(self.logger, join_game, self.sock)
                     elif decision == 3:
-                        self.disconnect()
-                
+                        self.running = False
+                        break
+
                 elif msg_type == "quiz_question":
                     # use quiz_question_dialog to get the user answer
                     user_answer = quiz_question_dialog(msg_obj)
@@ -98,13 +100,13 @@ class Client:
             except socket.timeout: continue
             except Exception as e:
                 if self.running:
-                    logging.error(f"Error receiving message: {e}")
+                    self.logger.error(f"Error receiving message: {e}")
                     self.running = False
                 break
         return
 
     def disconnect(self):
-        logging.info("Disconnecting from server...")
+        self.logger.info("Disconnecting from server...")
         self.running = False
         self.sock.close()
 
@@ -122,19 +124,19 @@ if __name__ == "__main__":
             ip = sys.argv[1]
             port = int(sys.argv[2])
         except Exception as e:
-            logging.error(f"Bad arguments: {' '.join(sys.argv)} resulted in error: {e}\nUsage: client.py [IP address] [port number")
+            logger.error(f"Bad arguments: {' '.join(sys.argv)} resulted in error: {e}\nUsage: client.py [IP address] [port number")
             sys.exit(1)
         # instantiate server based on args
-        client = Client(ip, port)
+        client = Client(logger, ip, port)
 
     # no args -- use defaults
     elif len(sys.argv) == 1:
-        logging.info("No arguments passed. Using default IP address and port number")
-        client = Client()
+        logger.info("No arguments passed. Using default IP address and port number")
+        client = Client(logger)
 
     # wrong number of args
     else:
-        logging.error(f"Bad arguments: {' '.join(sys.argv)}.\nUsage: server.py [IP address] [port number]")
+        logger.error(f"Bad arguments: {' '.join(sys.argv)}.\nUsage: server.py [IP address] [port number]")
         exit(1)
 
     # connect to server, disconnect on exception

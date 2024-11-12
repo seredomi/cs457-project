@@ -8,17 +8,20 @@ from typing_extensions import NewType
 import uuid
 from typing import List
 import ipaddress
+from prettytable import PrettyTable
 
-from src.messages import send_message, receive_message, MOCKS
+from src.utils.messages import send_message, receive_message, MOCKS
 from src.server.player_class import Player
 from src.server.game_class import Game
 from src.server.quiz_data.data_loader import QuizDataLoader
+from src.utils.display import print_header
 
 # configure logging
-logging.basicConfig(level=logging.INFO, format="[%(levelname)s] - %(message)s")
+from src.utils.logger import setup_logger
+logger = setup_logger("server.log")
 
 class Server:
-    def __init__(self, host="127.0.0.1", port_num=5000):
+    def __init__(self, logger, host="127.0.0.1", port_num=5000):
         self.host: str = host
         self.port_num: int = port_num
         self.server_socket: socket.socket = socket.socket(
@@ -28,25 +31,39 @@ class Server:
         self.players: List[Player] = []
         self.running = False
         self.curr_games: List[Game] = []
-        self.client_mapping = {}
+        self.logger = logger
 
     def print_info(self):
-        print("\nPlayers:")
-        for i, player in enumerate(self.players):
-            print(f"{i + 1}. {str(player)}")
-        print("Games:")
-        for i, game in enumerate(self.curr_games):
-            print(f"{i + 1}. {str(game)}")
+        player_table = PrettyTable()
+        player_table.field_names = ["name", "curr_game", "ip", "port"]
+        for player in self.players:
+            player_table.add_row([player.name, player.curr_game, player.sock.getpeername()[0], player.sock.getpeername()[1]])
+        print_header("current server info")
+        print("Players:")
+        print(player_table)
+
+        game_table = PrettyTable()
+        game_table.field_names = ["id", "owner", "curr q", "all qs"]
+        for game in self.curr_games:
+            game_table.add_row([
+                game.game_id,
+                game.owner_name,
+                f"{sum([1 if not val is None else 0 for val in game.player_responses.values()])}/{len(game.player_responses)}",
+                f"{game.current_question_index + 1}/{len(game.questions)}"
+            ])
+        print("\nGames:")
+        print(game_table)
         print()
+
 
     def start(self):
         # attempt to connect
         self.running = True
         try:
-            logging.info(f"Attempting to connect to {self.host}:{self.port_num}")
+            self.logger.info(f"Attempting to connect to {self.host}:{self.port_num}")
             self.server_socket.bind((self.host, self.port_num))
             self.server_socket.listen(5)
-            logging.info(f"Server started on {self.host}:{self.port_num}")
+            self.logger.info(f"Server started on {self.host}:{self.port_num}\nListening for connections...")
 
             # call shutdown if keyboard interruption
             signal.signal(signal.SIGINT, self.shutdown)
@@ -68,18 +85,18 @@ class Server:
                 except socket.timeout: continue
                 except Exception as e:
                     if self.running:
-                        logging.error(f"Error accepting connection: {e}")
+                        self.logger.error(f"Error accepting connection: {e}")
 
         # exceptions handled from connection errors
         except Exception as e:
-            logging.error(f"Server error: {e}")
+            self.logger.error(f"Server error: {e}")
         finally:
             self.cleanup()
 
     # gets called for each incoming connection
     def handle_client(self, client_socket, addr):
         try:
-            logging.info(f"New connection from {addr}")
+            self.logger.debug(f"New connection from {addr}")
 
             new_connection_prompt = {
                 "message_type": "new_connection_prompt",
@@ -88,7 +105,7 @@ class Server:
                 "chapters_available": [1, 2],
                 "max_questions": 20
             }
-            send_message(new_connection_prompt, client_socket)
+            send_message(self.logger, new_connection_prompt, client_socket)
 
             while self.running:
                 try:
@@ -96,7 +113,7 @@ class Server:
                     # blocking call awaits message from client
                     message = client_socket.recv(1024).decode('utf-8')
                     if not message: break
-                    receive_message(message, client_socket)
+                    receive_message(self.logger, message, client_socket)
                     msg_obj = json.loads(message)
                     msg_type = msg_obj["message_type"]
 
@@ -107,7 +124,7 @@ class Server:
                         self.players[pi].curr_game = game_name
                         self.players[pi].name = player_name
 
-                        logging.info(f"Player {player_name} wants to start a game named {game_name}")
+                        self.logger.debug(f"player {player_name} wants to start a game named {game_name}")
                         self.print_info()
                         self.handle_create_game(msg_obj, self.players[pi].id)
 
@@ -120,24 +137,21 @@ class Server:
                         self.handle_join_game(msg_obj, self.players[pi].id)
 
                     else:
-                        logging.error(f"unknown message type from {addr}")
+                        self.logger.error(f"unknown message type from {addr}")
                         raise Exception("unknown message type")
 
                 except socket.timeout:
                     continue
                 except Exception as e:
-                    logging.error(f"error handling client {addr}: {e}")
+                    self.logger.error(f"error handling client {addr}: {e}")
                     error_message = {"message_type": "error", "message": str(e)}
-                    send_message(error_message, client_socket)
+                    send_message(self.logger, error_message, client_socket)
                     break
         finally:
             self.players.remove(client_socket)
             client_socket.close()
-            logging.info(f"connection from {addr} closed")
+            self.logger.debug(f"connection from {addr} closed")
             self.print_info()
-
-    def get_client_socket_by_id(self, player_id):
-        return self.client_mapping.get(player_id)
 
     # start game
     def handle_create_game(self, msg_obj, player_id):
@@ -170,13 +184,13 @@ class Server:
                 "player_id": player_id,
                 "message": f"game {game_id} created successfully by {self.players[pi].name}"
             }
-            logging.info(f"Game {game_id} created successfully by {player_id}")
+            self.logger.debug(f"game {game_id} created successfully by {player_id}")
             self.broadcast(response)
             self.print_info()
 
         except Exception as e:
             error_message = {"message_type": "error", "message": f"error creating game: {e}"}
-            send_message(error_message, self.players[pi].sock)
+            send_message(self.logger, error_message, self.players[pi].sock)
 
     # join game
     def handle_join_game(self, msg_obj, player_id):
@@ -197,15 +211,15 @@ class Server:
                 "player_id": player_id,
                 "message": f"player {self.players[pi].name} successfully joined game {game_id}"
             }
-            send_message(response, self.players[pi].sock)
-            logging.info(f"Player {player_id} joined game {game_id}")
+            send_message(self.logger, response, self.players[pi].sock)
+            self.logger.info(f"player {player_id} joined game {game_id}")
 
             self.broadcast(response)
             self.print_info()
 
         except Exception as e:
             error_message = {"message_type": "error", "message": f"error joining game: {e}"}
-            send_message(error_message, self.players[pi].sock)
+            send_message(self.logger, error_message, self.players[pi].sock)
 
     # delete game
     def delete_game(self, game_id):
@@ -221,12 +235,12 @@ class Server:
                 "game_id": game_id,
                 "message": f"game {game_id} has ended"
             }
-            logging.info(f"game {game_id} deleted successfully.")
+            self.logger.info(f"game {game_id} deleted successfully.")
 
             self.broadcast(response, game_i=gi)
 
         except Exception as e:
-            logging.error(f"error deleting game {game_id}: {e}")
+            self.logger.error(f"error deleting game {game_id}: {e}")
 
 
     # send a message to subset of clients
@@ -242,20 +256,20 @@ class Server:
 
         for player in list:
             try:
-                send_message(message, player.sock)
+                send_message(self.logger, message, player.sock)
             except Exception as e:
-                logging.error(f"Error broadcasting message {message} to client: {e}")
+                self.logger.error(f"Error broadcasting message {message} to client: {e}")
 
 
     # handle self shutdown
     def shutdown(self, signum, frame):
-        logging.info("Shutting down server...")
+        self.logger.info("Shutting down server...")
         self.running = False
         # notifies clients upon shutdown, which they use to shutdown themselves
         self.broadcast({"message_type": "server_shutdown"})
 
     def cleanup(self):
-        logging.info("Cleaning up server resources...")
+        self.logger.info("Cleaning up server resources...")
         for player in self.players:
             try:
                 player.sock.close()
@@ -277,22 +291,22 @@ if __name__ == "__main__":
             ip = sys.argv[1]
             port = int(sys.argv[2])
         except Exception as e:
-            logging.error(
+            logger.error(
                 f"Bad arguments: {' '.join(sys.argv)} resulted in error: {e}\nUsage: server.py [IP address] [port number]"
             )
             sys.exit(1)
         # instantiate server based on args
-        server = Server(ip, port)
+        server = Server(logger, ip, port)
 
 
     # no args -- use defaults
     elif len(sys.argv) == 1:
-        logging.info("No arguments passed. Using default IP address and port number")
-        server = Server()
+        logger.debug("No arguments passed. Using default IP address and port number")
+        server = Server(logger)
 
     # wrong number of args
     else:
-        logging.error(
+        logger.error(
             f"Bad arguments: {' '.join(sys.argv)}.\nUsage: server.py [IP address] [port number]"
         )
         exit(1)

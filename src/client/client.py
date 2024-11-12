@@ -1,24 +1,25 @@
 import sys
 import socket
-import threading
-import logging
-import time
 import ipaddress
 import json
-import re
-from typing import List
 
 
-from src.client.dialogs import new_connection_dialog, create_game_dialog, join_game_dialog, quiz_question_dialog
-from src.utils.messages import send_message, receive_message, MOCKS
+from src.client.dialogs import (
+    new_connection_dialog,
+    create_game_dialog,
+    join_game_dialog,
+    quiz_question_dialog,
+)
+from src.utils.messages import send_message, receive_message
 from src.utils.logger import setup_logger
 
 
 # configure logging
 logger = setup_logger("client.log")
 
+
 class Client:
-    def __init__(self, logger, host='localhost', port=5000):
+    def __init__(self, logger, host="localhost", port=5000):
         self.host: str = host
         self.port: int = port
         self.sock: socket.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -40,8 +41,10 @@ class Client:
             # new thread for receiving messages
             self.receive_messages()
 
-        except ConnectionRefusedError: self.logger.error("Connection failed. Server might be offline.")
-        except Exception as e: self.logger.error(f"An error occurred: {e}")
+        except ConnectionRefusedError:
+            self.logger.error("Connection failed. Server might be offline.")
+        except Exception as e:
+            self.logger.error(f"An error occurred: {e}")
         return
 
     # loop for receiving messages
@@ -50,7 +53,7 @@ class Client:
             try:
                 self.sock.settimeout(1.0)
                 # blocking call awaits message from server
-                message = self.sock.recv(1024).decode('utf-8')
+                message = self.sock.recv(1024).decode("utf-8")
                 if not message:
                     self.logger.info("Server connection closed.")
                     self.running = False
@@ -74,10 +77,9 @@ class Client:
                     decision = new_connection_dialog(len(self.curr_games) > 0)
                     if decision == 1:
                         create_game = create_game_dialog(
-                            self.available_chapters,
-                            self.max_questions,
-                            self.curr_games,
-                            self.curr_players
+                            available_chapters=self.available_chapters,
+                            curr_games=self.curr_games,
+                            curr_players=self.curr_players,
                         )
                         send_message(self.logger, create_game, self.sock)
                     elif decision == 2:
@@ -93,11 +95,12 @@ class Client:
                     answer_message = {
                         "message_type": "quiz_answer",
                         "question": msg_obj.get("question"),
-                        "answer": user_answer
+                        "answer": user_answer,
                     }
                     send_message(answer_message, self.sock)
 
-            except socket.timeout: continue
+            except socket.timeout:
+                continue
             except Exception as e:
                 if self.running:
                     self.logger.error(f"Error receiving message: {e}")
@@ -110,8 +113,9 @@ class Client:
         self.running = False
         self.sock.close()
 
+
 if __name__ == "__main__":
-    client= None
+    client = None
 
     # correct number of args if specifying IP and port
     if len(sys.argv) == 3:
@@ -124,7 +128,9 @@ if __name__ == "__main__":
             ip = sys.argv[1]
             port = int(sys.argv[2])
         except Exception as e:
-            logger.error(f"Bad arguments: {' '.join(sys.argv)} resulted in error: {e}\nUsage: client.py [IP address] [port number")
+            logger.error(
+                f"Bad arguments: {' '.join(sys.argv)} resulted in error: {e}\nUsage: client.py [IP address] [port number"
+            )
             sys.exit(1)
         # instantiate server based on args
         client = Client(logger, ip, port)
@@ -136,10 +142,15 @@ if __name__ == "__main__":
 
     # wrong number of args
     else:
-        logger.error(f"Bad arguments: {' '.join(sys.argv)}.\nUsage: server.py [IP address] [port number]")
+        logger.error(
+            f"Bad arguments: {' '.join(sys.argv)}.\nUsage: server.py [IP address] [port number]"
+        )
         exit(1)
 
     # connect to server, disconnect on exception
-    try: client.connect()
-    except KeyboardInterrupt: pass
-    finally: client.disconnect()
+    try:
+        client.connect()
+    except KeyboardInterrupt:
+        pass
+    finally:
+        client.disconnect()

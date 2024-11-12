@@ -1,0 +1,646 @@
+{
+    "chapter": "2",
+    "questions": [
+        {
+            "number": "1",
+            "topic": "2.2-01. Simple HTTP GET request response time",
+            "question": "Suppose an HTTP client makes a request to the gaia.cs.umass.edu web server. The client has never before requested a given base object, nor has it communicated recently with the gaia.cs.umass.edu server. You can assume, however, that the client host knows the IP address of gaia.cs.umass.edu. How many round trip times (RTTs) are needed from when the client first makes the request to when the base page is completely downloaded, assuming the time needed by the server to transmit the base file into the server's link is equal to 1/2 RTT and that the time needed to transmit the HTTP GET into the client's link is zero? (You should take into account any TCP setup time required before the HTTP GET is actually sent by the client, the time needed for the server to transmit the requested object, and any propagation delays not accounted for in these amounts of time.)",
+            "offered-answers": [
+                {
+                    "answer": "0 RTT",
+                    "isCorrect": false
+                },
+                {
+                    "answer": "0.5 RTT",
+                    "isCorrect": false
+                },
+                {
+                    "answer": "1.5 RTT",
+                    "isCorrect": false
+                },
+                {
+                    "answer": "2.5 RTT",
+                    "isCorrect": true
+                },
+                {
+                    "answer": "3.5 RTT",
+                    "isCorrect": false
+                }
+            ]
+        },
+        {
+            "number": "2",
+            "topic": "2.2-02. HTTP 1.0 GET with an embedded object",
+            "question": "Suppose an HTTP client makes a request to the gaia.cs.umass.edu web server. The client has never before requested a given base object, nor has it communicated recently with the gaia.cs.umass.edu server. You can assume, however, that the client host knows the IP address of gaia.cs.umass.edu. Suppose also that after downloading the base file, the browser encounters a jpeg object in the base html file that is stored on gaia.cs.umass.edu, and therefore makes another GET request to gaia.cs.umass.edu for that referenced jpeg object. How many round trip times (RTTs) are needed from when the client first makes the request to when the base page and the jpeg file are completely downloaded, assuming the time needed by the server to transmit the base file, or the jpeg file into the server's link is (each) equal to 1/2 RTT and that the time needed to transmit the HTTP GET into the client's link is zero? You should assume that HTTP 1.0 is being used. (You should take into account any TCP setup time required before an HTTP GET is actually sent by the client, the time needed for the server to transmit the requested object, and any propagation delays not accounted for in these amounts of time.)",
+            "offered-answers": [
+                {
+                    "answer": "2.5 RTT",
+                    "isCorrect": false
+                },
+                {
+                    "answer": "5 RTT",
+                    "isCorrect": true
+                },
+                {
+                    "answer": "1 RTT",
+                    "isCorrect": false
+                },
+                {
+                    "answer": "2 RTT",
+                    "isCorrect": false
+                },
+                {
+                    "answer": "4 RTT",
+                    "isCorrect": false
+                }
+            ]
+        },
+        {
+            "number": "3",
+            "topic": "2.2-03. HTTP 1.1 GET with an embedded object",
+            "question": "Suppose an HTTP client makes a request to the gaia.cs.umass.edu web server. The client has never before requested a given base object, nor has it communicated recently with the gaia.cs.umass.edu server. You can assume, however, that the client host knows the IP address of gaia.cs.umass.edu. Suppose also that after downloading the base file, the browser encounters a jpeg object in the base html file that is stored on gaia.cs.umass.edu, and therefore makes another GET request to gaia.cs.umass.edu for that referenced jpeg object. How many round trip times (RTTs) are needed from when the client first makes the request to when the base page and the jpeg file are completely downloaded, assuming the time needed by the server to transmit the base file, or the jpeg file into the server's link is (each) equal to 1/2 RTT and that the time needed to transmit the HTTP GET into the client's link is zero? You should assume that persistent HTTP 1.1 is being used. (You should take into account any TCP setup time required before an HTTP GET is actually sent by the client, the time needed for the server to transmit the requested object, and any propagation delays not accounted for in these amounts of time.)",
+            "offered-answers": [
+                {
+                    "answer": "2.5 RTT",
+                    "isCorrect": false
+                },
+                {
+                    "answer": "5 RTT",
+                    "isCorrect": false
+                },
+                {
+                    "answer": "1 RTT",
+                    "isCorrect": false
+                },
+                {
+                    "answer": "2 RTT",
+                    "isCorrect": false
+                },
+                {
+                    "answer": "4 RTT",
+                    "isCorrect": true
+                }
+            ]
+        },
+        {
+            "number": "4",
+            "topic": "2.2-04. HTTP 1.1 GET (re-request) with an embedded object",
+            "question": "Suppose an HTTP client makes a first GET request to the gaia.cs.umass.edu web server for a base page that it has never before requested, which contains an embedded object, which causes the client to make a second GET request. A very short time later, the client then make a third GET request - for the same base page, with that third GET request having an If-Modified-Since field (as does the 4th GET request that the client makes for the embedded object). Neither the base object nor the jpeg object have changed. How many round trip times (RTTs) are needed from when the client first makes the third GET request (i.e., when it requests the base object for the second time) to when the base page and the jpeg file are displayed a second time, assuming that: any time needed by the server to transmit the base file, or the jpeg file into the server's link is (each) equal to 1/2 RTT, the time needed to transmit an HTTP GET into the client's link is zero? the time needed by the server to transmit a reply that does not contain the base page or an embedded jpeg object is zero. You should assume that persistent HTTP 1.1 is being used and should think about the consequences of the If-Modified-Since field being used in the third and fourth GET requests). You should take into account any TCP setup time required before an HTTP GET is actually sent by the client, the time needed for the server to transmit a requested object (see assumptions above), and any propagation delays not accounted for in these amounts of time.",
+            "offered-answers": [
+                {
+                    "answer": "2.5 RTT",
+                    "isCorrect": false
+                },
+                {
+                    "answer": "5 RTT",
+                    "isCorrect": false
+                },
+                {
+                    "answer": "1 RTT",
+                    "isCorrect": false
+                },
+                {
+                    "answer": "2 RTT",
+                    "isCorrect": true
+                },
+                {
+                    "answer": "4 RTT",
+                    "isCorrect": false
+                }
+            ]
+        },
+        {
+            "number": "5",
+            "topic": "2.2-05. Download delays for 100 objects (HTTP 1.0)",
+            "question": "Consider an HTTP 1.0 client and server. The RTT delay between the client and server is 2 seconds. Suppose the time a server needs to transmit an object into its outgoing link is 3 seconds, as shown below for the first of these 100 requests. You can assume that any other HTTP message not containing an object sent by the client and server has a negligible (zero) transmission time. Suppose the client makes 100 requests, one after the other, waiting for a reply to a request before sending the next request. Using HTTP 1.0, how much time elapses between the client transmitting the first request, and the receipt of the last requested object?",
+            "offered-answers": [
+                {
+                    "answer": "700 secs",
+                    "isCorrect": true
+                },
+                {
+                    "answer": "502 secs",
+                    "isCorrect": false
+                },
+                {
+                    "answer": "500 secs",
+                    "isCorrect": false
+                },
+                {
+                    "answer": "300 secs",
+                    "isCorrect": false
+                },
+                {
+                    "answer": "203 secs",
+                    "isCorrect": false
+                }
+            ]
+        },
+        {
+            "number": "6",
+            "topic": "2.2-06. Download delays for 100 objects (HTTP 1.1)",
+            "question": "Consider an HTTP 1.1 client and server. The RTT delay between the client and server is 2 seconds. Suppose the time a server needs to transmit an object into its outgoing link is 3 seconds, as shown below for the first of these 100 requests. You can assume that any other HTTP message not containing an object sent by the client and server has a negligible (zero) transmission time. Suppose the client makes 100 requests, one after the other, waiting for a reply to a request before sending the next request. Using HTTP 1.1, how much time elapses between the client transmitting the first request, and the receipt of the last requested object?",
+            "offered-answers": [
+                {
+                    "answer": "700 secs",
+                    "isCorrect": false
+                },
+                {
+                    "answer": "502 secs",
+                    "isCorrect": true
+                },
+                {
+                    "answer": "500 secs",
+                    "isCorrect": false
+                },
+                {
+                    "answer": "300 secs",
+                    "isCorrect": false
+                },
+                {
+                    "answer": "203 secs",
+                    "isCorrect": false
+                }
+            ]
+        },
+        {
+            "number": "7",
+            "topic": "2.2-07. Download delays for 100 objects (HTTP 1.1 with browser caching)",
+            "question": "Consider an HTTP 1.1 client and server. The RTT delay between the client and server is 2 seconds. Suppose the time a server needs to transmit an object into its outgoing link is 3 seconds, as shown below for the first of these 100 requests. You can assume that any other HTTP message not containing an object sent by the client and server has a negligible (zero) transmission time. Suppose the client makes 100 requests, one after the other, waiting for a reply to a request before sending the next request. Using HTTP 1.1, how much time elapses between the client transmitting the first request, and the receipt of the last requested object, assuming the client uses the IF-MODIFIED-SINCE header line, and 50% of the objects requested have not changed since the client downloaded them (before these 100 downloads are performed)?",
+            "offered-answers": [
+                {
+                    "answer": "203 secs",
+                    "isCorrect": false
+                },
+                {
+                    "answer": "252 secs",
+                    "isCorrect": false
+                },
+                {
+                    "answer": "352 secs",
+                    "isCorrect": true
+                },
+                {
+                    "answer": "350 secs",
+                    "isCorrect": false
+                },
+                {
+                    "answer": "150 secs",
+                    "isCorrect": false
+                }
+            ]
+        },
+        {
+            "number": "8",
+            "topic": "2.2-09. HTTP/2 versus HTTP/1.1: object download delays",
+            "question": "Consider a client and a server, separated by an RTT of 4 time units. The client makes a request for 4 objects at t=0. O1 consists of 10 frames, O2 and O4 each consist of 1 frame, and O3 consists of 2 frames. In the HTTP/2 example shown below, the server is transmitting frames to the client in the order O1, O2, O3, O4 (as long as there are frames of type i to transmit, and when not the server just moves on to a frame from object i+1 mod 4). Each frame takes 1 time unit to transmit. Under HTTP 1.1 (not shown below), the server would send O1, O2, O3, O4 in that first-come-first-served (FCFS) order, sending each object in its entirety before moving on to send the next object in that order. Let's define the object download delay as the time from when an object is requested (at t=0 below) to the time that object is received in its entirety. What is the average object download delay (the sum of the four object download delays divided by 4) under the HTTP/2 object frame transmission order shown below and under HTTP/1.1 O1, O2, O3, O4 object transmission order?",
+            "offered-answers": [
+                {
+                    "answer": "Average object download delay under HTTP/1.1: 16.0, under HTTP/2: 10.5",
+                    "isCorrect": true
+                },
+                {
+                    "answer": "Average object download delay under HTTP/1.1: 14.0, under HTTP/2: 9.5",
+                    "isCorrect": false
+                },
+                {
+                    "answer": "Average object download delay under HTTP/1.1: 18.0, under HTTP/2: 14.0",
+                    "isCorrect": false
+                },
+                {
+                    "answer": "Average object download delay under HTTP/1.1: 12.5, under HTTP/2: 10.0",
+                    "isCorrect": false
+                },
+                {
+                    "answer": "Average object download delay under HTTP/1.1: 24.0, under HTTP/2: 18.0",
+                    "isCorrect": false
+                },
+                {
+                    "answer": "Average object download delay under HTTP/1.1: 22.0, under HTTP/2: 17.5",
+                    "isCorrect": false
+                }
+            ]
+        },
+        {
+            "number": "9",
+            "topic": "2.2-10a. Browser Caching (a)",
+            "question": "Consider the following scenario, in which a Web browser (lower) connects to a web server (above). There is no web cache in this question (so make sure you understand the difference between a browser cache and a web cache). Assume that the total Round Trip Time (RTT) propagation and queueing delay between the browser and web server is 200 msec. Suppose that the browser makes an HTTP request to the server for an HTTP object, that the browser has a copy of that object in its cache, but that copy may or may not be up-to-date in its cache (and so the browser requests the object using the HTTP If-Modified-Since header field). Assume that the time taken to transmit an HTTP reply (by the sender into the TCP connection) that contains a requested object in the body of an HTTP reply is 50 msec, but that the time taken to transmit a HTTP reply with a '304 Not Modified' reply code without an included object is negligible (e.g., zero). You can assume that a TCP connection has already been set up, so do not include that delay in your answer below. What is the time from when the browser issues the initial HTTP GET request until it is able to display the requested object in the case that the browser does not have the requested object in its browser cache?",
+            "offered-answers": [
+                {
+                    "answer": "250 msec",
+                    "isCorrect": true
+                },
+                {
+                    "answer": "100 msec",
+                    "isCorrect": false
+                },
+                {
+                    "answer": "200 msec",
+                    "isCorrect": false
+                },
+                {
+                    "answer": "500 msec",
+                    "isCorrect": false
+                },
+                {
+                    "answer": "550 msec",
+                    "isCorrect": false
+                },
+                {
+                    "answer": "300 msec",
+                    "isCorrect": false
+                },
+                {
+                    "answer": "350 msec",
+                    "isCorrect": false
+                }
+            ]
+        },
+        {
+            "number": "10",
+            "topic": "2.2-10b. Browser Caching (b)",
+            "question": "Consider the same scenario as in the previous question. What is the time from when the browser issues the initial HTTP GET request until it is able to display the requested object in the case that the browser does have the requested object in its browser cache?",
+            "offered-answers": [
+                {
+                    "answer": "250 msec",
+                    "isCorrect": false
+                },
+                {
+                    "answer": "100 msec",
+                    "isCorrect": false
+                },
+                {
+                    "answer": "200 msec",
+                    "isCorrect": true
+                },
+                {
+                    "answer": "500 msec",
+                    "isCorrect": false
+                },
+                {
+                    "answer": "550 msec",
+                    "isCorrect": false
+                },
+                {
+                    "answer": "300 msec",
+                    "isCorrect": false
+                },
+                {
+                    "answer": "350 msec",
+                    "isCorrect": false
+                }
+            ]
+        },
+        {
+            "number": "11",
+            "topic": "2.2-10c. Browser Caching (3)",
+            "question": "Consider the same scenario as in the previous questions. Suppose that whenever the browser makes an HTTP request to the server for any HTTP object on that site, that the browser has a copy of that object in its cache (the user loves to get content from that site!), but that copy may or may not be up-to-date in its cache (and so the browser requests the object using the HTTP If-Modified-Since header field). Assume that the time taken to transmit any HTTP reply (by the sender into the TCP connection) that contains a requested object in the body of an HTTP reply is 50 msec (again, for all objects), but that the time taken to transmit a HTTP reply with a '304 Not Modified' reply code without an included object is negligible (e.g., zero). You can assume that a TCP connection has always been set up, so do not include that delay in your answer below. Suppose that 90% of the HTTP requests are for objects that are up-to-date in the browser's cache, and so 10% are cache 'misses' and will require the up-to-date object to be downloaded, and browser-cached. What is the average time (over all requests that the browser makes to this site) from when the browser issues the initial HTTP GET request until it is able to display the requested object?",
+            "offered-answers": [
+                {
+                    "answer": "205 msec",
+                    "isCorrect": true
+                },
+                {
+                    "answer": "200 msec",
+                    "isCorrect": false
+                },
+                {
+                    "answer": "250 msec",
+                    "isCorrect": false
+                },
+                {
+                    "answer": "225 msec",
+                    "isCorrect": false
+                },
+                {
+                    "answer": "400 msec",
+                    "isCorrect": false
+                },
+                {
+                    "answer": "500 msec",
+                    "isCorrect": false
+                },
+                {
+                    "answer": "350 msec",
+                    "isCorrect": false
+                }
+            ]
+        },
+        {
+            "number": "12",
+            "topic": "2.2-12a. HTTP Performance",
+            "question": "Consider the scenario shown below, in which HTTP servers reside in the upper network, and HTTP clients (browsers) reside in the lower network. Each server connects to the upper router via a link of capacity Rs; each client connects to the lower router via a link of capacity Rc. The two routers connect to each other via a link of capacity RI. Suppose an HTTP client makes a request to a web server (say the leftmost webserver). The client has never before communicated with this server. You can assume, however, that the client host knows the IP address of the server. How many round trip times (RTTs) are needed from when the client first makes the request to when the base page is completely downloaded, assuming the time needed by the server to transmit the base file into the server's link is equal to 1/4 RTT and that the time needed to transmit the HTTP GET into the client's link is zero? (You should take into account any TCP setup time required before the HTTP GET is actually sent by the client, the time needed for the server to transmit the requested object, and any propagation delays included in the RTT.)",
+            "offered-answers": [
+                {
+                    "answer": "0 RTT",
+                    "isCorrect": false
+                },
+                {
+                    "answer": "1.25 RTT",
+                    "isCorrect": false
+                },
+                {
+                    "answer": "2 RTT",
+                    "isCorrect": false
+                },
+                {
+                    "answer": "2.25 RTT",
+                    "isCorrect": true
+                },
+                {
+                    "answer": "3 RTT",
+                    "isCorrect": false
+                }
+            ]
+        },
+        {
+            "number": "13",
+            "topic": "2.2-12b. HTTP Performance: multiple objects in a page",
+            "question": "Consider again the scenario shown in the figure above (question 2.2.12a), assuming again that the client and server have not communicated before, that the client knows the server's IP address, and that HTTP 1.1 is being used. The HTTP client makes a first GET request to the leftmost server for a base page that it has never before requested; the base page contains an embedded jpeg object, which causes the client to make a second GET request for that embedded object. Assume that the base file and the jpeg file each have a transmission time of .25 RTT. How many round trip times (RTTs) are needed from when the user first types the URL into the browser, which causes the client to make the first GET request (i.e., requesting the base page) to when the base page and the jpeg file (the two retrieved objects) are displayed? Remember to take into account any RTT propagation times, TCP connection setup times, and file/object transmission times.",
+            "offered-answers": [
+                {
+                    "answer": "1",
+                    "isCorrect": false
+                },
+                {
+                    "answer": "1.5 RTT",
+                    "isCorrect": false
+                },
+                {
+                    "answer": "2 RTT",
+                    "isCorrect": false
+                },
+                {
+                    "answer": "3 RTT",
+                    "isCorrect": false
+                },
+                {
+                    "answer": "3.5 RTT",
+                    "isCorrect": true
+                }
+            ]
+        },
+        {
+            "number": "14",
+            "topic": "2.2-12c. HTTP Performance: browser caching",
+            "question": "Consider again the scenario shown in the figure above (question 2.2.12a), assuming again that the client and server have not communicated before, that the client knows the server's IP address, and that HTTP 1.1 is being used. Now assume that the client has a browser cache (but there is no web cache). The browser cache is initially empty and all GET request messages have an If-Modified-Since field. The HTTP client: again makes a first GET request to the leftmost server for a base page that it has never before requested; the base page contains a reference to an embedded jpeg object. makes a second GET request for that embedded object. then makes a third GET request (a very short time later TCP connection is still up) for the same embedded jpeg object (with that third GET request having an If-Modified-Since field). Let's focus on just this third HTTP GET request. How many round trip times (RTTs) are needed from when the browser issues the third HTTP GET request, until the reply for that third GET request is received? You should take into account any TCP setup time (if any) required before an HTTP GET is sent by the client, the time needed for the server to transmit a requested object (if any), and any propagation delays (if any)not accounted for in these other amounts of time.",
+            "offered-answers": [
+                {
+                    "answer": "0 RTT",
+                    "isCorrect": false
+                },
+                {
+                    "answer": "1.0 RTT",
+                    "isCorrect": true
+                },
+                {
+                    "answer": "1.25 RTT",
+                    "isCorrect": false
+                },
+                {
+                    "answer": "2 RTT",
+                    "isCorrect": false
+                },
+                {
+                    "answer": "2.25 RTT",
+                    "isCorrect": false
+                }
+            ]
+        },
+        {
+            "number": "15",
+            "topic": "2.4-01a. DNS in Action",
+            "question": "Suppose that the local DNS server caches all information coming in from all root, TLD, and authoritative DNS servers for 20 time units. (Thus, for example, when a root server returns the name and address of a TLD server for .com, the cache remembers that this is the TLD server to use to resolve a .com name). Assume also that the local cache is initially empty, that iterative DNS queries are always used, that DNS requests are just for name-to-IP-address translation, that 1 time unit is needed for each server-to-server or host-to-server (one way) request or response, and that there is only one authoritative name server (each) for any .edu or .com domain. Consider the following DNS requests, made by the local host at the given times: t=0, the local host requests that the name gaia.cs.umass.edu be resolved to an IP address. t=1, the local host requests that the name icann.org be resolved to an IP address. t=5, the local host requests that the name cs.umd.edu be resolved to an IP address. (Hint: be careful!) t=10, the local host again requests that the name gaia.cs.umass.edu be resolved to an IP address. t=12, the local host requests that the name cs.mit.edu be resolved to an IP address. t=30, the local host again requests that the name gaia.cs.umass.edu be resolved to an IP address. (Hint: be careful!) Which of the requests require 8 time units to be resolved?",
+            "offered-answers": [
+                {
+                    "answer": "The request at t=0.",
+                    "isCorrect": true
+                },
+                {
+                    "answer": "The request at t=1.",
+                    "isCorrect": true
+                },
+                {
+                    "answer": "The request at t=5.",
+                    "isCorrect": false
+                },
+                {
+                    "answer": "The request at t=10.",
+                    "isCorrect": false
+                },
+                {
+                    "answer": "The request at t=12.",
+                    "isCorrect": false
+                },
+                {
+                    "answer": "The request at t=30.",
+                    "isCorrect": true
+                }
+            ]
+        },
+        {
+            "number": "16",
+            "topic": "2.4-01b. DNS in Action",
+            "question": "Using the same scenario as in the previous question, which of the requests require 6 time units to be resolved?",
+            "offered-answers": [
+                {
+                    "answer": "The request at t=0.",
+                    "isCorrect": false
+                },
+                {
+                    "answer": "The request at t=1.",
+                    "isCorrect": false
+                },
+                {
+                    "answer": "The request at t=5.",
+                    "isCorrect": true
+                },
+                {
+                    "answer": "The request at t=10.",
+                    "isCorrect": false
+                },
+                {
+                    "answer": "The request at t=12.",
+                    "isCorrect": true
+                },
+                {
+                    "answer": "The request at t=30.",
+                    "isCorrect": false
+                }
+            ]
+        },
+        {
+            "number": "17",
+            "topic": "2.4-01c. DNS in Action",
+            "question": "Using the same scenario as in the previous questions, which of the requests require 2 time units to be resolved?",
+            "offered-answers": [
+                {
+                    "answer": "The request at t=0.",
+                    "isCorrect": false
+                },
+                {
+                    "answer": "The request at t=1.",
+                    "isCorrect": false
+                },
+                {
+                    "answer": "The request at t=5.",
+                    "isCorrect": false
+                },
+                {
+                    "answer": "The request at t=10.",
+                    "isCorrect": true
+                },
+                {
+                    "answer": "The request at t=12.",
+                    "isCorrect": false
+                },
+                {
+                    "answer": "The request at t=30.",
+                    "isCorrect": false
+                }
+            ]
+        },
+        {
+            "number": "18",
+            "topic": "2.4-02. DNS: time to resolve query",
+            "question": "Suppose that the local DNS server caches all information coming in from all root, TLD, and authoritative DNS servers for 20 time units. (Thus, for example, when a root server returns the name and address of a TLD server for .com, the cache remembers that this is the TLD server to use to resolve a .com name). Assume also that the local cache is initially empty, that iterative DNS queries are always used, that DNS requests are just for name-to-IP-address translation, that 1 time unit is needed for each server-to-server or host-to-server (one way) request or response, and that there is only one authoritative name server (each) for any .edu or .com domain. Consider the following DNS requests, made by the local host at the given times: t=0, the local host requests that the name gaia.cs.umass.edu be resolved to an IP address. t=1, the local host requests that the name web.cs.umass.edu be resolved to an IP address. How many time units are needed for the DNS request made at t=1 to be resolved?",
+            "offered-answers": [
+                {
+                    "answer": "2 time units.",
+                    "isCorrect": false
+                },
+                {
+                    "answer": "4 time units.",
+                    "isCorrect": false
+                },
+                {
+                    "answer": "6 time units.",
+                    "isCorrect": false
+                },
+                {
+                    "answer": "8 time units.",
+                    "isCorrect": true
+                },
+                {
+                    "answer": "10 time units.",
+                    "isCorrect": false
+                }
+            ]
+        },
+        {
+            "number": "19",
+            "topic": "2.6-1 Playout delay: smallest initial playout delay",
+            "question": "Consider the following scenario, in which a server is streaming chunks of video to a client. The first chunk is transmitted by the server at t=2, is received at the client at t=10, and is played out at the client at t=16. The retransmission, reception, and playout of 11 chunks is shown. In this example, the playout delay is 6, and no chunks miss their playout deadline. What is the smallest initial playout delay such that the (periodic) playout of chunks is timed such that no chunks miss their playout deadline? You can assume that if a chunk arrives (black staircase) at the same time as it is scheduled for playout, then the chunk is played out successfully without being lost.",
+            "offered-answers": [
+                {
+                    "answer": "1",
+                    "isCorrect": false
+                },
+                {
+                    "answer": "2",
+                    "isCorrect": false
+                },
+                {
+                    "answer": "3",
+                    "isCorrect": false
+                },
+                {
+                    "answer": "4",
+                    "isCorrect": true
+                },
+                {
+                    "answer": "5",
+                    "isCorrect": false
+                },
+                {
+                    "answer": "6",
+                    "isCorrect": false
+                },
+                {
+                    "answer": "It isn't possible.",
+                    "isCorrect": false
+                }
+            ]
+        },
+        {
+            "number": "20",
+            "topic": "2.7-1. UDP client-side socket actions",
+            "question": "Match the general client-side action stated with the specific UDP socket-related action that implements it.",
+            "offered-answers": [
+                {
+                    "answer": "Create a socket: Use the call socket(AF_INET, SOCK_DGRAM)",
+                    "isCorrect": true
+                },
+                {
+                    "answer": "When sending to the server, this is how a specific server is identified: The client explicitly includes the destination IP address and port #, when sending",
+                    "isCorrect": true
+                },
+                {
+                    "answer": "Send to server, using this socket: Send using the socket created using socket(AF_INET, SOCK_DGRAM)",
+                    "isCorrect": true
+                }
+            ]
+        },
+        {
+            "number": "21",
+            "topic": "2.7-2. UDP server-side socket actions",
+            "question": "Match the general server-side action stated with the specific UDP socket-related action that implements it.",
+            "offered-answers": [
+                {
+                    "answer": "Create a socket: Use the call socket(AF_INET, SOCK_DGRAM)",
+                    "isCorrect": true
+                },
+                {
+                    "answer": "When sending to a client, this is how a specific client is identified: The server explicitly includes the destination IP address and port #, when sending",
+                    "isCorrect": true
+                },
+                {
+                    "answer": "Send to client, using this socket: Send using the socket created using socket(AF_INET, SOCK_DGRAM)",
+                    "isCorrect": true
+                },
+                {
+                    "answer": "When sending to the client, this is how the server knows the client IP address and port number: The server determines the client IP address and port # from an earlier datagram sent by this client.",
+                    "isCorrect": true
+                }
+            ]
+        },
+        {
+            "number": "22",
+            "topic": "2.7-3. TCP client-side socket actions",
+            "question": "Match the general client-side action stated with the specific TCP socket-related action that implements it.",
+            "offered-answers": [
+                {
+                    "answer": "Create a socket: Use the call socket(AF_INET, SOCK_STREAM)",
+                    "isCorrect": true
+                },
+                {
+                    "answer": "When sending to a server, this is how a specific server is identified: The client uses connect() to explicitly bind its socket to specific server, and so the server IP address and port number need not be explicitly stated in a send operation.",
+                    "isCorrect": true
+                },
+                {
+                    "answer": "Send to server, using this socket: Send using the socket created using socket(AF_INET, SOCK_STREAM)",
+                    "isCorrect": true
+                }
+            ]
+        },
+        {
+            "number": "23",
+            "topic": "2.7-4. TCP server-side socket actions",
+            "question": "Match the general server-side action stated with the specific TCP socket-related action that implements it.",
+            "offered-answers": [
+                {
+                    "answer": "Create a socket: Use the call socket(AF_INET, SOCK_STREAM)",
+                    "isCorrect": true
+                },
+                {
+                    "answer": "When sending to a client, this is how a specific client is identified: As the result of an accept(), a new socket is created, which binds the client that made the corresponding connect() and server together via this new socket without the need to explicitly specify the destination IP address and port # when sending.",
+                    "isCorrect": true
+                },
+                {
+                    "answer": "Send to server, using this socket: Send using a socket not explicitly created via a call to socket()",
+                    "isCorrect": true
+                }
+            ]
+        }
+    ]
+}

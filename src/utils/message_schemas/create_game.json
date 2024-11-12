@@ -29,7 +29,8 @@
             "type": "array",
             "items": {
                 "description": "a chapter",
-                "type": "integer"
+                "type": "string",
+                "pattern": "^[0-9]+$"
             }
         },
         "num_questions": {

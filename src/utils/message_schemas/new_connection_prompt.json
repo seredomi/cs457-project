@@ -28,13 +28,19 @@
             "description": "list of chapters available",
             "type": "array",
             "items": {
-                "description": "a chapter",
-                "type": "integer"
+                "description": "chapter - max question objects",
+                "type": "object",
+                "properties": {
+                    "chapter": {
+                        "description": "chapter ",
+                        "type": "integer"
+                    },
+                    "max_questions": {
+                        "description": "maximum number of questions in this chapter",
+                        "type": "integer"
+                    }
+                }
             }
-        },
-        "max_questions": {
-            "description": "maximum number of questions in a game",
-            "type": "integer"
         },
         "success_message": {
             "description": "success message returned by the server",

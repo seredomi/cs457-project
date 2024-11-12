@@ -3,7 +3,8 @@ import logging
 import os
 from typing import List, Dict, Union
 
-QUIZ_DATA_DIR = 'src/server/quiz_data'
+QUIZ_DATA_DIR = "src/server/quiz_data"
+
 
 class QuizDataLoader:
     def __init__(self, directory: str = QUIZ_DATA_DIR):
@@ -22,7 +23,7 @@ class QuizDataLoader:
             if filename.endswith(".json"):
                 filepath = os.path.join(self.directory, filename)
                 try:
-                    with open(filepath, 'r') as file:
+                    with open(filepath, "r") as file:
                         data = json.load(file)
                         if self.validate_quiz_format(data):
                             self.quiz_data.append(data)
@@ -40,12 +41,18 @@ class QuizDataLoader:
 
         # validate question structure
         for question in data["questions"]:
-            if not all(key in question for key in ("number", "topic", "question", "offered-answers")):
+            if not all(
+                key in question
+                for key in ("number", "topic", "question", "offered-answers")
+            ):
                 logging.error(f"missing required keys in quiz question: {question}")
                 return False
-            if not isinstance(question["offered-answers"], list) or not isinstance(question["question"], str):
+            if not isinstance(question["offered-answers"], list) or not isinstance(
+                question["question"], str
+            ):
                 logging.error(f"invalid types in quiz question: {question}")
                 return False
         return True
+
     def get_quiz_data(self) -> List[Dict[str, Union[int, List[Dict]]]]:
         return self.quiz_data

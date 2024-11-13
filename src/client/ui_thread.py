@@ -13,18 +13,16 @@ class UIHandler:
         self.running = False
 
         # Create UI elements
-        self.txt_status = urwid.Text("Connecting...")
-        self.txt_games = urwid.Text("")
-        self.txt_players = urwid.Text("")
+        self.txt_title = urwid.Text("Connecting...")
+        self.txt_instructions = urwid.Text("")
         self.input_box = urwid.Edit("> ")
 
         # Create main UI layout
         self.frame = urwid.Frame(
             urwid.Filler(urwid.Pile([
-                self.txt_status,
+                self.txt_title,
                 urwid.Divider(),
-                self.txt_games,
-                self.txt_players,
+                self.txt_instructions,
                 urwid.Divider(),
                 self.input_box
             ])),
@@ -61,28 +59,53 @@ class UIHandler:
             msg = self.message_queue.get()
             if msg["message_type"] == "new_connection_prompt":
                 self.curr_screen = "main_menu"
+            elif msg["message_type"] == "quiz_question":
+                pass
+            elif msg["message_type"] == "results":
+                pass
 
         # Update display based on current screen
         if self.curr_screen == "connecting":
-            self.txt_status.set_text("Connecting...")
+            self.txt_title.set_text("connecting...")
             if self.client.is_connected:
                 self.curr_screen = "main_menu"
 
         elif self.curr_screen == "main_menu":
-            menu_text = "=== Main Menu ===\n1. Create Game"
+            menu_text = "1. start a new game"
             if self.client.curr_games:
-                menu_text += "\n2. Join Game"
-            menu_text += "\n3. Exit"
+                menu_text += "\n2. join a current game"
+            menu_text += "\n3. exit"
 
-            self.txt_status.set_text(menu_text)
-            self.txt_games.set_text(f"Current Games: {self.client.curr_games}")
-            self.txt_players.set_text(f"Players Online: {self.client.curr_players}")
-            self.input_box.set_caption("Choose option: ")
+            self.txt_title.set_text("=== main menu ===")
+            self.txt_instructions.set_text(menu_text)
+            self.input_box.set_caption("choose option: ")
 
-        elif self.curr_screen == "create_game":
-            self.txt_status.set_text("=== Create Game ===")
-            self.txt_games.set_text(f"Available chapters: {list(self.client.available_chapters.keys())}")
-            self.input_box.set_caption("Enter chapter number (or 'back'): ")
+        elif self.curr_screen == "create_game_1":
+            self.txt_title.set_text("=== create game ===")
+            self.txt_instructions.set_text("enter your player name. cant be a current player")
+            self.input_box.set_caption("")
+        elif self.curr_screen == "create_game_2":
+            self.txt_title.set_text("=== create game ===")
+            self.txt_instructions.set_text("enter game name")
+            self.input_box.set_caption("")
+        elif self.curr_screen == "create_game_3":
+            self.txt_title.set_text("=== create game ===")
+            self.txt_instructions.set_text(f"choose chapters from this list: {' '.join(self.client.available_chapters.keys())}\nenter as space separated numbers: ")
+            self.input_box.set_caption("")
+        elif self.curr_screen == "create_game_4":
+            self.txt_title.set_text("=== create game ===")
+            self.txt_instructions.set_text(f"enter number of questions. max: {sum([self.client.available_chapters[c] for c in self.client.chosen_chapters])}\nenter as a plain normal number")
+            self.input_box.set_caption("")
+
+
+        elif self.curr_screen == "join_game_1":
+            self.txt_title.set_text("=== join game ===")
+            self.txt_instructions.set_text("enter your player name. cant be a current player")
+            self.input_box.set_caption("")
+        elif self.curr_screen == "join_game_2":
+            self.txt_title.set_text("=== join game ===")
+            self.txt_instructions.set_text(f"enter game name from this list: {' '.join(self.client.curr_games)}")
+            self.input_box.set_caption("")
 
         if self.running:
             self.loop.set_alarm_in(0.1, self.update_display)
@@ -94,28 +117,59 @@ class UIHandler:
 
         if key == 'enter':
             user_input = self.input_box.get_edit_text()
-            self.input_box.set_edit_text("")
 
             if self.curr_screen == "main_menu":
                 if user_input == "1":
-                    self.curr_screen = "create_game"
+                    self.curr_screen = "create_game_1"
                 elif user_input == "2" and self.client.curr_games:
-                    self.curr_screen = "join_game"
+                    self.curr_screen = "join_game_1"
                 elif user_input == "3":
                     self.running = False
                     raise urwid.ExitMainLoop()
 
-            elif self.curr_screen == "create_game":
-                if user_input == "back":
-                    self.curr_screen = "main_menu"
-                elif user_input in self.client.available_chapters:
+            elif self.curr_screen == "create_game_1":
+                if user_input not in self.client.curr_players:
+                    self.client.player_name = user_input
+                    self.curr_screen = "create_game_2"
+            elif self.curr_screen == "create_game_2":
+                if user_input not in self.client.curr_games:
+                    self.client.game_name = user_input
+                    self.curr_screen = "create_game_3"
+            elif self.curr_screen == "create_game_3":
+                chapters = user_input.split()
+                if all([c in self.client.available_chapters.keys() for c in chapters]):
+                    self.client.chosen_chapters = chapters
+                    self.curr_screen = "create_game_4"
+            elif self.curr_screen == "create_game_4":
+                try:
+                    num_questions = int(user_input)
+                    if 0 < num_questions <= sum([self.client.available_chapters[c] for c in self.client.chosen_chapters]):
+                        self.client.num_questions = num_questions
+                        self.curr_screen = "main_menu"
+                        message = {
+                            "message_type": "create_game",
+                            "player_name": self.client.player_name,
+                            "game_name": self.client.game_name,
+                            "chapters": self.client.chosen_chapters,
+                            "num_questions": self.client.num_questions,
+                            "is_private": False
+                        }
+                        send_message(self.logger, message, self.client.sock)
+                except Exception:
+                    pass
+
+            elif self.curr_screen == "join_game_1":
+                if user_input not in self.client.curr_players:
+                    self.client.player_name = user_input
+                    self.curr_screen = "join_game_2"
+            elif self.curr_screen == "join_game_2":
+                if user_input in self.client.curr_games:
+                    self.client.game_name = user_input
                     message = {
-                        "message_type": "create_game",
-                        "player_name": "player1",
-                        "game_name": "game1",
-                        "is_private": False,
-                        "chapters": [user_input],
-                        "num_questions": 5
+                        "message_type": "join_game",
+                        "player_name": self.client.player_name,
+                        "game_name": self.client.game_name
                     }
-                    send_message(self.logger, message, self.client.sock)
-                    self.curr_screen = "main_menu"
+
+
+            self.input_box.set_edit_text("")

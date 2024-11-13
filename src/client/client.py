@@ -31,6 +31,7 @@ class Client:
         self.curr_games = []
         self.curr_players = []
         self.available_chapters = {}
+        self.chosen_chapters = []
         self.game_id = ""
         self.player_name = ""
         self.curr_question = {}
@@ -96,8 +97,9 @@ class Client:
                         self.logger.debug(f"New game: {msg_obj.get('game_id')}")
                         self.logger.debug(f"Current games: {self.curr_games}")
                     elif msg_subtype == "game_end":
-                        self.logger.debug(f"Game ended: {msg_obj.get('game_id')}")
                         self.curr_games.remove(msg_obj.get("game_id"))
+                        self.logger.debug(f"Game ended: {msg_obj.get('game_id')}")
+                        self.logger.debug(f"Current games: {self.curr_games}")
                     elif msg_subtype == "player_join":
                         self.logger.debug(
                             f"Player {msg_obj.get('player_id')} joined game {msg_obj.get('game_id')}"

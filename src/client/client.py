@@ -5,15 +5,9 @@ import json
 import threading
 
 
-from src.client.dialogs import (
-    new_connection_dialog,
-    create_game_dialog,
-    join_game_dialog,
-    quiz_question_dialog,
-)
 from src.utils.messages import send_message, receive_message
 from src.utils.logger import setup_logger
-from src.client.ui_thread import UIHandler
+from src.client.ui import UIHandler
 
 # configure logging
 logger = setup_logger("client.log")
@@ -68,7 +62,7 @@ class Client:
             try:
                 self.sock.settimeout(1.0)
                 # blocking call awaits message from server
-                message = self.sock.recv(1024).decode("utf-8")
+                message = self.sock.recv(2048).decode("utf-8")
                 if not message:
                     self.logger.info("Server connection closed.")
                     self.running = False
@@ -76,8 +70,6 @@ class Client:
                 receive_message(self.logger, message, self.sock)
                 msg_obj = json.loads(message)
                 msg_type = msg_obj.get("message_type")
-
-                self.ui_handler.message_queue.put(msg_obj)
 
                 # server has shut down
                 if msg_type == "server_shutdown":
@@ -110,6 +102,8 @@ class Client:
                             f"Player {msg_obj.get('player_id')} left game {msg_obj.get('game_id')}"
                         )
                         self.curr_players.remove(msg_obj.get("player_id"))
+                    elif msg_subtype == "response_update":
+                        self.response_progress = msg_obj.get("message")
 
                 if msg_type == "new_connection_prompt":
                     self.curr_players = msg_obj.get("current_players")
@@ -117,31 +111,10 @@ class Client:
                     self.max_questions = msg_obj.get("max_questions")
                     self.available_chapters = msg_obj.get("chapters_available")
 
-                #     decision = -1
-                #     decision = new_connection_dialog(len(self.curr_games) > 0)
-                #     if decision == 1:
-                #         create_game = create_game_dialog(
-                #             available_chapters=self.available_chapters,
-                #             curr_games=self.curr_games,
-                #             curr_players=self.curr_players,
-                #         )
-                #         send_message(self.logger, create_game, self.sock)
-                #     elif decision == 2:
-                #         join_game = join_game_dialog(self.curr_games)
-                #         send_message(self.logger, join_game, self.sock)
-                #     elif decision == 3:
-                #         self.running = False
-                #         break
+                elif msg_type == "quiz_question":
+                    self.curr_question = msg_obj
 
-                # elif msg_type == "quiz_question":
-                #     # use quiz_question_dialog to get the user answer
-                #     user_answer = quiz_question_dialog(msg_obj)
-                #     answer_message = {
-                #         "message_type": "quiz_answer",
-                #         "question": msg_obj.get("question"),
-                #         "answer": user_answer,
-                #     }
-                #     send_message(self.logger, answer_message, self.sock)
+                self.ui_handler.message_queue.put(msg_obj)
 
             except socket.timeout:
                 continue

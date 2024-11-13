@@ -1,4 +1,3 @@
-from __future__ import annotations
 import socket
 import uuid
 
@@ -17,9 +16,7 @@ class Player:
     def __eq__(self, other):
         if isinstance(other, socket.socket):
             return self.sock == other
-        elif isinstance(other, Player):
-            return self.sock == other.sock
         elif isinstance(other, str):
             return self.id == other
         else:
-            return False
+            return self.sock == other.sock

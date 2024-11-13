@@ -29,6 +29,7 @@ class Client:
         self.max_questions = -1
         self.available_chapters = []
         self.logger = logger
+        self.current_window = "main_menu"
 
     # connect to server
     def connect(self):
@@ -67,6 +68,28 @@ class Client:
                     self.logger.info("Server is shutting down. Press enter to exit")
                     self.running = False
                     break
+
+                if msg_type == "error":
+                    self.logger.error(f"Server error: {msg_obj.get('message', "")}")
+                    self.running = False
+                    break
+
+                if msg_type == "game_update":
+                    msg_subtype = msg_obj.get("subtype")
+                    if msg_subtype == "game_created":
+                        self.logger.debug(f"New game: {msg_obj.get('game_id')}")
+                        self.curr_games.append(msg_obj.get("game_id"))
+                    elif msg_subtype == "game_end":
+                        self.logger.debug(f"Game ended: {msg_obj.get('game_id')}")
+                        self.curr_games.remove(msg_obj.get("game_id"))
+                    elif msg_subtype == "player_join":
+                        self.logger.debug(
+                            f"Player {msg_obj.get('player_id')} joined game {msg_obj.get('game_id')}"
+                        )
+                        self.curr_players.append(msg_obj.get("player_id"))
+                    elif msg_subtype == "player_leave":
+
+
                 if msg_type == "new_connection_prompt":
                     self.curr_players = msg_obj.get("current_players")
                     self.curr_games = msg_obj.get("current_games")
@@ -97,7 +120,7 @@ class Client:
                         "question": msg_obj.get("question"),
                         "answer": user_answer,
                     }
-                    send_message(answer_message, self.sock)
+                    send_message(self.logger, answer_message, self.sock)
 
             except socket.timeout:
                 continue

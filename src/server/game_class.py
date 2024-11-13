@@ -58,12 +58,11 @@ class Game:
         return all(response is not None for response in self.player_responses.values())
 
     def info(self):
-        return (
-            f"Game ID: {self.game_id}, "
-            f"Owner: {self.owner_name}, "
-            f"Players: {" ".join(self.player_responses.keys())}, "
-            f"Current Question: {self.current_question_index + 1}/{len(self.questions)}"
-        )
+        string = f"Game ID: {self.game_id}, "
+        string += f"Owner: {self.owner_name}, "
+        string += f"Players: {' '.join(self.player_responses.keys())}, "
+        string += f"Current Question: {self.current_question_index + 1}/{len(self.questions)}"
+        return string
 
     def __str__(self):
         return f"id: {self.game_id} owner: {self.owner_name} curr q: {sum([1 if val is not None else 0 for val in self.player_responses.values()])}/{len(self.player_responses.keys())} all qs: {self.current_question_index + 1}/{len(self.questions)}"

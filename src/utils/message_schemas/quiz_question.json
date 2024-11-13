@@ -10,7 +10,7 @@
     },
     "chapter": {
       "description": "chapter of this question",
-      "type": "integer"
+      "type": "string"
     },
     "question": {
       "description": "question",
@@ -20,8 +20,18 @@
       "description": "array of answers",
       "type": "array",
       "items": {
-        "description": "an answer",
-        "type": "string"
+        "description": "answer - true objects",
+        "type": "object",
+        "properties": {
+          "answer": {
+            "description": "answer",
+            "type": "string"
+          },
+          "is_correct": {
+            "description": "is this answer correct",
+            "type": "boolean"
+          }
+        }
       }
     },
     "success_message": {
@@ -29,6 +39,6 @@
       "type": "string"
     }
   },
-  "required": [ "message_type", "chapter", "question", "possible_answers" ],
-  "additionalProperties": false
+  "required": ["message_type", "chapter", "question", "possible_answers"],
+  "additionalProperties": true
 }

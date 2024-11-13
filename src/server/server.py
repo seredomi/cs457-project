@@ -1,4 +1,3 @@
-from logging import PercentStyle
 import sys
 import socket
 import threading
@@ -15,9 +14,7 @@ from src.server.game_class import Game
 from src.server.data.loader import QuizDataLoader
 from src.utils.display import print_header
 
-# configure logging
 from src.utils.logger import setup_logger
-
 logger = setup_logger("server.log")
 
 
@@ -64,8 +61,8 @@ class Server:
                 [
                     game.game_id,
                     game.owner_name,
-                    f"{sum([1 if val is not None else 0 for val in game.player_responses.values()])}/{len(game.player_responses)}",
-                    f"{game.current_question_index + 1}/{len(game.questions)}",
+                    game.get_response_progress_string(),
+                    f"{game.curr_qi + 1}/{len(game.questions)}",
                 ]
             )
         print("\nGames:")
@@ -129,7 +126,7 @@ class Server:
                 try:
                     client_socket.settimeout(1.0)
                     # blocking call awaits message from client
-                    message = client_socket.recv(1024).decode("utf-8")
+                    message = client_socket.recv(2048).decode("utf-8")
                     if not message:
                         break
                     receive_message(self.logger, message, client_socket)
@@ -254,6 +251,21 @@ class Server:
                 "game_id": game_id,
             }
             self.broadcast(response)
+
+            # send first question to player
+            question = new_game.get_current_question()
+            message = {
+                "message_type": "quiz_question",
+                **question,
+            }
+            send_message(self.logger, message, player.sock)
+            message = {
+                "message_type": "game_update",
+                "subtype": "response_update",
+                "message": new_game.get_response_progress_string()
+            }
+            send_message(self.logger, message, player.sock)
+
 
             self.print_info()
 

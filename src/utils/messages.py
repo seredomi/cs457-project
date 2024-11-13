@@ -25,7 +25,7 @@ SCHEMAS = load_schemas()
 
 
 # handle messages based on schema
-def receive_message(logger, message: str, socket):
+def receive_message(logger, message: str, sock=None):
     logger.debug(f"Received message: {message}")
 
     # parse into object
@@ -33,7 +33,8 @@ def receive_message(logger, message: str, socket):
         message_obj: Dict[str, Any] = json.loads(message)
     except Exception as e:
         logger.error(f"Error parsing json message into object: {e}")
-        socket.send(json.dumps({"error": "Invalid JSON message"}).encode("utf-8"))
+        if sock:
+            sock.send(json.dumps({"error": "Invalid JSON message"}).encode("utf-8"))
         return
     message_type = message_obj.get("message_type", "unknown")
 
@@ -41,11 +42,12 @@ def receive_message(logger, message: str, socket):
 
     if message_type not in SCHEMAS:
         logger.error(f"Unknown message type: {message_type}")
-        socket.send(
-            json.dumps({"error": f"Unknown message type {message_type}"}).encode(
-                "utf-8"
+        if sock:
+            sock.send(
+                json.dumps({"error": f"Unknown message type {message_type}"}).encode(
+                    "utf-8"
+                )
             )
-        )
         return
 
     # validate against schema
@@ -54,10 +56,11 @@ def receive_message(logger, message: str, socket):
         logger.debug(f"Message of type {message_type} is valid.")
     except ValidationError as e:
         logger.error(f"Invalid {message_type} message: {e}")
-        socket.send(json.dumps({"error": str(e)}).encode("utf-8"))
+        if sock:
+            sock.send(json.dumps({"error": str(e)}).encode("utf-8"))
 
 
-def send_message(logger, message: Dict[str, Any], socket: socket.socket):
+def send_message(logger, message: Dict[str, Any], sock=None):
     message_type = message.get("message_type", "unknown")
 
     # validate against schema
@@ -70,7 +73,8 @@ def send_message(logger, message: Dict[str, Any], socket: socket.socket):
 
     # send it!
     logger.debug(f"Sending message of type: {message_type}")
-    socket.send(json.dumps(message).encode("utf-8"))
+    if sock:
+        sock.send(json.dumps(message).encode("utf-8"))
 
 
 MOCKS = {

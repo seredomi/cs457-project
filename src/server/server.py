@@ -176,12 +176,8 @@ class Server:
                     break
         finally:
             player = next((p for p in self.players if p.sock == client_socket), None)
-            if player is None:
-                self.logger.error(f"Player not found for socket {client_socket}")
-                return
             if player:
                 self.handle_player_disconnect(player)
-                self.players.remove(player)
             client_socket.close()
             self.logger.debug(f"Connection from {addr} closed")
             self.print_info()
@@ -190,6 +186,7 @@ class Server:
     # start game
     def handle_create_game(self, msg_obj, player: Player):
         game_id = msg_obj.get("game_name", "unknown_game_id")
+        player_id = player.id  # Define player_id
         self.print_info()
 
         # client has returned a set of chapters and the total number of questions to be included
@@ -215,9 +212,9 @@ class Server:
                 questions.extend(full_chapter[start : end])
 
         try:
-            # check if game exists
-            # if gi != -1: raise Exception(f"Game {game_id} already exists")
-            self.print_info()
+            # Check if game already exists
+            if any(g.game_id == game_id for g in self.curr_games):
+                raise Exception(f"Game {game_id} already exists")
 
             # new game
             new_game = Game(
@@ -234,7 +231,7 @@ class Server:
                 "subtype": "game_created",
                 "game_id": game_id,
                 "player_id": player_id,
-                "message": f"game {game_id} created successfully by {self.players[pi].name}",
+                "message": f"game {game_id} created successfully by {player.name}",
             }
             self.logger.debug(f"game {game_id} created successfully by {player_id}")
             self.broadcast(response)
@@ -245,17 +242,17 @@ class Server:
                 "message_type": "error",
                 "message": f"error creating game: {e}",
             }
-            send_message(self.logger, error_message, self.players[pi].sock)
+            send_message(self.logger, error_message, player.sock)
 
     # join game
     def handle_join_game(self, msg_obj, player: Player):
         game_id = msg_obj.get("game_name")
         game = next((g for g in self.curr_games if g.game_id == game_id), None)
-        gi = self.curr_games.index(game_id)
+        player_id = player.id
 
         try:
             # find game by game_id in curr_games
-            if gi == -1:
+            if not game:
                 raise Exception(f"game id {game_id} not found")
 
             game.add_player(player.id)
@@ -265,9 +262,9 @@ class Server:
                 "subtype": "player_join",
                 "game_id": game_id,
                 "player_id": player_id,
-                "message": f"player {self.players[pi].name} successfully joined game {game_id}",
+                "message": f"player {player.name} successfully joined game {game_id}",
             }
-            send_message(self.logger, response, self.players[pi].sock)
+            send_message(self.logger, response, player.sock)
             self.logger.info(f"player {player_id} joined game {game_id}")
 
             self.broadcast(response)
@@ -278,7 +275,7 @@ class Server:
                 "message_type": "error",
                 "message": f"error joining game: {e}",
             }
-            send_message(self.logger, error_message, self.players[pi].sock)
+            send_message(self.logger, error_message, player.sock)
 
     def handle_player_disconnect(self, player: Player):
         # Remove player from any games they are in
@@ -335,7 +332,16 @@ class Server:
         else:
             self.logger.info(f"Player {player.name} was not in any game.")
 
-    # delete game
+        # Remove the player from the server's player list
+        if player in self.players:
+            self.players.remove(player)
+        # Close the player's socket
+        try:
+            player.sock.close()
+        except Exception as e:
+            self.logger.error(f"Error closing socket for {player.name}: {e}")
+        # delete game
+
     def delete_game(self, game_id):
         try:
             # Find game by game_id in curr_games
@@ -372,10 +378,10 @@ class Server:
         for player in recipients:
             try:
                 send_message(self.logger, message, player.sock)
-            except Exception as e:
-                self.logger.error(
-                    f"Error broadcasting message {message} to client: {e}"
-                )
+            except (BrokenPipeError, ConnectionResetError, OSError) as e:
+                self.logger.error(f"Error broadcasting to {player.name}: {e}")
+                # Handle the disconnection
+                self.handle_player_disconnect(player)
 
 
     # handle self shutdown

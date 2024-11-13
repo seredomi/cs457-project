@@ -225,7 +225,7 @@ class Server:
             )
             self.curr_games.append(new_game)  # add new game to curr_games
 
-            # confirmation
+            # broadcast game created
             response = {
                 "message_type": "game_update",
                 "subtype": "game_created",
@@ -235,7 +235,28 @@ class Server:
             }
             self.logger.debug(f"game {game_id} created successfully by {player_id}")
             self.broadcast(response)
+
+            # broadcast remove old player info
+            response = {
+                "message_type": "game_update",
+                "subtype": "player_leave",
+                "player_id": "no_name",
+                "game_id": "no_game",
+            }
+            self.broadcast(response)
+
+            # broadcast new player info
+            response = {
+                "message_type": "game_update",
+                "subtype": "player_join",
+                "player_id": player.name,
+                "player_name": player.name,
+                "game_id": game_id,
+            }
+            self.broadcast(response)
+
             self.print_info()
+
 
         except Exception as e:
             error_message = {
@@ -296,7 +317,7 @@ class Server:
                     "game_id": game.game_id,
                     "message": f"Game {game.game_id} has ended because the owner {player.name} left."
                 }
-                self.broadcast(response, game=game)
+                self.broadcast(response)
             else:
                 # Broadcast to other players that the player left
                 response = {

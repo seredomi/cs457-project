@@ -60,7 +60,7 @@ class UIHandler:
             if msg["message_type"] == "new_connection_prompt":
                 self.curr_screen = "main_menu"
             elif msg["message_type"] == "quiz_question":
-                pass
+                self.curr_screen = "quiz_question"
             elif msg["message_type"] == "results":
                 pass
 
@@ -106,6 +106,17 @@ class UIHandler:
             self.txt_title.set_text("=== join game ===")
             self.txt_instructions.set_text(f"enter game name from this list: {' '.join(self.client.curr_games)}")
             self.input_box.set_caption("")
+
+        elif self.curr_screen == "quiz_question":
+            self.txt_title.set_text(f"=== {self.client.curr_question['topic']} ===")
+            content = f"player answers: {self.client.response_progress}\n"
+            content += f"\n{self.client.curr_question['question']}\n\n"
+            for i, option in enumerate(self.client.curr_question['possible_answers']):
+                content += f"{chr(65+i)}. {option['answer']}\n"
+            self.txt_instructions.set_text(
+                content
+            )
+            self.input_box.set_caption("choose option: ")
 
         if self.running:
             self.loop.set_alarm_in(0.1, self.update_display)
@@ -170,6 +181,7 @@ class UIHandler:
                         "player_name": self.client.player_name,
                         "game_name": self.client.game_name
                     }
+                    self.curr_screen = "main_menu"
 
 
             self.input_box.set_edit_text("")

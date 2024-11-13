@@ -63,7 +63,7 @@ def receive_message(logger, message: str, sock=None):
 def send_message(logger, message: Dict[str, Any], sock=None):
     message_type = message.get("message_type", "unknown")
 
-    # validate against schema
+    # Validate against schema
     try:
         validate(instance=message, schema=SCHEMAS[message_type])
         logger.debug(f"Message of type {message_type} is valid.")
@@ -71,10 +71,14 @@ def send_message(logger, message: Dict[str, Any], sock=None):
         logger.error(f"Invalid {message_type} message: {e}")
         return
 
-    # send it!
-    logger.debug(f"Sending message of type: {message_type}")
-    if sock:
-        sock.send(json.dumps(message).encode("utf-8"))
+    # Send the message
+    try:
+        logger.debug(f"Sending message of type: {message_type}")
+        if sock:
+            sock.send(json.dumps(message).encode("utf-8"))
+    except (BrokenPipeError, ConnectionResetError, OSError) as e:
+        logger.error(f"Error sending message to client: {e}")
+        # Handle the disconnection if necessary
 
 
 MOCKS = {

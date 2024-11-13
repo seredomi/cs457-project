@@ -1,4 +1,4 @@
-from typing import List, Any, Dict, Optional
+from typing import List, Any, Dict, Optional, Tuple
 import random
 
 
@@ -17,12 +17,24 @@ class Game:
             self.owner_id: None
         }  # responses from players
         self.questions = questions
-        self.current_question_index = -1  # index of current question
+        self.curr_qi = 0  # index of current question
 
     def generate_game_id(self):
         self.game_id: str = "".join(
             [chr(random.randint(65, 90)) for _ in range(3)]
         )  # a-z
+
+    def get_response_progress(self) -> Tuple[int, int]:
+        return (
+            sum([1 if val is not None else 0 for val in self.player_responses.values()]),
+            len(self.player_responses.keys())
+        )
+
+    def get_response_progress_string(self) -> str:
+        return f"{self.get_response_progress()[0]}/{self.get_response_progress()[1]}"
+
+    def get_total_status(self) -> Tuple[int, int]:
+        return self.curr_qi, len(self.questions)
 
     def add_player(self, player_id: str):
         if player_id not in self.player_responses:
@@ -34,8 +46,8 @@ class Game:
 
     def advance_question(self) -> bool:
         # go to next q if available
-        if self.current_question_index < len(self.questions) - 1:
-            self.current_question_index += 1
+        if self.curr_qi < len(self.questions) - 1:
+            self.curr_qi += 1
             self.player_responses.update(
                 {player_id: None for player_id in self.player_responses}
             )
@@ -44,8 +56,8 @@ class Game:
 
     def get_current_question(self) -> Any:
         # get current q basedd on index
-        if 0 <= self.current_question_index < len(self.questions):
-            return self.questions[self.current_question_index]
+        if 0 <= self.curr_qi < len(self.questions):
+            return self.questions[self.curr_qi]
         return None
 
     def record_response(self, player_id: str, response: int):
@@ -61,11 +73,11 @@ class Game:
         string = f"Game ID: {self.game_id}, "
         string += f"Owner: {self.owner_name}, "
         string += f"Players: {' '.join(self.player_responses.keys())}, "
-        string += f"Current Question: {self.current_question_index + 1}/{len(self.questions)}"
+        string += f"Current Question: {self.curr_qi + 1}/{len(self.questions)}"
         return string
 
     def __str__(self):
-        return f"id: {self.game_id} owner: {self.owner_name} curr q: {sum([1 if val is not None else 0 for val in self.player_responses.values()])}/{len(self.player_responses.keys())} all qs: {self.current_question_index + 1}/{len(self.questions)}"
+        return f"id: {self.game_id} owner: {self.owner_name} curr q: {sum([1 if val is not None else 0 for val in self.player_responses.values()])}/{len(self.player_responses.keys())} all qs: {self.curr_qi + 1}/{len(self.questions)}"
 
     def __eq__(self, other: Any):
         if isinstance(other, str):

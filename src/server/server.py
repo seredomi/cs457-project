@@ -139,23 +139,29 @@ class Server:
                     if msg_type == "create_game":
                         player_name = msg_obj["player_name"]
                         game_name = msg_obj["game_name"]
-                        pi = self.players.index(client_socket)
-                        self.players[pi].curr_game = game_name
-                        self.players[pi].name = player_name
-
+                        player = next((p for p in self.players if p.sock == client_socket), None)
+                        if player is None:
+                            self.logger.error(f"Player not found for socket {client_socket}")
+                            return
+                        player.curr_game = game_name
+                        player.name = player_name
                         self.logger.debug(
-                            f"player {player_name} wants to start a game named {game_name}"
+                            f"Player {player_name} wants to start a game named {game_name}"
                         )
                         self.print_info()
-                        self.handle_create_game(msg_obj, self.players[pi].id)
+                        self.handle_create_game(msg_obj, player)
 
                     elif msg_type == "join_game":
                         player_name = msg_obj["player_name"]
                         game_name = msg_obj["game_name"]
-                        pi = self.players.index(client_socket)
-                        self.players[pi].curr_game = game_name
-                        self.players[pi].name = player_name
-                        self.handle_join_game(msg_obj, self.players[pi].id)
+                        player = next((p for p in self.players if p.sock == client_socket), None)
+                        if player is None:
+                            self.logger.error(f"Player not found for socket {client_socket}")
+                            return
+                        player.curr_game = game_name
+                        player.name = player_name
+                        self.handle_join_game(msg_obj, player)
+
 
                     else:
                         self.logger.error(f"unknown message type from {addr}")
@@ -169,14 +175,20 @@ class Server:
                     send_message(self.logger, error_message, client_socket)
                     break
         finally:
-            self.players.remove(client_socket)
+            player = next((p for p in self.players if p.sock == client_socket), None)
+            if player is None:
+                self.logger.error(f"Player not found for socket {client_socket}")
+                return
+            if player:
+                self.handle_player_disconnect(player)
+                self.players.remove(player)
             client_socket.close()
-            self.logger.debug(f"connection from {addr} closed")
+            self.logger.debug(f"Connection from {addr} closed")
             self.print_info()
 
+
     # start game
-    def handle_create_game(self, msg_obj, player_id):
-        pi = self.players.index(player_id)
+    def handle_create_game(self, msg_obj, player: Player):
         game_id = msg_obj.get("game_name", "unknown_game_id")
         self.print_info()
 
@@ -211,7 +223,7 @@ class Server:
             new_game = Game(
                 game_id=game_id,
                 owner_id=player_id,
-                owner_name=self.players[pi].name,
+                owner_name=player.name,
                 questions=questions,
             )
             self.curr_games.append(new_game)  # add new game to curr_games
@@ -236,9 +248,9 @@ class Server:
             send_message(self.logger, error_message, self.players[pi].sock)
 
     # join game
-    def handle_join_game(self, msg_obj, player_id):
-        pi = self.players.index(player_id)
+    def handle_join_game(self, msg_obj, player: Player):
         game_id = msg_obj.get("game_name")
+        game = next((g for g in self.curr_games if g.game_id == game_id), None)
         gi = self.curr_games.index(game_id)
 
         try:
@@ -246,7 +258,7 @@ class Server:
             if gi == -1:
                 raise Exception(f"game id {game_id} not found")
 
-            self.curr_games[gi].add_player(player_id)
+            game.add_player(player.id)
 
             response = {
                 "message_type": "game_update",
@@ -268,46 +280,103 @@ class Server:
             }
             send_message(self.logger, error_message, self.players[pi].sock)
 
+    def handle_player_disconnect(self, player: Player):
+        # Remove player from any games they are in
+        game = next((g for g in self.curr_games if player.id in g.player_responses), None)
+        if game:
+            # Remove player from the game
+            game.remove_player(player.id)
+            self.logger.info(f"Player {player.name} removed from game {game.game_id}")
+
+            # Check if the player is the owner of the game
+            if game.owner_id == player.id:
+                # End the game
+                self.delete_game(game.game_id)
+                # Broadcast to other players that the game has ended
+                response = {
+                    "message_type": "game_update",
+                    "subtype": "game_end",
+                    "game_id": game.game_id,
+                    "message": f"Game {game.game_id} has ended because the owner {player.name} left."
+                }
+                self.broadcast(response, game=game)
+            else:
+                # Broadcast to other players that the player left
+                response = {
+                    "message_type": "game_update",
+                    "subtype": "player_left",
+                    "game_id": game.game_id,
+                    "player_id": player.id,
+                    "message": f"Player {player.name} has left the game."
+                }
+                self.broadcast(response, game=game)
+
+                # Proceed to next question if all other responses are collected
+                if game.all_players_responded():
+                    if game.advance_question():
+                        # Send the next question to all players
+                        question = game.get_current_question()
+                        response = {
+                            "message_type": "question",
+                            "game_id": game.game_id,
+                            "question": question
+                        }
+                        self.broadcast(response, game=game)
+                    else:
+                        # Game over
+                        self.delete_game(game.game_id)
+                        response = {
+                            "message_type": "game_update",
+                            "subtype": "game_end",
+                            "game_id": game.game_id,
+                            "message": f"Game {game.game_id} has ended."
+                        }
+                        self.broadcast(response, game=game)
+        else:
+            self.logger.info(f"Player {player.name} was not in any game.")
+
     # delete game
     def delete_game(self, game_id):
         try:
-            # find game by game_id in curr_games
-            gi = self.curr_games.index(game_id)
-            if gi == -1:
-                raise Exception(f"game id {game_id} not found")
+            # Find game by game_id in curr_games
+            game = next((g for g in self.curr_games if g.game_id == game_id), None)
+            if not game:
+                raise Exception(f"Game id {game_id} not found")
 
-            self.curr_games.pop(gi)
+            self.curr_games.remove(game)
             response = {
                 "message_type": "game_update",
                 "subtype": "game_end",
                 "game_id": game_id,
-                "message": f"game {game_id} has ended",
+                "message": f"Game {game_id} has ended",
             }
-            self.logger.info(f"game {game_id} deleted successfully.")
+            self.logger.info(f"Game {game_id} deleted successfully.")
 
-            self.broadcast(response, game_i=gi)
+            self.broadcast(response, game=game)
 
         except Exception as e:
-            self.logger.error(f"error deleting game {game_id}: {e}")
+            self.logger.error(f"Error deleting game {game_id}: {e}")
 
     # send a message to subset of clients
-    def broadcast(self, message, game_i=None):
-        list = self.players
+    def broadcast(self, message, game=None):
+        recipients = self.players
 
-        # if given a game index, broadcast to players in that game
-        if game_i:
-            list = [
-                self.players[self.players.index(player_id)]
-                for player_id in self.curr_games[game_i].connected_players
-            ]
+        # If given a game, broadcast to players in that game
+        if game:
+            recipients = []
+            for player_id in game.player_responses.keys():
+                player = next((p for p in self.players if p.id == player_id), None)
+                if player:
+                    recipients.append(player)
 
-        for player in list:
+        for player in recipients:
             try:
                 send_message(self.logger, message, player.sock)
             except Exception as e:
                 self.logger.error(
                     f"Error broadcasting message {message} to client: {e}"
                 )
+
 
     # handle self shutdown
     def shutdown(self, signum, frame):

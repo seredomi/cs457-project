@@ -59,6 +59,11 @@ class UIHandler:
             msg = self.message_queue.get()
             if msg["message_type"] == "new_connection_prompt":
                 self.curr_screen = "main_menu"
+            elif msg["message_type"] == "game_update":
+                if msg["subtype"] == "game_end":
+                    if msg["game_id"] == self.client.game_id or self.client.game_id == "":
+                        self.client.game_id = ""
+                        self.curr_screen = "main_menu"
             elif msg["message_type"] == "quiz_question":
                 self.curr_screen = "quiz_question"
             elif msg["message_type"] == "results":
@@ -117,6 +122,9 @@ class UIHandler:
                 content
             )
             self.input_box.set_caption("choose option: ")
+
+        elif self.curr_screen == "quiz_question_waiting":
+            self.txt_instructions.set_text(f"player answers: {self.client.response_progress}\nwaiting for all responses")
 
         if self.running:
             self.loop.set_alarm_in(0.1, self.update_display)
@@ -181,7 +189,19 @@ class UIHandler:
                         "player_name": self.client.player_name,
                         "game_name": self.client.game_name
                     }
-                    self.curr_screen = "main_menu"
+                    send_message(self.logger, message, self.client.sock)
+
+            elif self.curr_screen == "quiz_question":
+                if user_input.lower() in [chr(x) for x in range(65, 65 + len(self.client.curr_question['possible_answers']))]:
+                    message = {
+                        "message_type": "quiz_answer",
+                        "player_name": self.client.player_name,
+                        "game_id": self.client.game_id,
+                        "answer": ord(user_input.upper()) - 65
+                    }
+                    send_message(self.logger, message, self.client.sock)
+                    self.client.response_progress[self.client.player_name] = user_input
+                    self.curr_screen = "quiz_question_waiting"
 
 
             self.input_box.set_edit_text("")

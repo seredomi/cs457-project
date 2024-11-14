@@ -89,7 +89,10 @@ class Client:
                         self.logger.debug(f"New game: {msg_obj.get('game_id')}")
                         self.logger.debug(f"Current games: {self.curr_games}")
                     elif msg_subtype == "game_end":
-                        self.curr_games.remove(msg_obj.get("game_id"))
+                        if msg_obj.get("game_id") in self.curr_games:
+                            self.curr_games.remove(msg_obj.get("game_id"))
+                        if msg_obj.get("game_id") == self.game_id:
+                            self.game_id = ""
                         self.logger.debug(f"Game ended: {msg_obj.get('game_id')}")
                         self.logger.debug(f"Current games: {self.curr_games}")
                     elif msg_subtype == "player_join":
@@ -101,7 +104,8 @@ class Client:
                         self.logger.debug(
                             f"Player {msg_obj.get('player_id')} left game {msg_obj.get('game_id')}"
                         )
-                        self.curr_players.remove(msg_obj.get("player_id"))
+                        if msg_obj.get("player_id") in self.curr_players:
+                            self.curr_players.remove(msg_obj.get("player_id"))
                     elif msg_subtype == "response_update":
                         self.response_progress = msg_obj.get("message")
 

@@ -55,7 +55,7 @@ class Server:
         print(player_table)
 
         game_table = PrettyTable()
-        game_table.field_names = ["id", "owner", "curr q", "all qs"]
+        game_table.field_names = ["id", "owner", "curr responses", "quiz progress"]
         for game in self.curr_games:
             game_table.add_row(
                 [
@@ -290,18 +290,42 @@ class Server:
 
             game.add_player(player.id)
 
+            # broadcast remove old player info
+            response = {
+                "message_type": "game_update",
+                "subtype": "player_leave",
+                "player_id": "no_name",
+                "game_id": "no_game",
+            }
+            self.broadcast(response)
+
+            # broadcast new player info
             response = {
                 "message_type": "game_update",
                 "subtype": "player_join",
+                "player_id": player.name,
+                "player_name": player.name,
                 "game_id": game_id,
-                "player_id": player_id,
-                "message": f"player {player.name} successfully joined game {game_id}",
             }
-            send_message(self.logger, response, player.sock)
-            self.logger.info(f"player {player_id} joined game {game_id}")
-
             self.broadcast(response)
+
+            # broadcast game reponse progress
+            response = {
+                "message_type": "game_update",
+                "subtype": "response_update",
+                "message": game.get_response_progress_string()
+            }
+            self.broadcast(response, game=game)
+
+            # send current question to player
+            question = game.get_current_question()
+            message = {
+                "message_type": "quiz_question",
+                **question,
+            }
+            send_message(self.logger, message, player.sock)
             self.print_info()
+
 
         except Exception as e:
             error_message = {
@@ -334,7 +358,7 @@ class Server:
                 # Broadcast to other players that the player left
                 response = {
                     "message_type": "game_update",
-                    "subtype": "player_left",
+                    "subtype": "player_leave",
                     "game_id": game.game_id,
                     "player_id": player.id,
                     "message": f"Player {player.name} has left the game."

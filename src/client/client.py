@@ -26,7 +26,7 @@ class Client:
         self.curr_players = []
         self.available_chapters = {}
         self.chosen_chapters = []
-        self.game_id = ""
+        self.game_name = ""
         self.player_name = ""
         self.curr_question = {}
         self.response_progress = ""
@@ -64,7 +64,7 @@ class Client:
                 # blocking call awaits message from server
                 message = self.sock.recv(2048).decode("utf-8")
                 if not message:
-                    self.logger.info("Server connection closed.")
+                    self.logger.info("Server connection closed. Press Ctl+C to exit")
                     self.running = False
                     break
                 receive_message(self.logger, message, self.sock)
@@ -85,24 +85,22 @@ class Client:
                 if msg_type == "game_update":
                     msg_subtype = msg_obj.get("subtype")
                     if msg_subtype == "game_created":
-                        self.curr_games.append(msg_obj.get("game_id"))
-                        self.logger.debug(f"New game: {msg_obj.get('game_id')}")
+                        self.curr_games.append(msg_obj.get("game_name"))
+                        self.logger.debug(f"New game: {msg_obj.get('game_name')}")
                         self.logger.debug(f"Current games: {self.curr_games}")
                     elif msg_subtype == "game_end":
-                        if msg_obj.get("game_id") in self.curr_games:
-                            self.curr_games.remove(msg_obj.get("game_id"))
-                        if msg_obj.get("game_id") == self.game_id:
-                            self.game_id = ""
-                        self.logger.debug(f"Game ended: {msg_obj.get('game_id')}")
+                        if msg_obj.get("game_name") in self.curr_games:
+                            self.curr_games.remove(msg_obj.get("game_name"))
+                        self.logger.debug(f"Game ended: {msg_obj.get('game_name')}")
                         self.logger.debug(f"Current games: {self.curr_games}")
                     elif msg_subtype == "player_join":
                         self.logger.debug(
-                            f"Player {msg_obj.get('player_id')} joined game {msg_obj.get('game_id')}"
+                            f"Player {msg_obj.get('player_id')} joined game {msg_obj.get('game_name')}"
                         )
                         self.curr_players.append(msg_obj.get("player_id"))
                     elif msg_subtype == "player_leave":
                         self.logger.debug(
-                            f"Player {msg_obj.get('player_id')} left game {msg_obj.get('game_id')}"
+                            f"Player {msg_obj.get('player_id')} left game {msg_obj.get('game_name')}"
                         )
                         if msg_obj.get("player_id") in self.curr_players:
                             self.curr_players.remove(msg_obj.get("player_id"))

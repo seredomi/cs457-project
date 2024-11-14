@@ -38,7 +38,7 @@ def receive_message(logger, message: str, sock=None):
         return
     message_type = message_obj.get("message_type", "unknown")
 
-    logger.debug(f"Processing message of type: {message_type}")
+    logger.debug(f"Received message of type: {message_type} {message}")
 
     if message_type not in SCHEMAS:
         logger.error(f"Unknown message type: {message_type}")
@@ -73,7 +73,7 @@ def send_message(logger, message: Dict[str, Any], sock=None):
 
     # Send the message
     try:
-        logger.debug(f"Sending message of type: {message_type}")
+        logger.debug(f"Sending message of type: {message_type} {message}")
         if sock:
             sock.send(json.dumps(message).encode("utf-8"))
     except (BrokenPipeError, ConnectionResetError, OSError) as e:
@@ -102,7 +102,7 @@ MOCKS = {
     "join_game": {
         "message_type": "join_game",
         "player_name": "Alice",
-        "game_id": "abc",
+        "game_name": "abc",
     },
     "quiz_question": {
         "message_type": "quiz_question",

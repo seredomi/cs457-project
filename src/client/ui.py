@@ -61,8 +61,8 @@ class UIHandler:
                 self.curr_screen = "main_menu"
             elif msg["message_type"] == "game_update":
                 if msg["subtype"] == "game_end":
-                    if msg["game_id"] == self.client.game_id or self.client.game_id == "":
-                        self.client.game_id = ""
+                    if msg["game_name"] == self.client.game_name or self.client.game_name == "":
+                        self.client.game_name = ""
                         self.curr_screen = "main_menu"
             elif msg["message_type"] == "quiz_question":
                 self.curr_screen = "quiz_question"
@@ -156,7 +156,7 @@ class UIHandler:
                     self.curr_screen = "create_game_3"
             elif self.curr_screen == "create_game_3":
                 chapters = user_input.split()
-                if all([c in self.client.available_chapters.keys() for c in chapters]):
+                if len(chapters) > 0 and all([c in self.client.available_chapters.keys() for c in chapters]):
                     self.client.chosen_chapters = chapters
                     self.curr_screen = "create_game_4"
             elif self.curr_screen == "create_game_4":
@@ -174,6 +174,7 @@ class UIHandler:
                             "is_private": False
                         }
                         send_message(self.logger, message, self.client.sock)
+                        self.client.game_name = self.client.game_name
                 except Exception:
                     pass
 
@@ -190,17 +191,18 @@ class UIHandler:
                         "game_name": self.client.game_name
                     }
                     send_message(self.logger, message, self.client.sock)
+                    self.client.game_name = user_input
 
             elif self.curr_screen == "quiz_question":
-                if user_input.lower() in [chr(x) for x in range(65, 65 + len(self.client.curr_question['possible_answers']))]:
+                # print([chr(x) for x in range(65, 65 + len(self.client.curr_question['possible_answers']))])
+                if user_input.upper() in [chr(x) for x in range(65, 65 + len(self.client.curr_question['possible_answers']))]:
                     message = {
                         "message_type": "quiz_answer",
                         "player_name": self.client.player_name,
-                        "game_id": self.client.game_id,
+                        "game_name": self.client.game_name,
                         "answer": ord(user_input.upper()) - 65
                     }
                     send_message(self.logger, message, self.client.sock)
-                    self.client.response_progress[self.client.player_name] = user_input
                     self.curr_screen = "quiz_question_waiting"
 
 

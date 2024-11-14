@@ -20,11 +20,11 @@
       "description": "player id",
       "type": "string"
     },
-    "game_id": {
+    "game_name": {
       "description": "game id",
       "type": "string"
     }
   },
-  "required": ["message_type", "question", "answer"],
+  "required": ["message_type", "answer", "player_name", "game_name"],
   "additionalProperties": false
 }

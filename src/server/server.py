@@ -59,7 +59,7 @@ class Server:
         for game in self.curr_games:
             game_table.add_row(
                 [
-                    game.game_id,
+                    game.game_name,
                     game.owner_name,
                     game.get_response_progress_string(),
                     f"{game.curr_qi + 1}/{len(game.questions)}",
@@ -116,7 +116,7 @@ class Server:
 
             new_connection_prompt = {
                 "message_type": "new_connection_prompt",
-                "current_games": [game.game_id for game in self.curr_games],
+                "current_games": [game.game_name for game in self.curr_games],
                 "current_players": [player.name for player in self.players],
                 "chapters_available": self.chapters_available,
             }
@@ -159,6 +159,28 @@ class Server:
                         player.name = player_name
                         self.handle_join_game(msg_obj, player)
 
+                    elif msg_type == "quiz_answer":
+                        player_name = msg_obj["player_name"]
+                        game_name = msg_obj["game_name"]
+                        game = next((g for g in self.curr_games if g == game_name), None)
+                        if game:
+                            reponses_done = game.store_response(player_name, msg_obj["answer"])
+                            if reponses_done:
+                                print("thats true!")
+                                # get and broadcast next question
+                                question = game.get_current_question()
+                                self.broadcast({
+                                    "message_type": "quiz_question",
+                                    **question
+                                }, game)
+
+                            # broadcast response progress regardless
+                            self.broadcast({
+                                "message_type": "game_update",
+                                "subtype": "response_update",
+                                "message": game.get_response_progress_string()
+                            }, game)
+                        self.print_info()
 
                     else:
                         self.logger.error(f"unknown message type from {addr}")
@@ -182,7 +204,7 @@ class Server:
 
     # start game
     def handle_create_game(self, msg_obj, player: Player):
-        game_id = msg_obj.get("game_name", "unknown_game_id")
+        game_name = msg_obj.get("game_name", "unknown_game_id")
         player_id = player.id  # Define player_id
         self.print_info()
 
@@ -210,12 +232,12 @@ class Server:
 
         try:
             # Check if game already exists
-            if any(g.game_id == game_id for g in self.curr_games):
-                raise Exception(f"Game {game_id} already exists")
+            if any(g.game_name == game_name for g in self.curr_games):
+                raise Exception(f"Game {game_name} already exists")
 
             # new game
             new_game = Game(
-                game_id=game_id,
+                game_name=game_name,
                 owner_id=player_id,
                 owner_name=player.name,
                 questions=questions,
@@ -226,11 +248,11 @@ class Server:
             response = {
                 "message_type": "game_update",
                 "subtype": "game_created",
-                "game_id": game_id,
+                "game_name": game_name,
                 "player_id": player_id,
-                "message": f"game {game_id} created successfully by {player.name}",
+                "message": f"game {game_name} created successfully by {player.name}",
             }
-            self.logger.debug(f"game {game_id} created successfully by {player_id}")
+            self.logger.debug(f"game {game_name} created successfully by {player_id}")
             self.broadcast(response)
 
             # broadcast remove old player info
@@ -238,7 +260,7 @@ class Server:
                 "message_type": "game_update",
                 "subtype": "player_leave",
                 "player_id": "no_name",
-                "game_id": "no_game",
+                "game_name": "no_game",
             }
             self.broadcast(response)
 
@@ -248,7 +270,7 @@ class Server:
                 "subtype": "player_join",
                 "player_id": player.name,
                 "player_name": player.name,
-                "game_id": game_id,
+                "game_name": game_name,
             }
             self.broadcast(response)
 
@@ -279,23 +301,22 @@ class Server:
 
     # join game
     def handle_join_game(self, msg_obj, player: Player):
-        game_id = msg_obj.get("game_name")
-        game = next((g for g in self.curr_games if g.game_id == game_id), None)
-        player_id = player.id
+        game_name = msg_obj.get("game_name")
+        game = next((g for g in self.curr_games if g.game_name == game_name), None)
 
         try:
-            # find game by game_id in curr_games
+            # find game by game_name in curr_games
             if not game:
-                raise Exception(f"game id {game_id} not found")
+                raise Exception(f"game id {game_name} not found")
 
-            game.add_player(player.id)
+            game.add_player(player.name)
 
             # broadcast remove old player info
             response = {
                 "message_type": "game_update",
                 "subtype": "player_leave",
                 "player_id": "no_name",
-                "game_id": "no_game",
+                "game_name": "no_game",
             }
             self.broadcast(response)
 
@@ -305,9 +326,10 @@ class Server:
                 "subtype": "player_join",
                 "player_id": player.name,
                 "player_name": player.name,
-                "game_id": game_id,
+                "game_name": game_name,
             }
             self.broadcast(response)
+            game.add_player(player.name)
 
             # broadcast game reponse progress
             response = {
@@ -336,22 +358,22 @@ class Server:
 
     def handle_player_disconnect(self, player: Player):
         # Remove player from any games they are in
-        game = next((g for g in self.curr_games if player.id in g.player_responses), None)
+        game = next((g for g in self.curr_games if player.name in g.player_responses), None)
         if game:
             # Remove player from the game
-            game.remove_player(player.id)
-            self.logger.info(f"Player {player.name} removed from game {game.game_id}")
+            game.remove_player(player.name)
+            self.logger.info(f"Player {player.name} removed from game {game.game_name}")
 
             # Check if the player is the owner of the game
-            if game.owner_id == player.id:
+            if game.owner_name == player.name:
                 # End the game
-                self.delete_game(game.game_id)
+                self.delete_game(game.game_name)
                 # Broadcast to other players that the game has ended
                 response = {
                     "message_type": "game_update",
                     "subtype": "game_end",
-                    "game_id": game.game_id,
-                    "message": f"Game {game.game_id} has ended because the owner {player.name} left."
+                    "game_name": game.game_name,
+                    "message": f"Game {game.game_name} has ended because the owner {player.name} left."
                 }
                 self.broadcast(response)
             else:
@@ -359,8 +381,8 @@ class Server:
                 response = {
                     "message_type": "game_update",
                     "subtype": "player_leave",
-                    "game_id": game.game_id,
-                    "player_id": player.id,
+                    "game_name": game.game_name,
+                    "player_name": player.name,
                     "message": f"Player {player.name} has left the game."
                 }
                 self.broadcast(response, game=game)
@@ -372,18 +394,18 @@ class Server:
                         question = game.get_current_question()
                         response = {
                             "message_type": "question",
-                            "game_id": game.game_id,
+                            "game_name": game.game_name,
                             "question": question
                         }
                         self.broadcast(response, game=game)
                     else:
                         # Game over
-                        self.delete_game(game.game_id)
+                        self.delete_game(game.game_name)
                         response = {
                             "message_type": "game_update",
                             "subtype": "game_end",
-                            "game_id": game.game_id,
-                            "message": f"Game {game.game_id} has ended."
+                            "game_name": game.game_name,
+                            "message": f"Game {game.game_name} has ended."
                         }
                         self.broadcast(response, game=game)
         else:
@@ -399,26 +421,26 @@ class Server:
             self.logger.error(f"Error closing socket for {player.name}: {e}")
         # delete game
 
-    def delete_game(self, game_id):
+    def delete_game(self, game_name):
         try:
-            # Find game by game_id in curr_games
-            game = next((g for g in self.curr_games if g.game_id == game_id), None)
+            # Find game by game_name in curr_games
+            game = next((g for g in self.curr_games if g.game_name == game_name), None)
             if not game:
-                raise Exception(f"Game id {game_id} not found")
+                raise Exception(f"Game id {game_name} not found")
 
             self.curr_games.remove(game)
             response = {
                 "message_type": "game_update",
                 "subtype": "game_end",
-                "game_id": game_id,
-                "message": f"Game {game_id} has ended",
+                "game_name": game_name,
+                "message": f"Game {game_name} has ended",
             }
-            self.logger.info(f"Game {game_id} deleted successfully.")
+            self.logger.info(f"Game {game_name} deleted successfully.")
 
             self.broadcast(response, game=game)
 
         except Exception as e:
-            self.logger.error(f"Error deleting game {game_id}: {e}")
+            self.logger.error(f"Error deleting game {game_name}: {e}")
 
     # send a message to subset of clients
     def broadcast(self, message, game=None):
@@ -427,8 +449,8 @@ class Server:
         # If given a game, broadcast to players in that game
         if game:
             recipients = []
-            for player_id in game.player_responses.keys():
-                player = next((p for p in self.players if p.id == player_id), None)
+            for player_name in game.player_responses.keys():
+                player = next((p for p in self.players if p.name == player_name), None)
                 if player:
                     recipients.append(player)
 

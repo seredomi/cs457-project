@@ -385,19 +385,26 @@ class Server:
                     "player_name": player.name,
                     "message": f"Player {player.name} has left the game."
                 }
-                self.broadcast(response, game=game)
+                self.broadcast(response)
 
                 # Proceed to next question if all other responses are collected
                 if game.all_players_responded():
                     if game.advance_question():
+                        # send response update
+                        response = {
+                            "message_type": "game_update",
+                            "subtype": "response_update",
+                            "message": game.get_response_progress_string()
+                        }
+                        self.broadcast(response, game=game)
                         # Send the next question to all players
                         question = game.get_current_question()
                         response = {
-                            "message_type": "question",
-                            "game_name": game.game_name,
-                            "question": question
+                            "message_type": "quiz_question",
+                            **question
                         }
                         self.broadcast(response, game=game)
+
                     else:
                         # Game over
                         self.delete_game(game.game_name)

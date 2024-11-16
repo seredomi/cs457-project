@@ -25,7 +25,7 @@ SCHEMAS = load_schemas()
 
 
 # handle messages based on schema
-def receive_message(logger, message: str, socket):
+def receive_message(logger, message: str, sock=None):
     logger.debug(f"Received message: {message}")
 
     # parse into object
@@ -33,19 +33,21 @@ def receive_message(logger, message: str, socket):
         message_obj: Dict[str, Any] = json.loads(message)
     except Exception as e:
         logger.error(f"Error parsing json message into object: {e}")
-        socket.send(json.dumps({"error": "Invalid JSON message"}).encode("utf-8"))
+        if sock:
+            sock.send(json.dumps({"error": "Invalid JSON message"}).encode("utf-8"))
         return
     message_type = message_obj.get("message_type", "unknown")
 
-    logger.debug(f"Processing message of type: {message_type}")
+    logger.debug(f"Received message of type: {message_type} {message}")
 
     if message_type not in SCHEMAS:
         logger.error(f"Unknown message type: {message_type}")
-        socket.send(
-            json.dumps({"error": f"Unknown message type {message_type}"}).encode(
-                "utf-8"
+        if sock:
+            sock.send(
+                json.dumps({"error": f"Unknown message type {message_type}"}).encode(
+                    "utf-8"
+                )
             )
-        )
         return
 
     # validate against schema
@@ -54,10 +56,11 @@ def receive_message(logger, message: str, socket):
         logger.debug(f"Message of type {message_type} is valid.")
     except ValidationError as e:
         logger.error(f"Invalid {message_type} message: {e}")
-        socket.send(json.dumps({"error": str(e)}).encode("utf-8"))
+        if sock:
+            sock.send(json.dumps({"error": str(e)}).encode("utf-8"))
 
 
-def send_message(logger, message: Dict[str, Any], sock: socket.socket):
+def send_message(logger, message: Dict[str, Any], sock=None):
     message_type = message.get("message_type", "unknown")
 
     # Validate against schema
@@ -70,8 +73,9 @@ def send_message(logger, message: Dict[str, Any], sock: socket.socket):
 
     # Send the message
     try:
-        logger.debug(f"Sending message of type: {message_type}")
-        sock.send(json.dumps(message).encode("utf-8"))
+        logger.debug(f"Sending message of type: {message_type} {message}")
+        if sock:
+            sock.send(json.dumps(message).encode("utf-8"))
     except (BrokenPipeError, ConnectionResetError, OSError) as e:
         logger.error(f"Error sending message to client: {e}")
         # Handle the disconnection if necessary
@@ -98,7 +102,7 @@ MOCKS = {
     "join_game": {
         "message_type": "join_game",
         "player_name": "Alice",
-        "game_id": "abc",
+        "game_name": "abc",
     },
     "quiz_question": {
         "message_type": "quiz_question",

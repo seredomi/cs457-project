@@ -8,19 +8,23 @@
       "type": "string",
       "pattern": "^quiz_answer"
     },
-    "question": {
-      "description": "the question being asked",
-      "type": "string"
-    },
     "answer": {
       "description": "answer chosen by player",
-      "type": "string"
+      "type": "integer"
     },
     "success_message": {
       "description": "success message returned by the server",
       "type": "string"
+    },
+    "player_name": {
+      "description": "player id",
+      "type": "string"
+    },
+    "game_name": {
+      "description": "game id",
+      "type": "string"
     }
   },
-  "required": [ "message_type", "question", "answer" ],
+  "required": ["message_type", "answer", "player_name", "game_name"],
   "additionalProperties": false
 }

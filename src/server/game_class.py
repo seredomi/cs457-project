@@ -4,12 +4,12 @@ import random
 class Game:
     def __init__(
         self,
-        game_name: str,
+        game_id: str,
         owner_id: str,
         owner_name: str,
         questions: List[Any],
     ):
-        self.game_name = game_name
+        self.game_id = game_id
         self.owner_id = owner_id
         self.owner_name = owner_name
         self.player_responses: Dict[str, Optional[int]] = {
@@ -17,9 +17,10 @@ class Game:
         }  # responses from players
         self.questions = questions
         self.curr_qi = 0  # index of current question
+        self.results: List[Dict[str, bool]] = []  # [{name: correct?}]
 
     def generate_game_id(self):
-        self.game_name: str = "".join(
+        self.game_id: str = "".join(
             [chr(random.randint(65, 90)) for _ in range(3)]
         )  # a-z
 
@@ -29,12 +30,11 @@ class Game:
             len(self.player_responses.keys())
         )
 
-    def get_response_progress_string(self) -> str:
+    def get_response_progress_str(self) -> str:
         return f"{self.get_response_progress()[0]}/{self.get_response_progress()[1]}"
 
     def get_total_status(self) -> Tuple[int, int]:
         return self.curr_qi, len(self.questions)
-
 
     def add_player(self, player_name: str):
         if player_name not in self.player_responses:
@@ -47,6 +47,12 @@ class Game:
     def store_response(self, player_name: str, response: int) -> bool:
         if player_name in self.player_responses:
             self.player_responses[player_name] = response
+            is_correct = self.get_current_question().get("possible_answers")[response].get("is_correct")
+            if len(self.results) == self.curr_qi + 1:
+                self.results[self.curr_qi][player_name] = is_correct
+            else:
+                self.results.append({player_name: is_correct})
+        print(self.results)
         if self.all_players_responded():
             self.advance_question()
             return True
@@ -78,18 +84,18 @@ class Game:
         return all(response is not None for response in self.player_responses.values())
 
     def info(self):
-        string = f"Game ID: {self.game_name}, "
+        string = f"Game ID: {self.game_id}, "
         string += f"Owner: {self.owner_name}, "
         string += f"Players: {' '.join(self.player_responses.keys())}, "
         string += f"Current Question: {self.curr_qi + 1}/{len(self.questions)}"
         return string
 
     def __str__(self):
-        return f"id: {self.game_name} owner: {self.owner_name} curr q: {sum([1 if val is not None else 0 for val in self.player_responses.values()])}/{len(self.player_responses.keys())} all qs: {self.curr_qi + 1}/{len(self.questions)}"
+        return f"id: {self.game_id} owner: {self.owner_name} curr q: {self.get_reponse_progress_str()} all qs: {self.get_total_status()[0]}/{self.get_total_status()[1]}"
 
     def __eq__(self, other: Any):
         if isinstance(other, str):
-            return self.game_name == other
+            return self.game_id == other
         elif isinstance(other, Game):
-            return self.game_name == other.game_name
+            return self.game_id == other.game_id
         return False

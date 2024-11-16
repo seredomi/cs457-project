@@ -4,6 +4,8 @@ import ipaddress
 import json
 import threading
 
+from urwid.wimp import disconnect_signal
+
 
 from src.utils.messages import send_message, receive_message
 from src.utils.logger import setup_logger
@@ -26,10 +28,11 @@ class Client:
         self.curr_players = []
         self.available_chapters = {}
         self.chosen_chapters = []
-        self.game_name = ""
+        self.game_id = ""
         self.player_name = ""
         self.curr_question = {}
         self.response_progress = ""
+        self.results = []
 
         self.logger = logger
         self.current_window = "main_menu"
@@ -85,23 +88,21 @@ class Client:
                 if msg_type == "game_update":
                     msg_subtype = msg_obj.get("subtype")
                     if msg_subtype == "game_created":
-                        self.curr_games.append(msg_obj.get("game_name"))
-                        self.logger.debug(f"New game: {msg_obj.get('game_name')}")
+                        self.curr_games.append(msg_obj.get("game_id"))
+                        self.logger.debug(f"New game: {msg_obj.get('game_id')}")
                         self.logger.debug(f"Current games: {self.curr_games}")
                     elif msg_subtype == "game_end":
-                        if msg_obj.get("game_name") in self.curr_games:
-                            self.curr_games.remove(msg_obj.get("game_name"))
-                        self.logger.debug(f"Game ended: {msg_obj.get('game_name')}")
+                        if msg_obj.get("game_id") in self.curr_games:
+                            self.curr_games.remove(msg_obj.get("game_id"))
+
+                        self.logger.debug(f"Game ended: {msg_obj.get('game_id')}")
                         self.logger.debug(f"Current games: {self.curr_games}")
-                    elif msg_subtype == "player_join":
+                    elif msg_subtype == "player_connect":
                         self.logger.debug(
-                            f"Player {msg_obj.get('player_id')} joined game {msg_obj.get('game_name')}"
+                            f"Player {msg_obj.get('player_id')} joined game {msg_obj.get('game_id')}"
                         )
                         self.curr_players.append(msg_obj.get("player_id"))
-                    elif msg_subtype == "player_leave":
-                        self.logger.debug(
-                            f"Player {msg_obj.get('player_id')} left game {msg_obj.get('game_name')}"
-                        )
+                    elif msg_subtype == "player_disconnect":
                         if msg_obj.get("player_id") in self.curr_players:
                             self.curr_players.remove(msg_obj.get("player_id"))
                     elif msg_subtype == "response_update":
@@ -116,6 +117,9 @@ class Client:
                 elif msg_type == "quiz_question":
                     self.curr_question = msg_obj
 
+                elif msg_type == "results":
+                    self.results = msg_obj.get("results")
+
                 self.ui_handler.message_queue.put(msg_obj)
 
             except socket.timeout:
@@ -129,6 +133,12 @@ class Client:
 
     def disconnect(self):
         self.logger.info("Disconnecting from server...")
+        disconnect_message = {
+            "message_type": "game_update",
+            "subtype": "player_disconnect",
+            "player_name": self.player_name,
+        }
+        send_message(self.logger, disconnect_message, self.sock)
         self.running = False
         self.ui_handler.stop()
         self.sock.close()

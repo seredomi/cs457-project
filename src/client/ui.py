@@ -1,8 +1,9 @@
-
 import urwid
 import asyncio
 from queue import Queue
 from src.utils.messages import send_message
+from prettytable import PrettyTable
+from typing import Dict, Tuple, List
 
 class UIHandler:
     def __init__(self, client, logger):
@@ -48,6 +49,7 @@ class UIHandler:
                 pass
         if hasattr(self.loop, 'idle_handle'):
             self.loop.remove_watch_file(self.loop.idle_handle)
+        raise urwid.ExitMainLoop()
         try:
             self.loop.stop()
         except Exception:
@@ -59,15 +61,18 @@ class UIHandler:
             msg = self.message_queue.get()
             if msg["message_type"] == "new_connection_prompt":
                 self.curr_screen = "main_menu"
-            elif msg["message_type"] == "game_update":
-                if msg["subtype"] == "game_end":
-                    if msg["game_name"] == self.client.game_name or self.client.game_name == "":
-                        self.client.game_name = ""
-                        self.curr_screen = "main_menu"
-            elif msg["message_type"] == "quiz_question":
-                self.curr_screen = "quiz_question"
             elif msg["message_type"] == "results":
                 pass
+            elif msg["message_type"] == "game_update":
+                if msg["subtype"] == "game_end":
+                    if msg["game_id"] == self.client.game_id:
+                        self.client.game_id = ""
+                        self.curr_screen = "results"
+                if msg["subtype"] == "player_leave":
+                    if msg["player_name"] == self.client.player_name:
+                        self.curr_screen = "results"
+            elif msg["message_type"] == "quiz_question":
+                self.curr_screen = "quiz_question"
 
         # Update display based on current screen
         if self.curr_screen == "connecting":
@@ -102,7 +107,6 @@ class UIHandler:
             self.txt_instructions.set_text(f"enter number of questions. max: {sum([self.client.available_chapters[c] for c in self.client.chosen_chapters])}\nenter as a plain normal number")
             self.input_box.set_caption("")
 
-
         elif self.curr_screen == "join_game_1":
             self.txt_title.set_text("=== join game ===")
             self.txt_instructions.set_text("enter your player name. cant be a current player")
@@ -126,16 +130,29 @@ class UIHandler:
         elif self.curr_screen == "quiz_question_waiting":
             self.txt_instructions.set_text(f"player answers: {self.client.response_progress}\nwaiting for all responses")
 
+        elif self.curr_screen == "results":
+            self.txt_title.set_text("=== quiz results ===")
+            self.txt_instructions.set_text(self.print_quiz_results())
+            self.input_box.set_caption("press enter to return to main menu")
+
         if self.running:
             self.loop.set_alarm_in(0.1, self.update_display)
 
     def handle_input(self, key):
-        if key in ('q', 'Q'):
-            self.running = False
-            raise urwid.ExitMainLoop()
-
         if key == 'enter':
             user_input = self.input_box.get_edit_text()
+
+            if user_input.lower() == 'q':
+                message = {
+                    "message_type": "game_update",
+                    "subtype": "player_leave",
+                    "player_name": self.client.player_name,
+                    "game_id": self.client.game_id
+                }
+                self.client.player_name = "no_name"
+                self.client.game_id = "no_game"
+                send_message(self.logger, message, self.client.sock)
+                self.curr_screen = "main_menu"
 
             if self.curr_screen == "main_menu":
                 if user_input == "1":
@@ -152,7 +169,7 @@ class UIHandler:
                     self.curr_screen = "create_game_2"
             elif self.curr_screen == "create_game_2":
                 if user_input not in self.client.curr_games:
-                    self.client.game_name = user_input
+                    self.client.game_id = user_input
                     self.curr_screen = "create_game_3"
             elif self.curr_screen == "create_game_3":
                 chapters = user_input.split()
@@ -168,13 +185,13 @@ class UIHandler:
                         message = {
                             "message_type": "create_game",
                             "player_name": self.client.player_name,
-                            "game_name": self.client.game_name,
+                            "game_id": self.client.game_id,
                             "chapters": self.client.chosen_chapters,
                             "num_questions": self.client.num_questions,
                             "is_private": False
                         }
                         send_message(self.logger, message, self.client.sock)
-                        self.client.game_name = self.client.game_name
+                        self.client.game_id = self.client.game_id
                 except Exception:
                     pass
 
@@ -184,14 +201,14 @@ class UIHandler:
                     self.curr_screen = "join_game_2"
             elif self.curr_screen == "join_game_2":
                 if user_input in self.client.curr_games:
-                    self.client.game_name = user_input
+                    self.client.game_id = user_input
                     message = {
                         "message_type": "join_game",
                         "player_name": self.client.player_name,
-                        "game_name": self.client.game_name
+                        "game_id": self.client.game_id
                     }
                     send_message(self.logger, message, self.client.sock)
-                    self.client.game_name = user_input
+                    self.client.game_id = user_input
 
             elif self.curr_screen == "quiz_question":
                 # print([chr(x) for x in range(65, 65 + len(self.client.curr_question['possible_answers']))])
@@ -199,11 +216,66 @@ class UIHandler:
                     message = {
                         "message_type": "quiz_answer",
                         "player_name": self.client.player_name,
-                        "game_name": self.client.game_name,
+                        "game_id": self.client.game_id,
                         "answer": ord(user_input.upper()) - 65
                     }
                     send_message(self.logger, message, self.client.sock)
                     self.curr_screen = "quiz_question_waiting"
 
+            elif self.curr_screen == "results":
+                self.curr_screen = "main_menu"
 
             self.input_box.set_edit_text("")
+
+    def print_quiz_results(self):
+        name = self.client.player_name
+        results = self.client.results
+        parsed_results: Dict[str, List[int]] = {}
+        consistent_players = []
+
+        # get to first question answered, initialize list of consistent_players and parsed results
+        i = 0
+        while i < len(results):
+            if name in results[i].keys():
+                for n in results[i].keys():
+                    consistent_players.append(n)
+                    parsed_results[n] = [0, 0]
+                break
+            i += 1
+
+        if len(consistent_players) == 0:
+            return "looks like you didn't answer any questions.\nno results to show."
+
+        # go through rest of questions until player not in them
+        # adjust consistent_players and parsed_results for each question
+        while i < len(results):
+            if name not in results[i].keys():
+                break
+            for p_name in consistent_players:
+                if p_name not in results[i].keys():
+                    consistent_players.remove(p_name)
+                else:
+                    parsed_results[p_name][0] = parsed_results[p_name][0] + 1
+                    parsed_results[p_name][1] = parsed_results[p_name][1] + 1
+            i += 1
+
+        if len(consistent_players) == 1:
+            return f"looks you were the only one.\nyou scored {parsed_results[name][0]/parsed_results[name][1]}"
+
+        # remove anyone who didn't make it through the player's questions
+        for p_name in parsed_results.keys():
+            if p_name not in consistent_players:
+                parsed_results.pop(p_name)
+
+        # sort parsed_results
+        parsed_results = dict(sorted(parsed_results.items(), key=lambda x: x[1][0], reverse=True))
+        # create table and append results
+        results_table = PrettyTable()
+        results_table.field_names = ["rank", "player name", "score"]
+        print(results_table)
+        rank = 1
+        for player_name, score in parsed_results.items():
+            results_table.add_row([rank, player_name, f"{score[0]}/{score[1]}"])
+            rank += 1
+
+        return str(results_table)

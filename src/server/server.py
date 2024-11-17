@@ -50,8 +50,9 @@ class Server:
                     player.sock.getpeername()[1],
                 ]
             )
-        print("=== server info ===")
-        print("Players:")
+        print("\n=== server info ===")
+        print(f"listening on {self.host}:{self.port_num}")
+        print("\ncurrent players:")
         print(player_table)
 
         game_table = PrettyTable()
@@ -65,7 +66,7 @@ class Server:
                     f"{game.curr_qi + 1}/{len(game.questions)}",
                 ]
             )
-        print("\nGames:")
+        print("\ncurrent games:")
         print(game_table)
         print()
 
@@ -76,7 +77,8 @@ class Server:
             self.logger.info(f"Attempting to connect to {self.host}:{self.port_num}")
             self.server_socket.bind((self.host, self.port_num))
             self.server_socket.listen(5)
-            self.logger.info(
+            self.print_info()
+            self.logger.debug(
                 f"Server started on {self.host}:{self.port_num}\nListening for connections..."
             )
 

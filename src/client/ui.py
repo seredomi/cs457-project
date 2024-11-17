@@ -90,7 +90,10 @@ class UIHandler:
             self.input_box.set_caption("")
         elif self.curr_screen == "create_game_3":
             self.txt_title.set_text("=== create game ===")
-            self.txt_instructions.set_text(f"choose chapters from this list: {' '.join(self.client.available_chapters.keys())}\nenter as space separated numbers: ")
+            chapters_sorted = sorted([int(c) for c in self.client.available_chapters.keys()])
+            self.txt_instructions.set_text(
+                f"choose chapters from this list: {' '.join([str(c) for c in chapters_sorted])}\nenter as chapter numbers separated by spaces: "
+            )
             self.input_box.set_caption("")
         elif self.curr_screen == "create_game_4":
             self.txt_title.set_text("=== create game ===")

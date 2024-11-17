@@ -389,6 +389,8 @@ class Server:
                 }
                 self.broadcast(response)
 
+                self.send_response_progress(game)
+
                 # Proceed to next question if all other responses are collected
                 if game.all_players_responded():
                     if game.advance_question():
@@ -487,6 +489,14 @@ class Server:
             send_message(self.logger, results_message, player.sock)
         else:
             self.broadcast(results_message, game)
+
+    def send_response_progress(self, game):
+        response = {
+            "message_type": "game_update",
+            "subtype": "response_update",
+            "message": game.get_response_progress_str()
+        }
+        self.broadcast(response, game)
 
     # handle self shutdown
     def shutdown(self, signum, frame):

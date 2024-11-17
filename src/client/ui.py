@@ -3,7 +3,8 @@ import asyncio
 from queue import Queue
 from src.utils.messages import send_message
 from prettytable import PrettyTable
-from typing import Dict, Tuple, List
+from typing import Dict, List
+
 
 class UIHandler:
     def __init__(self, client, logger):
@@ -161,7 +162,7 @@ class UIHandler:
                     self.client.disconnect()
 
             elif self.curr_screen == "create_game_1":
-                if user_input not in self.client.curr_players:
+                if user_input not in self.client.curr_players and user_input != "no_name":
                     self.client.player_name = user_input
                     self.curr_screen = "create_game_2"
             elif self.curr_screen == "create_game_2":

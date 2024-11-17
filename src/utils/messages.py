@@ -76,7 +76,7 @@ def send_message(logger, message: Dict[str, Any], sock=None):
         if sock:
             sock.send(json.dumps(message).encode("utf-8"))
     except (BrokenPipeError, ConnectionResetError, OSError) as e:
-        logger.error(f"Error sending message to client: {e}")
+        logger.debug(f"Error sending message : {e}")
 
 
 MOCKS = {

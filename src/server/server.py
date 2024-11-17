@@ -12,7 +12,6 @@ from src.utils.messages import send_message, receive_message
 from src.server.player_class import Player
 from src.server.game_class import Game
 from src.server.data.loader import QuizDataLoader
-from src.utils.display import print_header
 
 from src.utils.logger import setup_logger
 logger = setup_logger("server.log")
@@ -186,18 +185,10 @@ class Server:
                             reponses_done = game.store_response(player_name, msg_obj["answer"])
                             if reponses_done:
                                 # get and broadcast next question
-                                question = game.get_current_question()
-                                self.broadcast({
-                                    "message_type": "quiz_question",
-                                    **question
-                                }, game)
+                                self.send_current_question(game)
 
                             # broadcast response progress regardless
-                            self.broadcast({
-                                "message_type": "game_update",
-                                "subtype": "response_update",
-                                "message": game.get_response_progress_str()
-                            }, game)
+                            self.send_response_progress(game)
                         self.print_info()
 
                     else:
@@ -219,7 +210,7 @@ class Server:
             self.logger.debug(f"Connection from {addr} closed")
             self.print_info()
 
-    def handle_player_update(self, old_name: str, old_game: str, new_name: str, new_game: str):
+    def send_player_update(self, old_name: str, old_game: str, new_name: str, new_game: str):
         remove_msg = {
             "message_type": "game_update",
             "subtype": "player_disconnect",
@@ -239,12 +230,9 @@ class Server:
     # start game
     def handle_create_game(self, msg_obj, player: Player):
         game_id = msg_obj.get("game_id", "unknown_game_id")
-        player_id = player.id  # Define player_id
-        self.print_info()
+        player_id = player.id
 
-        # client has returned a set of chapters and the total number of questions to be included
-        # we need to create a subset of self.quiz_data that includes only the selected chapters
-        # and also only the number of questions requested, with respect to the number of questions in each chapter
+        # populate quiz data
         selected_chapters = msg_obj.get("chapters", [])
         num_questions = msg_obj.get("num_questions", 0)
         total_possible_questions = sum(
@@ -289,21 +277,11 @@ class Server:
             self.logger.debug(f"game {game_id} created successfully by {player_id}")
             self.broadcast(response)
 
-            self.handle_player_update("no_name", "no_game", player.name, new_game.game_id)
+            self.send_player_update("no_name", "no_game", player.name, new_game.game_id)
 
             # send first question to player
-            question = new_game.get_current_question()
-            message = {
-                "message_type": "quiz_question",
-                **question,
-            }
-            send_message(self.logger, message, player.sock)
-            message = {
-                "message_type": "game_update",
-                "subtype": "response_update",
-                "message": new_game.get_response_progress_str()
-            }
-            send_message(self.logger, message, player.sock)
+            self.send_current_question(new_game)
+            self.send_response_progress(new_game)
 
             self.print_info()
 
@@ -325,27 +303,12 @@ class Server:
                 raise Exception(f"game id {game_id} not found")
 
             game.add_player(player.name)
-
-            self.handle_player_update("no_name", "no_game", player.name, game.game_id)
-
-            game.add_player(player.name)
+            self.send_player_update("no_name", "no_game", player.name, game.game_id)
 
             # broadcast game reponse progress
-            response = {
-                "message_type": "game_update",
-                "subtype": "response_update",
-                "message": game.get_response_progress_str()
-            }
-            self.broadcast(response, game=game)
-
+            self.send_response_progress(game)
             # send current question to player
-            question = game.get_current_question()
-            message = {
-                "message_type": "quiz_question",
-                **question,
-            }
-            send_message(self.logger, message, player.sock)
-            self.print_info()
+            self.send_current_question(game)
 
         except Exception as e:
             error_message = {
@@ -356,78 +319,50 @@ class Server:
 
     def handle_player_leave(self, player: Player):
         # Remove player from current game
-        self.logger.info("handle_pl: looking for game!!")
         game = next((g for g in self.curr_games if player.name in g.player_responses), None)
         if game:
-            self.logger.info("handle_pl: game found")
             # attempt to send player results
             self.send_results(game, player)
 
-            # Remove player from the game
-            game.remove_player(player.name)
-            self.logger.info(f"Player {player.name} removed from game {game.game_id}")
+            # broadcast to other players that the player left
+            response = {
+                "message_type": "game_update",
+                "subtype": "player_leave",
+                "game_id": game.game_id,
+                "player_name": player.name,
+                "message": f"Player {player.name} has left game {game.game_id}"
+            }
+            self.broadcast(response)
 
             # Check if the player is the owner of the game
             if game.owner_name == player.name:
                 # End the game
                 self.delete_game(game.game_id)
-                # Broadcast to other players that the game has ended
-                response = {
-                    "message_type": "game_update",
-                    "subtype": "game_end",
-                    "game_id": game.game_id,
-                    "message": f"Game {game.game_id} has ended because the owner {player.name} left."
-                }
-                self.broadcast(response)
 
             else:
-                # Broadcast to other players that the player left
-                response = {
-                    "message_type": "game_update",
-                    "subtype": "player_leave",
-                    "game_id": game.game_id,
-                    "player_name": player.name,
-                    "message": f"Player {player.name} has left game {game.game_id}"
-                }
-                self.broadcast(response)
-
                 self.send_response_progress(game)
 
                 # Proceed to next question if all other responses are collected
                 if game.all_players_responded():
                     if game.advance_question():
-                        # send response update
-                        response = {
-                            "message_type": "game_update",
-                            "subtype": "response_update",
-                            "message": game.get_response_progress_str()
-                        }
-                        self.broadcast(response, game=game)
-                        # Send the next question to all players
-                        question = game.get_current_question()
-                        response = {
-                            "message_type": "quiz_question",
-                            **question
-                        }
-                        self.broadcast(response, game=game)
+                        # send response update / current question
+                        self.send_response_progress(game)
+                        self.send_current_question(game)
 
                     else:
                         # Game over
                         self.delete_game(game.game_id)
-                        response = {
-                            "message_type": "game_update",
-                            "subtype": "game_end",
-                            "game_id": game.game_id,
-                            "message": f"Game {game.game_id} has ended."
-                        }
-                        self.broadcast(response, game=game)
+
+            # remove player from the game
+            game.remove_player(player.name)
+            self.logger.info(f"Player {player.name} removed from game {game.game_id}")
 
         else:
             self.logger.info(f"Player {player.name} was not in any game.")
 
         player.name = "no_name"
         player.curr_game = "no_game"
-        self.logger.info(f"handle_pl: games: {self.curr_games} players: {self.players}")
+        self.send_player_update(player.name, player.curr_game, "no_name", "no_game")
 
     def handle_player_disconnect(self, player: Player):
         self.handle_player_leave(player)
@@ -459,7 +394,7 @@ class Server:
             self.logger.info(f"Game {game_id} deleted successfully.")
             self.logger.info(self.curr_games)
 
-            self.broadcast(response, game=game)
+            self.broadcast(response)
 
         except Exception as e:
             self.logger.error(f"Error deleting game {game_id}: {e}")
@@ -482,6 +417,25 @@ class Server:
             except (BrokenPipeError, ConnectionResetError, OSError) as e:
                 self.logger.error(f"Error broadcasting to {player.name}: {e}")
 
+    def send_current_question(self, game, player=None):
+        question = game.get_current_question()
+        message = {
+            "message_type": "quiz_question",
+            **question,
+        }
+        if player:
+            send_message(self.logger, message, player.sock)
+        else:
+            self.broadcast(message, game)
+
+    def send_response_progress(self, game):
+        response = {
+            "message_type": "game_update",
+            "subtype": "response_update",
+            "message": game.get_response_progress_str()
+        }
+        self.broadcast(response, game)
+
     def send_results(self, game, player=None):
         results_message = {
             "message_type": "results",
@@ -492,13 +446,6 @@ class Server:
         else:
             self.broadcast(results_message, game)
 
-    def send_response_progress(self, game):
-        response = {
-            "message_type": "game_update",
-            "subtype": "response_update",
-            "message": game.get_response_progress_str()
-        }
-        self.broadcast(response, game)
 
     # handle self shutdown
     def shutdown(self, signum, frame):

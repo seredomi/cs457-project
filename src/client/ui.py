@@ -42,18 +42,7 @@ class UIHandler:
 
     def stop(self):
         self.running = False
-        if hasattr(self.loop, 'event_loop') and hasattr(self.loop.event_loop, '_loop'):
-            try:
-                self.loop.event_loop._loop.stop()
-            except Exception:
-                pass
-        if hasattr(self.loop, 'idle_handle'):
-            self.loop.remove_watch_file(self.loop.idle_handle)
         raise urwid.ExitMainLoop()
-        try:
-            self.loop.stop()
-        except Exception:
-            pass
 
     def update_display(self, loop, user_data):
         # Process message queue
@@ -148,8 +137,7 @@ class UIHandler:
 
             elif user_input.lower() == 'q':
                 if self.curr_screen == "main_menu":
-                    self.running = False
-                    raise urwid.ExitMainLoop()
+                    self.client.disconnect()
                 else:
                     message = {
                         "message_type": "game_update",
@@ -167,8 +155,7 @@ class UIHandler:
                 elif user_input == "2" and self.client.curr_games:
                     self.curr_screen = "join_game_1"
                 elif user_input == "3":
-                    self.running = False
-                    raise urwid.ExitMainLoop()
+                    self.client.disconnect()
 
             elif self.curr_screen == "create_game_1":
                 if user_input not in self.client.curr_players:
@@ -235,6 +222,9 @@ class UIHandler:
             self.input_box.set_edit_text("")
 
     def print_quiz_results(self):
+
+        return str(self.client.results)
+
         name = self.client.player_name
         results = self.client.results
         parsed_results: Dict[str, List[int]] = {}

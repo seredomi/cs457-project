@@ -62,15 +62,16 @@ class UIHandler:
             if msg["message_type"] == "new_connection_prompt":
                 self.curr_screen = "main_menu"
             elif msg["message_type"] == "results":
-                pass
-            elif msg["message_type"] == "game_update":
-                if msg["subtype"] == "game_end":
-                    if msg["game_id"] == self.client.game_id:
-                        self.client.game_id = ""
-                        self.curr_screen = "results"
-                if msg["subtype"] == "player_leave":
-                    if msg["player_name"] == self.client.player_name:
-                        self.curr_screen = "results"
+                self.curr_screen = "results"
+
+            # elif msg["message_type"] == "game_update":
+            #     if msg["subtype"] == "game_end":
+            #         if msg["game_id"] == self.client.game_id:
+            #             self.client.game_id = ""
+            #             self.curr_screen = "results"
+            #     if msg["subtype"] == "player_leave":
+            #         if msg["player_name"] == self.client.player_name:
+            #             self.curr_screen = "results"
             elif msg["message_type"] == "quiz_question":
                 self.curr_screen = "quiz_question"
 
@@ -142,19 +143,25 @@ class UIHandler:
         if key == 'enter':
             user_input = self.input_box.get_edit_text()
 
-            if user_input.lower() == 'q':
-                message = {
-                    "message_type": "game_update",
-                    "subtype": "player_leave",
-                    "player_name": self.client.player_name,
-                    "game_id": self.client.game_id
-                }
-                self.client.player_name = "no_name"
-                self.client.game_id = "no_game"
-                send_message(self.logger, message, self.client.sock)
+            if self.curr_screen == "results":
                 self.curr_screen = "main_menu"
 
-            if self.curr_screen == "main_menu":
+            elif user_input.lower() == 'q':
+                if self.curr_screen == "main_menu":
+                    self.running = False
+                    raise urwid.ExitMainLoop()
+                else:
+                    message = {
+                        "message_type": "game_update",
+                        "subtype": "player_leave",
+                        "player_name": self.client.player_name,
+                        "game_id": self.client.game_id
+                    }
+                    self.client.player_name = "no_name"
+                    self.client.game_id = "no_game"
+                    send_message(self.logger, message, self.client.sock)
+
+            elif self.curr_screen == "main_menu":
                 if user_input == "1":
                     self.curr_screen = "create_game_1"
                 elif user_input == "2" and self.client.curr_games:
@@ -223,7 +230,7 @@ class UIHandler:
                     self.curr_screen = "quiz_question_waiting"
 
             elif self.curr_screen == "results":
-                self.curr_screen = "main_menu"
+                self.curr_screen = "results"
 
             self.input_box.set_edit_text("")
 

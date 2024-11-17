@@ -359,7 +359,7 @@ class Server:
         if game:
             self.logger.info("handle_pl: game found")
             # attempt to send player results
-            # self.send_results(game, player)
+            self.send_results(game, player)
 
             # Remove player from the game
             game.remove_player(player.name)

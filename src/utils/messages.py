@@ -26,7 +26,6 @@ SCHEMAS = load_schemas()
 
 # handle messages based on schema
 def receive_message(logger, message: str, sock=None):
-    logger.debug(f"Received message: {message}")
 
     # parse into object
     try:
@@ -77,8 +76,7 @@ def send_message(logger, message: Dict[str, Any], sock=None):
         if sock:
             sock.send(json.dumps(message).encode("utf-8"))
     except (BrokenPipeError, ConnectionResetError, OSError) as e:
-        logger.error(f"Error sending message to client: {e}")
-        # Handle the disconnection if necessary
+        logger.debug(f"Error sending message : {e}")
 
 
 MOCKS = {
@@ -102,7 +100,7 @@ MOCKS = {
     "join_game": {
         "message_type": "join_game",
         "player_name": "Alice",
-        "game_name": "abc",
+        "game_id": "abc",
     },
     "quiz_question": {
         "message_type": "quiz_question",

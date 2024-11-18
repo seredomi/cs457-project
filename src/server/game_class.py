@@ -1,5 +1,7 @@
 from typing import List, Any, Dict, Optional, Tuple
 import random
+from src.utils.messages import send_message
+
 
 class Game:
     def __init__(
@@ -43,14 +45,30 @@ class Game:
     def remove_player(self, player_name: str):
         if player_name in self.player_responses:
             self.player_responses.pop(player_name)
+        if not self.player_responses or (
+            self.curr_qi == len(self.questions) - 1 and self.all_players_responded()
+        ):
+            self.send_results()
+            self.delete_game()
 
     def store_response(self, player_name: str, response: int) -> bool:
         if player_name in self.player_responses:
             self.player_responses[player_name] = response
-        if self.all_players_responded():
-            self.advance_question()
-            return True
-        return False
+            is_correct = self.get_current_question().get("possible_answers")[response].get("is_correct")
+            if len(self.results) == self.curr_qi +1:
+                self.results[self.curr_qi][player_name] = is_correct
+            else:
+                self.results.append({player_name: is_correct})
+                
+            if self.all_players_responded():
+                if self.curr_qi == len(self.questions) - 1:
+                    self.send_results()
+                    self.delete_game()
+                    return True
+                else:
+                    self.advance_question()
+                    return True
+            return False
 
     def advance_question(self) -> bool:
         # go to next q if available
@@ -76,6 +94,16 @@ class Game:
     def all_players_responded(self) -> bool:
         # check for response from all players for current q
         return all(response is not None for response in self.player_responses.values())
+    
+    def send_results(self):
+        results_message = {
+            "message_type": "results",
+            "results": self.results,
+    }
+        for player_name in self.player_responses.keys():
+            player_socket = self.get_player_socket(player_name)
+            if player_socket:
+                send_message(self.logger, results_message, player_socket)
 
     def info(self):
         string = f"Game ID: {self.game_name}, "

@@ -160,27 +160,11 @@ class Server:
                         self.handle_join_game(msg_obj, player)
 
                     elif msg_type == "quiz_answer":
-                        player_name = msg_obj["player_name"]
-                        game_name = msg_obj["game_name"]
-                        game = next((g for g in self.curr_games if g == game_name), None)
-                        if game:
-                            reponses_done = game.store_response(player_name, msg_obj["answer"])
-                            if reponses_done:
-                                print("thats true!")
-                                # get and broadcast next question
-                                question = game.get_current_question()
-                                self.broadcast({
-                                    "message_type": "quiz_question",
-                                    **question
-                                }, game)
-
-                            # broadcast response progress regardless
-                            self.broadcast({
-                                "message_type": "game_update",
-                                "subtype": "response_update",
-                                "message": game.get_response_progress_string()
-                            }, game)
-                        self.print_info()
+                        player = next((p for p in self.players if p.sock == client_socket), None)
+                        if player is None:
+                            self.logger.error(f"Player not found for socket {client_socket}")
+                            return
+                        self.handle_quiz_answer(msg_obj, player) 
 
                     else:
                         self.logger.error(f"unknown message type from {addr}")
@@ -427,6 +411,56 @@ class Server:
         except Exception as e:
             self.logger.error(f"Error closing socket for {player.name}: {e}")
         # delete game
+        
+        
+    
+    
+    def handle_quiz_answer(self, msg_object, player: Player):
+        try:
+            player_name = msg_object["player_name"]
+            game_name = msg_object["game_name"]
+            answer = msg_object["answer"]
+            
+            game = next((g for g in self.curr_games if g.game_name == game_name), None)
+            if not game:
+                raise Exception(f"Game {game_name} not found")
+            if not player:
+                raise Exception("Player not found")
+
+         
+            responses_done = game.store_response(player_name, answer)
+            if responses_done:
+                self.logger.debug(f"All responses received for question {game.curr_qi + 1}")
+            if len(game.player_responses) == len(self.players):
+                    responses_done = True
+            else:
+            
+                if game.curr_qi + 1 < len(game.questions):
+                    question = game.get_current_question()
+                    self.broadcast({
+                        "message_type": "quiz_question",
+                        **question
+                    }, game)
+                else:
+                    self.delete_game(game_name)
+                    self.broadcast({
+                        "message_type": "game_update",
+                        "subtype": "game_end",
+                        "game_name": game_name,
+                        "message": "Game ended. All questions answered."
+                    }, game)
+                
+            self.broadcast({
+                "message_type": "game_update",
+                "subtype": "response_update",
+                "message": game.get_response_progress_string()
+            }, game)
+            self.print_info()
+        except Exception as e:
+            self.logger.error(f"Error handling quiz answer: {e}")
+
+
+
 
     def delete_game(self, game_name):
         try:

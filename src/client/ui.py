@@ -3,6 +3,8 @@ import urwid
 import asyncio
 from queue import Queue
 from src.utils.messages import send_message
+from prettytable import PrettyTable
+
 
 class UIHandler:
     def __init__(self, client, logger):
@@ -128,6 +130,36 @@ class UIHandler:
 
         if self.running:
             self.loop.set_alarm_in(0.1, self.update_display)
+
+    def print_quiz_results(self):
+        if not self.client.results:
+            return "No results to show"
+        player_scores = {}
+        total_questions = len(self.client.results)
+        
+        for question_result in self.client.results:
+            for player, is_correct in question_result.items():
+                if player not in player_scores:
+                    player_scores[player] = {"correct": 0, "total": 0}
+                player_scores[player]["total"] += 1
+                if is_correct:
+                    player_scores[player]["correct"] += 1
+        
+        table = PrettyTable()
+        table.field_names = ["Rank", "Player", "Score", "Percentage"]
+        sorted_players = sorted(
+            player_scores.items(),
+            key=lambda x: x[1]["correct"] / x[1]["total"],
+            reverse=True,
+        )
+        rank = 1
+        for player, scores in sorted_players:
+            correct = scores["correct"]
+            total = scores["total"]
+            percentage = (correct / total) * 100
+            table.add_row([rank, player, f"{correct}/{total}", f"{percentage:.2f}%"])
+            rank += 1
+        return str(table)
 
     def handle_input(self, key):
         if key in ('q', 'Q'):

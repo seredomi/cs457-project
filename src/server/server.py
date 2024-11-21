@@ -340,7 +340,6 @@ class Server:
                 self.delete_game(game.game_id)
 
             else:
-                self.send_response_progress(game)
 
                 # Proceed to next question if all other responses are collected
                 if game.all_players_responded():
@@ -359,6 +358,8 @@ class Server:
 
         else:
             self.logger.info(f"Player {player.name} was not in any game.")
+
+        self.send_response_progress(game)
 
         player.name = "no_name"
         player.curr_game = "no_game"

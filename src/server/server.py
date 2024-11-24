@@ -55,7 +55,7 @@ class Server:
         print(player_table)
 
         game_table = PrettyTable()
-        game_table.field_names = ["id", "owner", "curr responses", "quiz progress"]
+        game_table.field_names = ["id", "owner", "question responses", "quiz progress"]
         for game in self.curr_games:
             game_table.add_row(
                 [
@@ -159,6 +159,7 @@ class Server:
                         player.curr_game = game_id
                         player.name = player_name
                         self.handle_join_game(msg_obj, player)
+                        self.print_info()
 
                     elif msg_type == "game_update":
                         subtype = msg_obj["subtype"]
@@ -385,6 +386,7 @@ class Server:
             if not game:
                 raise Exception(f"Game id {game_id} not found")
 
+            self.send_results(game)
             self.curr_games.remove(game)
             response = {
                 "message_type": "game_update",
@@ -392,10 +394,10 @@ class Server:
                 "game_id": game_id,
                 "message": f"Game {game_id} has ended",
             }
+            self.broadcast(response)
             self.logger.info(f"Game {game_id} deleted successfully.")
             self.logger.info(self.curr_games)
 
-            self.broadcast(response)
             self.print_info()
 
         except Exception as e:

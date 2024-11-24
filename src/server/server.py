@@ -396,6 +396,7 @@ class Server:
             self.logger.info(self.curr_games)
 
             self.broadcast(response)
+            self.print_info()
 
         except Exception as e:
             self.logger.error(f"Error deleting game {game_id}: {e}")

@@ -431,12 +431,13 @@ class Server:
             self.broadcast(message, game)
 
     def send_response_progress(self, game):
-        response = {
-            "message_type": "game_update",
-            "subtype": "response_update",
-            "message": game.get_response_progress_str()
-        }
-        self.broadcast(response, game)
+        if game:
+            response = {
+                "message_type": "game_update",
+                "subtype": "response_update",
+                "message": game.get_response_progress_str()
+            }
+            self.broadcast(response, game)
 
     def send_results(self, game, player=None):
         results_message = {

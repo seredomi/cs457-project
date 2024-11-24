@@ -3,9 +3,7 @@ import socket
 import ipaddress
 import json
 import threading
-
-from urwid.wimp import disconnect_signal
-
+import urwid
 
 from src.utils.messages import send_message, receive_message
 from src.utils.logger import setup_logger
@@ -183,4 +181,7 @@ if __name__ == "__main__":
     except KeyboardInterrupt:
         pass
     finally:
-        client.disconnect()
+        try:
+            client.disconnect()
+        except urwid.ExitMainLoop:
+            pass

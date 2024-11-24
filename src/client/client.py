@@ -65,8 +65,8 @@ class Client:
                 # blocking call awaits message from server
                 message = self.sock.recv(2048).decode("utf-8")
                 if not message:
-                    self.logger.info("Server connection closed. Press Ctl+C to exit")
-                    self.running = False
+                    self.logger.error("\nServer connection closed. Press Ctl+C to exit")
+                    self.disconnect()
                     break
                 receive_message(self.logger, message, self.sock)
                 msg_obj = json.loads(message)
@@ -74,13 +74,13 @@ class Client:
 
                 # server has shut down
                 if msg_type == "server_shutdown":
-                    self.logger.info("Server is shutting down. Press enter to exit")
-                    self.running = False
+                    self.logger.info("\nServer is shutting down. Press Ctl+C to exit")
+                    self.disconnect()
                     break
 
                 if msg_type == "error":
-                    self.logger.error(f"Server error: {msg_obj.get('message', '')}")
-                    self.running = False
+                    self.logger.error(f"\nServer error: {msg_obj.get('message', '')}")
+                    self.disconnect()
                     break
 
                 if msg_type == "game_update":

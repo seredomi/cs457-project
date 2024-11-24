@@ -449,7 +449,6 @@ class Server:
         else:
             self.broadcast(results_message, game)
 
-
     # handle self shutdown
     def shutdown(self, signum, frame):
         self.logger.info("Shutting down server...")

@@ -92,6 +92,15 @@ class Client:
                     elif msg_subtype == "game_end":
                         if msg_obj.get("game_id") in self.curr_games:
                             self.curr_games.remove(msg_obj.get("game_id"))
+                        if self.game_id == msg_obj.get("game_id"):
+                            response = {
+                                "message_type": "game_update",
+                                "subtype": "player_leave",
+                                "player_name": self.player_name,
+                            }
+                            send_message(self.logger, response, self.sock)
+                            self.player_name = ""
+                            self.game_id = ""
                         self.logger.debug(f"Game ended: {msg_obj.get('game_id')}")
                         self.logger.debug(f"Current games: {self.curr_games}")
 

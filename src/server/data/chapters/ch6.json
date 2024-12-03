@@ -1,0 +1,173 @@
+{
+  "chapter": "6",
+  "questions": [
+    {
+      "chapter": "6",
+      "number": "1",
+      "topic": "6.1-1. Link-layer services",
+      "question": "Which of the following services may be implemented in a link-layer protocol?",
+      "possible_answers": [
+        {
+          "answer": "Lookup and forwarding on the basis of an IP destination address.",
+          "is_correct": false
+        },
+        {
+          "answer": "Coordinated access to a shared physical medium.",
+          "is_correct": true
+        },
+        {
+          "answer": "End-end path determination through multiple IP routers.",
+          "is_correct": false
+        },
+        {
+          "answer": "Flow control between directly connected nodes.",
+          "is_correct": true
+        },
+        {
+          "answer": "Bit-level error detection and correction.",
+          "is_correct": true
+        },
+        {
+          "answer": "Multiplexing down from / multiplexing up to a network-layer protocol.",
+          "is_correct": true
+        },
+        {
+          "answer": "TLS security (including authentication) between directly connected nodes.",
+          "is_correct": false
+        },
+        {
+          "answer": "Reliable data transfer between directly connected nodes.",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "chapter": "6",
+      "number": "2",
+      "topic": "6.2-1. Two dimensional parity",
+      "question": "Which of the following statements is true about a two-dimensional parity check (2D-parity) computed over a payload?",
+      "possible_answers": [
+        {
+          "answer": "2D-parity can detect and correct any case of a single bit flip in the payload.",
+          "is_correct": true
+        },
+        {
+          "answer": "2D-parity can detect any case of two bit flips in the payload.",
+          "is_correct": true
+        },
+        {
+          "answer": "2D-parity can detect any case of a single bit flip in the payload.",
+          "is_correct": true
+        },
+        {
+          "answer": "2D-parity can detect and correct any case of two bit flips in the payload.",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "chapter": "6",
+      "number": "7",
+      "topic": "6.4-5. Switch forwarding and filtering",
+      "question": "Suppose an Ethernet frame arrives to an Ethernet switch, and the Ethernet switch does not know which of its switch ports leads to the node with the given destination MAC address? In this case, what does the switch do?",
+      "possible_answers": [
+        {
+          "answer": "Use the address resolution protocol (ARP) to determine the appropriate outgoing port.",
+          "is_correct": false
+        },
+        {
+          "answer": "Drop the frame without forwarding it.",
+          "is_correct": false
+        },
+        {
+          "answer": "Choose a port randomly and forward the frame there.",
+          "is_correct": false
+        },
+        {
+          "answer": "Flood the frame on all ports except the port on which the frame arrived.",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "chapter": "6",
+      "number": "8",
+      "topic": "6.4-6. Self-learning switches",
+      "question": "Which of the following statements are true about a self learning switch?",
+      "possible_answers": [
+        {
+          "answer": "A self-learning switch frees a network manager from a least one configuration task that might be associated with managing a switch",
+          "is_correct": true
+        },
+        {
+          "answer": "A self learning switch associates the source MAC address on an incoming frame with the port on which it arrived, and stores this matching in a table. The switch has now learned the port that leads to that MAC address.",
+          "is_correct": true
+        },
+        {
+          "answer": "A self-learning switch never forgets a self-learned association of a MAC address x and switch port y.",
+          "is_correct": false
+        },
+        {
+          "answer": "A self-learning switch will age-out (forget) a self-learned association of a MAC address x and switch port y if it doesn't see a frame with MAC address x incoming on switch port y after some amount of time.",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "chapter": "6",
+      "number": "10",
+      "topic": "6.4-8. Learning switch state removal",
+      "question": "How will entries be removed from the switch table?",
+      "possible_answers": [
+        {
+          "answer": "The table entry can only be removed by the network manager, who would use the SNMP protocol to remove the entry.",
+          "is_correct": false
+        },
+        {
+          "answer": "They'll remain in the switch forever (or until it is re-booted).",
+          "is_correct": false
+        },
+        {
+          "answer": "An entry for a host will be removed if that host doesn't transmit any frames for a certain amount of time (that is, table entries will timeout).",
+          "is_correct": true
+        },
+        {
+          "answer": "A table entry for a host will be removed by the STPP (Switch Table Purge Protocol) which will be used by a host to signal the switch when it (the host) is shutting down or otherwise leaving the network.",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "chapter": "6",
+      "number": "11",
+      "topic": "6.4-9. MAC addresses",
+      "question": "Which of the following statements are true about MAC (link-layer) addresses? Select any correct answer.",
+      "possible_answers": [
+        {
+          "answer": "A portion of the address bits are associated with the network to which the device is attached, and so changes as the device moves from one network to another.",
+          "is_correct": false
+        },
+        {
+          "answer": "Is contained in a SIM card and used when a device identifies itself and connects to an LTE network.",
+          "is_correct": false
+        },
+        {
+          "answer": "Generally stays unchanged as a device moves from one network to another.",
+          "is_correct": true
+        },
+        {
+          "answer": "Has 32 bits.",
+          "is_correct": false
+        },
+        {
+          "answer": "Generally does not change, and is associated with a device when it is manufactured/created.",
+          "is_correct": true
+        },
+        {
+          "answer": "Has 48 bits.",
+          "is_correct": true
+        }
+      ]
+    }
+  ]
+}

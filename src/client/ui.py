@@ -92,15 +92,21 @@ class UIHandler:
             self.input_box.set_caption("")
 
         elif self.curr_screen == "join_game_1":
+            if len(self.client.curr_games) == 0:
+                self.curr_screen = "main_menu"
             self.txt_title.set_text("=== join game ===")
             self.txt_instructions.set_text("enter your player name. cant be a current player")
             self.input_box.set_caption("")
         elif self.curr_screen == "join_game_2":
+            if len(self.client.curr_games) == 0:
+                self.curr_screen = "main_menu"
             self.txt_title.set_text("=== join game ===")
             self.txt_instructions.set_text(f"enter game name from this list: {' '.join(self.client.curr_games)}")
             self.input_box.set_caption("")
 
         elif self.curr_screen == "quiz_question":
+            if len(self.client.curr_games) == 0:
+                self.curr_screen = "main_menu"
             self.txt_title.set_text(f"=== {self.client.curr_question['topic']} ===")
             content = f"player answers: {self.client.response_progress}\n"
             content += f"\n{self.client.curr_question['question']}\n\n"
@@ -152,11 +158,11 @@ class UIHandler:
                     self.client.disconnect()
 
             elif self.curr_screen == "create_game_1":
-                if user_input not in self.client.curr_players and user_input != "no_name":
+                if len(user_input) > 0 and user_input not in self.client.curr_players and user_input != "no_name":
                     self.client.player_name = user_input
                     self.curr_screen = "create_game_2"
             elif self.curr_screen == "create_game_2":
-                if user_input not in self.client.curr_games:
+                if len(user_input) > 0 and user_input not in self.client.curr_games:
                     self.client.game_id = user_input
                     self.curr_screen = "create_game_3"
             elif self.curr_screen == "create_game_3":

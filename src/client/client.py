@@ -99,8 +99,8 @@ class Client:
                                 "player_name": self.player_name,
                             }
                             send_message(self.logger, response, self.sock)
-                            self.player_name = ""
-                            self.game_id = ""
+                            # self.player_name = ""
+                            # self.game_id = ""
                         self.logger.debug(f"Game ended: {msg_obj.get('game_id')}")
                         self.logger.debug(f"Current games: {self.curr_games}")
 
@@ -133,7 +133,7 @@ class Client:
                 continue
             except Exception as e:
                 if self.running:
-                    self.logger.error(f"Error receiving message: {e}")
+                    self.logger.debug(f"Error receiving message: {e}")
                     self.running = False
                 break
         return

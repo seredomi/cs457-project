@@ -33,7 +33,7 @@ def receive_message(logger, message: str, sock=None):
     except Exception as e:
         logger.error(f"Error parsing json message into object: {e}")
         if sock:
-            sock.send(json.dumps({"error": "Invalid JSON message"}).encode("utf-8"))
+            sock.send(json.dumps({"message_type": "error", "message": f"Invalid JSON message: {message}"}).encode("utf-8"))
         return
     message_type = message_obj.get("message_type", "unknown")
 

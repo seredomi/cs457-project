@@ -3,7 +3,6 @@ import asyncio
 from queue import Queue
 from src.utils.messages import send_message
 from prettytable import PrettyTable
-from typing import Dict, List
 
 
 class UIHandler:

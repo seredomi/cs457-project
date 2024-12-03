@@ -1,7 +1,5 @@
 # CS457 Quiz Game
 
-This is a quiz game to allow students to brush up on CS457 material before exams
-
 **Description:**
 
 In this game, you can choose different CS 457 chapters to quiz yourself on. \
@@ -15,7 +13,7 @@ Make sure you're at the top folder and run `python3 -m pip3 install -r requireme
 2. **Start the server:** <br/>
 Run `./run-server.sh [IP] [port]`
 3. **Connect client to the server:** <br/>
-Run `./run-client.sh [IP] [por]`
+Run `./run-client.sh [IP] [port]`
 4. You're all set to start playing. For detailed instructions on gameplay, see the [Game Tutorial](docs/game-tutorial.md)
 
 **Technologies used:**

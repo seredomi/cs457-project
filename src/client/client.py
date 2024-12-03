@@ -59,75 +59,56 @@ class Client:
 
     # loop for receiving messages
     def receive_messages(self):
+        buffer = ""  # Initialize buffer
         while self.running:
             try:
                 self.sock.settimeout(1.0)
-                # blocking call awaits message from server
-                message = self.sock.recv(2048).decode("utf-8")
-                if not message:
-                    self.logger.error("\nServer connection closed. Press Ctl+C to exit")
+                # Blocking call awaits message from server
+                data = self.sock.recv(2048).decode("utf-8")
+                if not data:
+                    self.logger.error("\nServer connection closed. Press Ctrl+C to exit")
                     self.disconnect()
                     break
-                receive_message(self.logger, message, self.sock)
-                msg_obj = json.loads(message)
-                msg_type = msg_obj.get("message_type")
+                buffer += data  # Append incoming data to buffer
 
-                # server has shut down
-                if msg_type == "server_shutdown":
-                    self.logger.info("\nServer is shutting down. Press Ctl+C to exit")
-                    self.disconnect()
-                    break
+                while '\n' in buffer:
+                    message, buffer = buffer.split('\n', 1)  # Split at first newline
+                    if not message.strip():
+                        continue  # Skip empty messages
+                    receive_message(self.logger, message, self.sock)
+                    msg_obj = json.loads(message)
+                    msg_type = msg_obj.get("message_type")
 
-                if msg_type == "error":
-                    self.logger.error(f"\nServer error: {msg_obj.get('message', '')}")
-                    self.disconnect()
-                    break
+                    # Process the message based on its type
+                    if msg_type == "server_shutdown":
+                        self.logger.info("\nServer is shutting down. Press Ctrl+C to exit")
+                        self.disconnect()
+                        break
 
-                if msg_type == "game_update":
-                    msg_subtype = msg_obj.get("subtype")
-                    if msg_subtype == "game_created":
-                        self.curr_games.append(msg_obj.get("game_id"))
-                        self.logger.debug(f"New game: {msg_obj.get('game_id')}")
-                        self.logger.debug(f"Current games: {self.curr_games}")
-                    elif msg_subtype == "game_end":
-                        if msg_obj.get("game_id") in self.curr_games:
-                            self.curr_games.remove(msg_obj.get("game_id"))
-                        if self.game_id == msg_obj.get("game_id"):
-                            response = {
-                                "message_type": "game_update",
-                                "subtype": "player_leave",
-                                "player_name": self.player_name,
-                            }
-                            send_message(self.logger, response, self.sock)
-                            self.player_name = ""
-                            self.game_id = ""
-                        self.logger.debug(f"Game ended: {msg_obj.get('game_id')}")
-                        self.logger.debug(f"Current games: {self.curr_games}")
+                    elif msg_type == "error":
+                        self.logger.error(f"\nServer error: {msg_obj.get('message', '')}")
+                        self.disconnect()
+                        break
 
-                    elif msg_subtype == "player_connect":
-                        self.logger.debug(
-                            f"Player {msg_obj.get('player_id')} joined game {msg_obj.get('game_id')}"
-                        )
-                        self.curr_players.append(msg_obj.get("player_id"))
-                    elif msg_subtype == "player_disconnect":
-                        if msg_obj.get("player_id") in self.curr_players:
-                            self.curr_players.remove(msg_obj.get("player_id"))
-                    elif msg_subtype == "response_update":
-                        self.response_progress = msg_obj.get("message")
+                    elif msg_type == "game_update":
+                        # Handle game updates
+                        self.handle_game_update(msg_obj)
 
-                if msg_type == "new_connection_prompt":
-                    self.curr_players = msg_obj.get("current_players")
-                    self.curr_games = msg_obj.get("current_games")
-                    self.max_questions = msg_obj.get("max_questions")
-                    self.available_chapters = msg_obj.get("chapters_available")
+                    elif msg_type == "new_connection_prompt":
+                        # Update available chapters and other info
+                        self.curr_players = msg_obj.get("current_players", [])
+                        self.curr_games = msg_obj.get("current_games", [])
+                        self.available_chapters = msg_obj.get("chapters_available", {})
+                        self.logger.debug(f"Available chapters: {self.available_chapters}")
 
-                elif msg_type == "quiz_question":
-                    self.curr_question = msg_obj
+                    elif msg_type == "quiz_question":
+                        self.curr_question = msg_obj
 
-                elif msg_type == "results":
-                    self.results = msg_obj.get("results")
+                    elif msg_type == "results":
+                        self.results = msg_obj.get("results", [])
 
-                self.ui_handler.message_queue.put(msg_obj)
+                    # Pass the message to the UI handler
+                    self.ui_handler.message_queue.put(msg_obj)
 
             except socket.timeout:
                 continue
@@ -137,6 +118,40 @@ class Client:
                     self.running = False
                 break
         return
+
+    def handle_game_update(self, msg_obj):
+        subtype = msg_obj.get("subtype")
+        if subtype == "game_created":
+            game_id = msg_obj.get("game_id")
+            self.curr_games.append(game_id)
+            self.logger.debug(f"Game created: {game_id}")
+            # Proceed to the next window, e.g., start the quiz or update the UI
+            self.ui_handler.message_queue.put(msg_obj)
+        elif subtype == "game_end":
+            game_id = msg_obj.get("game_id")
+            if game_id in self.curr_games:
+                self.curr_games.remove(game_id)
+            self.logger.debug(f"Game ended: {game_id}")
+            self.ui_handler.message_queue.put(msg_obj)
+        elif subtype == "player_connect":
+            player_name = msg_obj.get("player_name")
+            self.curr_players.append(player_name)
+            self.logger.debug(f"Player connected: {player_name}")
+            self.ui_handler.message_queue.put(msg_obj)
+        elif subtype == "player_disconnect":
+            player_name = msg_obj.get("player_name")
+            if player_name in self.curr_players:
+                self.curr_players.remove(player_name)
+            self.logger.debug(f"Player disconnected: {player_name}")
+            self.ui_handler.message_queue.put(msg_obj)
+        elif subtype == "response_update":
+            self.response_progress = msg_obj.get("message")
+            self.logger.debug(f"Response progress updated: {self.response_progress}")
+            self.ui_handler.message_queue.put(msg_obj)
+        else:
+            self.logger.error(f"Unknown game_update subtype: {subtype}")
+
+
 
     def disconnect(self):
         self.logger.info("Disconnecting from server...")
@@ -166,7 +181,7 @@ if __name__ == "__main__":
             port = int(sys.argv[2])
         except Exception as e:
             logger.error(
-                f"Bad arguments: {' '.join(sys.argv)} resulted in error: {e}\nUsage: client.py [IP address] [port number"
+                f"Bad arguments: {' '.join(sys.argv)} resulted in error: {e}\nUsage: client.py [IP address] [port number]"
             )
             sys.exit(1)
         # instantiate server based on args

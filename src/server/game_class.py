@@ -20,9 +20,9 @@ class Game:
         self.results: List[Dict[str, bool]] = []  # [{name: correct?}]
 
     def generate_game_id(self):
-        self.game_id: str = "".join(
+        self.game_id = "".join(
             [chr(random.randint(65, 90)) for _ in range(3)]
-        )  # a-z
+        )  # A-Z
 
     def get_response_progress(self) -> Tuple[int, int]:
         return (
@@ -47,29 +47,32 @@ class Game:
     def store_response(self, player_name: str, response: int) -> bool:
         if player_name in self.player_responses:
             self.player_responses[player_name] = response
-            is_correct = self.get_current_question().get("possible_answers")[response].get("is_correct")
-            if len(self.results) == self.curr_qi + 1:
-                self.results[self.curr_qi][player_name] = is_correct
+            possible_answers = self.get_current_question().get("possible_answers", [])
+            if 0 <= response < len(possible_answers):
+                is_correct = possible_answers[response].get("is_correct", False)
             else:
+                is_correct = False  # Invalid response index
+
+            # Initialize results for the current question if not already
+            if len(self.results) <= self.curr_qi:
                 self.results.append({player_name: is_correct})
+            else:
+                self.results[self.curr_qi][player_name] = is_correct
         print(self.results)
         if self.all_players_responded():
-            self.advance_question()
-            return True
+            return True  # Indicate that all players have responded
         return False
 
     def advance_question(self) -> bool:
-        # go to next q if available
+        # go to next question if available
         if self.curr_qi < len(self.questions) - 1:
             self.curr_qi += 1
-            self.player_responses.update(
-                {player_name: None for player_name in self.player_responses.keys()}
-            )
+            self.player_responses = {player_name: None for player_name in self.player_responses.keys()}
             return True
         return False
 
     def get_current_question(self) -> Any:
-        # get current q basedd on index
+        # get current question based on index
         if 0 <= self.curr_qi < len(self.questions):
             return self.questions[self.curr_qi]
         return None
@@ -80,7 +83,7 @@ class Game:
             self.player_responses[player_name] = response
 
     def all_players_responded(self) -> bool:
-        # check for response from all players for current q
+        # check for response from all players for current question
         return all(response is not None for response in self.player_responses.values())
 
     def info(self):
@@ -91,7 +94,7 @@ class Game:
         return string
 
     def __str__(self):
-        return f"id: {self.game_id} owner: {self.owner_name} curr q: {self.get_reponse_progress_str()} all qs: {self.get_total_status()[0]}/{self.get_total_status()[1]}"
+        return f"id: {self.game_id} owner: {self.owner_name} curr q: {self.get_response_progress_str()} all qs: {self.get_total_status()[0]}/{self.get_total_status()[1]}"
 
     def __eq__(self, other: Any):
         if isinstance(other, str):

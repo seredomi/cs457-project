@@ -1,0 +1,65 @@
+{
+  "chapter": "4",
+  "questions": [
+    {
+      "chapter": "4",
+      "number": "4",
+      "topic": "4.2-1d. Full buffers!",
+      "question": "Suppose that the output port has enough buffer space for only three packets, including the packet being transmitted (in practice, routers have a lot more buffer space!). What happens to packet 4 in the example above, when it arrives to find the output buffers full?",
+      "possible_answers": [
+        {
+          "answer": "Packet 4 is held in the switch fabric and released to the output port when there is free buffer space.",
+          "is_correct": false
+        },
+        {
+          "answer": "Packet 4 is dropped or a queued packet is dropped from the buffer to make space for packet 4.",
+          "is_correct": true
+        },
+        {
+          "answer": "Packet 4 is recirculated back to input port and buffered there.",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "chapter": "4",
+      "number": "20",
+      "topic": "4.3-4c. IPv4/IPv6 co-existence",
+      "question": "The IP addresses in these networks are public IP addresses.",
+      "possible_answers": [
+        {
+          "answer": "True",
+          "is_correct": true
+        },
+        {
+          "answer": "False",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "chapter": "4",
+      "number": "21",
+      "topic": "4.3 IP Addressing",
+      "question": "How many host addresses can this address space accommodate?",
+      "possible_answers": [
+        {
+          "answer": "510",
+          "is_correct": true
+        },
+        {
+          "answer": "512",
+          "is_correct": false
+        },
+        {
+          "answer": "256",
+          "is_correct": false
+        },
+        {
+          "answer": "254",
+          "is_correct": false
+        }
+      ]
+    }
+  ]
+}

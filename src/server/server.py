@@ -169,10 +169,8 @@ class Server:
                             if player:
                                 self.handle_player_disconnect(player)
                         elif subtype == "player_leave":
-                            self.logger.info("player_leave: looking for player")
                             player = next((p for p in self.players if p.name == player_name), None)
                             if player:
-                                self.logger.info("player_leave: found player")
                                 self.handle_player_leave(player)
                             else:
                                 self.logger.info(f"player_leave: player {player_name} not found. players: {[str(player) for player in self.players]}")
@@ -184,6 +182,9 @@ class Server:
                         game = next((g for g in self.curr_games if g == game_id), None)
                         if game:
                             reponses_done = game.store_response(player_name, msg_obj["answer"])
+                            if self.check_game_end(game_id):
+                                self.delete_game(game_id)
+                                continue
                             if reponses_done:
                                 # get and broadcast next question
                                 self.send_current_question(game)
@@ -341,20 +342,19 @@ class Server:
                 self.delete_game(game.game_id)
 
             else:
-
                 # Proceed to next question if all other responses are collected
                 if game.all_players_responded():
-                    if game.advance_question():
-                        # send response update / current question
-                        self.send_response_progress(game)
-                        self.send_current_question(game)
+                    game.advance_question()
+                    # send response update / current question
+                    self.send_response_progress(game)
+                    self.send_current_question(game)
 
-                    else:
-                        # Game over
-                        self.delete_game(game.game_id)
 
             # remove player from the game
             game.remove_player(player.name)
+            if self.check_game_end(game.game_id):
+                self.logger.info("game should be ending !!!")
+                self.delete_game(game.game_id)
             self.logger.info(f"Player {player.name} removed from game {game.game_id}")
 
         else:
@@ -362,9 +362,21 @@ class Server:
 
         self.send_response_progress(game)
 
+        self.send_player_update(player.name, player.curr_game, "no_name", "no_game")
         player.name = "no_name"
         player.curr_game = "no_game"
-        self.send_player_update(player.name, player.curr_game, "no_name", "no_game")
+
+    def check_game_end(self, game_id):
+        game = next((g for g in self.curr_games if g.game_id == game_id), None)
+        if game:
+            # if on last question
+            if game.curr_qi == len(game.questions) - 1:
+                # if all players have responded
+                if game.all_players_responded():
+                    # send results and delete game
+                    self.delete_game(game_id)
+                    return True
+        return False
 
     def handle_player_disconnect(self, player: Player):
         self.handle_player_leave(player)

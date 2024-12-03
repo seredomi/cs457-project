@@ -1,0 +1,273 @@
+{
+  "chapter": "5",
+  "questions": [
+    {
+      "chapter": "5",
+      "number": "1",
+      "topic": "5.1-1. Routing versus forwarding",
+      "question": "Which of the following statements correctly identify the differences between routing and forwarding?",
+      "possible_answers": [
+        {
+          "answer": "Forwarding refers to moving packets from a router's input to appropriate router output, and is implemented in the data plane.",
+          "is_correct": true
+        },
+        {
+          "answer": "Forwarding refers to moving packets from a router's input to appropriate router output, and is implemented in the control plane.",
+          "is_correct": false
+        },
+        {
+          "answer": "Forwarding refers to determining the route taken by packets from source to destination, and is implemented in the control plane.",
+          "is_correct": false
+        },
+        {
+          "answer": "Forwarding refers to determining the route taken by packets from source to destination, and is implemented in the data plane.",
+          "is_correct": false
+        },
+        {
+          "answer": "Routing refers to moving packets from a router's input to appropriate router output, and is implemented in the data plane.",
+          "is_correct": false
+        },
+        {
+          "answer": "Routing refers to moving packets from a router's input to appropriate router output, and is implemented in the control plane.",
+          "is_correct": false
+        },
+        {
+          "answer": "Routing refers to determining the route taken by packets from source to destination, and is implemented in the data plane.",
+          "is_correct": false
+        },
+        {
+          "answer": "Routing refers to determining the route taken by packets from source to destination, and is implemented in the control plane.",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "chapter": "5",
+      "number": "3",
+      "topic": "5.2-1. What's a 'good' path?",
+      "question": "What is the definition of a 'good' path for a routing protocol? Chose the best single answer.",
+      "possible_answers": [
+        {
+          "answer": "A high bandwidth path.",
+          "is_correct": false
+        },
+        {
+          "answer": "A low delay path.",
+          "is_correct": false
+        },
+        {
+          "answer": "A path that has little or no congestion.",
+          "is_correct": false
+        },
+        {
+          "answer": "A path that has a minimum number of hops.",
+          "is_correct": false
+        },
+        {
+          "answer": "Routing algorithms typically work with abstract link weights that could represent any of, or combinations of, all of the other answers.",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "chapter": "5",
+      "number": "6",
+      "topic": "5.3-2. Open Shortest Path First (OSPF)",
+      "question": "Check the one or more of the following statements about the OSPF protocol that are true.",
+      "possible_answers": [
+        {
+          "answer": "The Open Shortest Path First (OSPF) Internet routing protocol implements a Bellman-Ford distance-vector routing algorithm.",
+          "is_correct": false
+        },
+        {
+          "answer": "OSPF implements hierarchical routing",
+          "is_correct": true
+        },
+        {
+          "answer": "OSPF is an intra-domain routing protocol.",
+          "is_correct": true
+        },
+        {
+          "answer": "OSPF is an interdomain routing protocol.",
+          "is_correct": false
+        },
+        {
+          "answer": "OSFP uses a Dijkstra-like algorithm to implement least cost path routing.",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "chapter": "5",
+      "number": "7",
+      "topic": "5.3-3. Open Shortest Path First (OSPF)",
+      "question": "Consider the OSPF routing protocol. Which of the following characteristics are associated with OSPF (as opposed to BGP)?",
+      "possible_answers": [
+        {
+          "answer": "Is an intra-domain routing protocol.",
+          "is_correct": true
+        },
+        {
+          "answer": "Finds a least cost path from source to destination.",
+          "is_correct": true
+        },
+        {
+          "answer": "Floods link state control information.",
+          "is_correct": true
+        },
+        {
+          "answer": "Is an inter-domain routing protocol.",
+          "is_correct": false
+        },
+        {
+          "answer": "Policy, rather than performance (e.g., least cost path), determines paths that used.",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "chapter": "5",
+      "number": "8",
+      "topic": "5.4-1. Routing within networks?",
+      "question": "Among the following protocols, terminology or considerations, indicate those that are associated with 'routing within a single network (typically owned and operated by one organization)'.",
+      "possible_answers": [
+        {
+          "answer": "BGP",
+          "is_correct": false
+        },
+        {
+          "answer": "OSPF",
+          "is_correct": true
+        },
+        {
+          "answer": "inter-AS routing",
+          "is_correct": false
+        },
+        {
+          "answer": "intra-AS routing",
+          "is_correct": true
+        },
+        {
+          "answer": "inter-domain routing",
+          "is_correct": false
+        },
+        {
+          "answer": "intra-domain routing",
+          "is_correct": true
+        },
+        {
+          "answer": "Driven more by performance than by routing policy",
+          "is_correct": true
+        },
+        {
+          "answer": "Driven more by routing policy than end-end routing performance",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "chapter": "5",
+      "number": "14",
+      "topic": "5.6-1. ICMP: Internet control message protocol",
+      "question": "Which of the statements below about ICMP are true?",
+      "possible_answers": [
+        {
+          "answer": "ICMP is used by hosts and routers to communicate network-level information.",
+          "is_correct": true
+        },
+        {
+          "answer": "ICMP messages are carried directly in IP datagrams rather than as payload in UDP or TCP segments.",
+          "is_correct": true
+        },
+        {
+          "answer": "ICMP communicates information between hosts and routers by marking bits in the IP header.",
+          "is_correct": false
+        },
+        {
+          "answer": "The TTL-expired message type in ICMP is used by the traceroute program.",
+          "is_correct": true
+        },
+        {
+          "answer": "ICMP messages are carried in UDP segments using port number 86.",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "chapter": "5",
+      "number": "15",
+      "topic": "5.10. BGP advertisement policy",
+      "question": "Suppose that a network that is a customer of two different provider networks will not relay traffic between its two provider networks. How can a customer network such as x implement that policy?",
+      "possible_answers": [
+        {
+          "answer": "x will only advertise a route to itself to one of its provider networks B or C, but not both.",
+          "is_correct": false
+        },
+        {
+          "answer": "x will not advertise to provider networks B or C that it has a path to the other provider network",
+          "is_correct": true
+        },
+        {
+          "answer": "Provider networks B and C will learn from the eBGP protocol that both have a direct path to x but will agree to not send traffic to each other via x, since x is a customer network.",
+          "is_correct": false
+        },
+        {
+          "answer": "Since x is a customer network (and because a customer network has autonomy to do as it pleases), it will explicitly inform each provider network that it will not relay traffic to the other provider network.",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "chapter": "5",
+      "number": "16",
+      "topic": "5.11. BGP advertisement policy",
+      "question": "Consider a network where a provider network only wants to carry traffic to or from its customer networks. Which of the following statements are true?",
+      "possible_answers": [
+        {
+          "answer": "B will advertise a route Bx to only one of peers A, C and D, since that will force all route traffic to x to be routed via that single peer, allowing B to peer with fewer provider networks.",
+          "is_correct": false
+        },
+        {
+          "answer": "B will advertise a route Bx to A and D but not C, since it knows that C is also a provider for x",
+          "is_correct": false
+        },
+        {
+          "answer": "B will advertise a route Bx to A, C and D, since A, C and D need to know how to route to B's customer network x.",
+          "is_correct": true
+        },
+        {
+          "answer": "B will advertise a route Bx to D but not to A, since B knows that D can reach both w and z.",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "chapter": "5",
+      "number": "17",
+      "topic": "5.12. BGP: importing advertisements",
+      "question": "Consider a network where a provider network only wants to carry traffic to or from its customer networks. Which of the following statements are true?",
+      "possible_answers": [
+        {
+          "answer": "D will receive an advertisement Bx.",
+          "is_correct": true
+        },
+        {
+          "answer": "D will receive an advertisement Cx.",
+          "is_correct": true
+        },
+        {
+          "answer": "D will receive an advertisement ABx.",
+          "is_correct": false
+        },
+        {
+          "answer": "D will forward an advertisement for a path that terminates at x to w.",
+          "is_correct": true
+        },
+        {
+          "answer": "D will forward an advertisement for a path that terminates at x to z.",
+          "is_correct": true
+        }
+      ]
+    }
+  ]
+}

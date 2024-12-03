@@ -1,0 +1,245 @@
+{
+  "chapter": "7",
+  "questions": [
+    {
+      "chapter": "7",
+      "number": "13",
+      "topic": "7.1-2. Infrastructure Mode",
+      "question": "What is meant when we say that a network of devices is operating in 'infrastructure mode'?",
+      "possible_answers": [
+        {
+          "answer": "Network devices can communicate directly with each other, with no need for messages to be relayed through a base station. The devices are the 'infrastructure'.",
+          "is_correct": false
+        },
+        {
+          "answer": "Devices communicate with each other and to the larger outside world via a base station (also known as an access point).",
+          "is_correct": true
+        },
+        {
+          "answer": "All network equipment, except the mobile devices, must be racked in a temperature-controlled and power-smoothed building.",
+          "is_correct": false
+        },
+        {
+          "answer": "The mobile device is operating in a reduced power mode, forcing the network base station and routers to take on additional functionality that would normally be done by the mobile.",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "chapter": "7",
+      "number": "14",
+      "topic": "7.2-1. Characteristics of wireless links",
+      "question": "Which of the following statements about the characteristics of wireless links are true?",
+      "possible_answers": [
+        {
+          "answer": "Path loss refers to link-layer frames that are corrupted due to the higher bit error rates in wireless channels.",
+          "is_correct": false
+        },
+        {
+          "answer": "Multipath propagation occurs when portions of the electromagnetic wave reflect off objects and the ground taking paths of different lengths between the sender and a receiver, and thus arriving at the receiver at slightly different points in time.",
+          "is_correct": true
+        },
+        {
+          "answer": "Multipath propagation occurs when a sender sends multiple copies of a frame to a receiver, which is relayed over different by base stations or other wireless devices to the receiver.",
+          "is_correct": false
+        },
+        {
+          "answer": "The bit error rate (BER) of a wireless channel decreases as the signal-to-noise ratio (SNR) increases.",
+          "is_correct": true
+        },
+        {
+          "answer": "The 'hidden terminal problem' happens when A sends to B over a wireless channel, and an observer, C (that can be even closer to A than B), does not detect/receive A's transmission because of physical obstacles in the path between A and C.",
+          "is_correct": true
+        },
+        {
+          "answer": "Path loss refers to the decrease in the strength of a radio signal as it propagates through space.",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "chapter": "7",
+      "number": "15",
+      "topic": "7.3-1. Beacon Frames",
+      "question": "What is the purpose of a beacon frame in WiFi (802.11) networks?",
+      "possible_answers": [
+        {
+          "answer": "A beacon frame allows a mobile node to determine the direction in which it should move in order to obtain an increasing signal strength.",
+          "is_correct": false
+        },
+        {
+          "answer": "A beacon frame allows a mobile device to signal that it is ready to receive a frame.",
+          "is_correct": false
+        },
+        {
+          "answer": "A beacon frame allows a node with a directional antenna to aim the antenna towards the beacon point to maximize the quality of the send and receive signal.",
+          "is_correct": false
+        },
+        {
+          "answer": "A beacon frame allows an access point to advertise its existence, and the frequency channel it is operating on, to devices that want to connect to an access point.",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "chapter": "7",
+      "number": "16",
+      "topic": "7.3-2. Use of ACKs in WiFi",
+      "question": "Why are link-layer ACKs used in WiFi (802.11) networks?",
+      "possible_answers": [
+        {
+          "answer": "Hearing a receiver ACK, all other stations will stop transmitting. This reduces collisions.",
+          "is_correct": false
+        },
+        {
+          "answer": "Wireless links are noisier than wired links, and so bit level errors are more likely to occur, making link-layer error recovery more valuable that in less-noisy wired links.",
+          "is_correct": true
+        },
+        {
+          "answer": "The sender can used the differences in the signal strength in an ACK to infer whether the receiver is moving towards, or away from, the sender",
+          "is_correct": false
+        },
+        {
+          "answer": "Because of the hidden terminal problem, a node that is transmitting and hears no collisions still doesn't know if there was a collision at the receiver.",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "chapter": "7",
+      "number": "17",
+      "topic": "7.3-3. Why three addresses?",
+      "question": "Why does the WiFi (802.11) link-layer frame have three addresses?",
+      "possible_answers": [
+        {
+          "answer": "Because the sender of this frame can be either the access point or a link-layer host or router interface, and we need to identify which of these two is the sender.",
+          "is_correct": false
+        },
+        {
+          "answer": "Because there may be two hosts or routers that are possible destinations for this link-layer frame and we need to identify which of these is the intended receiver.",
+          "is_correct": false
+        },
+        {
+          "answer": "Because both the access point that will relay this frame to the intended link-layer receiving host or router interface, as well as that intended destination host or router interface need to be specified.",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "chapter": "7",
+      "number": "18",
+      "topic": "7.3-4. RTS/CTS frames",
+      "question": "What is the purpose of RTS (request to send) and CTS (clear to send) frames in WiFi (802.11) networks?",
+      "possible_answers": [
+        {
+          "answer": "RTC/CTS frames allow a sender to gather CTS frames from all other network nodes, so that it knows it can then send without collisions.",
+          "is_correct": false
+        },
+        {
+          "answer": "A CTS that is sent allows a receiver to force other nodes (other than the intended sender who sent the RTS) to refrain from transmitting, thus allowing the sender who sent the RTS to then transmit a frame with less likelihood of a collision.",
+          "is_correct": true
+        },
+        {
+          "answer": "A CTS allows a receiver to let the sender (who sent that RTS) know that it (the receiver) has enough buffers to hold a frame transmitted by that sender",
+          "is_correct": false
+        },
+        {
+          "answer": "RTC/CTS frames helps nodes in a wireless network mitigate the effects of the hidden terminal problem.",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "chapter": "7",
+      "number": "19",
+      "topic": "7.3-5. The 802.11 Media Access Control protocol",
+      "question": "Which of the following statement are true about the 802.11 (WiFi) MAC protocol?",
+      "possible_answers": [
+        {
+          "answer": "The 802.11 MAC protocol performs collision avoidance. That is, an 802.11 sender and receiver can use approaches such as RTS/CTS, inter-frame spacing, and explicit acknowledgments to try avoid, rather than detect, colliding transmissions from another node.",
+          "is_correct": true
+        },
+        {
+          "answer": "The 802.11 MAC protocol performs carrier sensing. That is, it listens before transmitting and will only transmit if the channel is sensed idle.",
+          "is_correct": false
+        },
+        {
+          "answer": "The 802.11 MAC protocol performs collision detection. That is, an 802.11 sender will listen to the channel while it is transmitting, and stop transmitting when it detects a colliding transmission from another node.",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "chapter": "7",
+      "number": "20",
+      "topic": "7.3-6. Bluetooth",
+      "question": "Which of the following statement are true about the Bluetooth protocol?",
+      "possible_answers": [
+        {
+          "answer": "Bluetooth transmits all frames in the same frequency band.",
+          "is_correct": false
+        },
+        {
+          "answer": "Bluetooth networks have a centralized controller that serves to coordinate the various client devices in a Bluetooth piconet.",
+          "is_correct": false
+        },
+        {
+          "answer": "Bluetooth uses TDM, FDM, polling, error detection and correction, and has sleep modes to conserve device power. Pretty sophisticated for a consumer technology!",
+          "is_correct": true
+        },
+        {
+          "answer": "Bluetooth transmission rates can be as high as in WiFi networks.",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "chapter": "7",
+      "number": "21",
+      "topic": "7.4-2. IMSI",
+      "question": "In 4G LTE cellular systems, what is an International Mobile Subscriber Identity (IMSI)?",
+      "possible_answers": [
+        {
+          "answer": "A fancy name for a globally unique phone number, including country code.",
+          "is_correct": false
+        },
+        {
+          "answer": "Assigned by a mobile carrier network to a device, when the device attaches to the radio access network, serving a similar link-layer role as MAC addresses in a wired network.",
+          "is_correct": false
+        },
+        {
+          "answer": "A 64-bit identifier that identifies the cellular network to which an mobile subscriber is attaching. Somewhat analogous to the Autonomous System (AS) number used in BGP to identify/name networks.",
+          "is_correct": false
+        },
+        {
+          "answer": "A 64-bit identifier stored on a cellular SIM (Subscriber Identity Module) card that identifies the subscriber in the worldwide cellular carrier network system.",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "chapter": "7",
+      "number": "22",
+      "topic": "7.4-4. Power conserving 'sleep modes'",
+      "question": "Which of the following statements is true about 'sleep modes' that allow a wireless device to 'sleep' and occasionally 'wake up' as a technique for saving battery life?",
+      "possible_answers": [
+        {
+          "answer": "Both WiFi and LTE provide sleep modes.",
+          "is_correct": true
+        },
+        {
+          "answer": "WiFi provides sleep modes but LTE does not.",
+          "is_correct": false
+        },
+        {
+          "answer": "LTE provides sleep modes but WiFi does not.",
+          "is_correct": false
+        },
+        {
+          "answer": "Neither WiFi nor LTE provide sleep modes.",
+          "is_correct": false
+        }
+      ]
+    }
+  ]
+}

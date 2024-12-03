@@ -53,15 +53,6 @@ class UIHandler:
                 self.curr_screen = "main_menu"
             elif msg["message_type"] == "results":
                 self.curr_screen = "results"
-
-            # elif msg["message_type"] == "game_update":
-            #     if msg["subtype"] == "game_end":
-            #         if msg["game_id"] == self.client.game_id:
-            #             self.client.game_id = ""
-            #             self.curr_screen = "results"
-            #     if msg["subtype"] == "player_leave":
-            #         if msg["player_name"] == self.client.player_name:
-            #             self.curr_screen = "results"
             elif msg["message_type"] == "quiz_question":
                 self.curr_screen = "quiz_question"
 
@@ -137,6 +128,7 @@ class UIHandler:
             user_input = self.input_box.get_edit_text()
 
             if self.curr_screen == "results":
+                self.client.player_name = "no_name"
                 self.curr_screen = "main_menu"
 
             elif user_input.lower() == 'q':
@@ -149,7 +141,6 @@ class UIHandler:
                         "player_name": self.client.player_name,
                         "game_id": self.client.game_id
                     }
-                    self.client.player_name = "no_name"
                     self.client.game_id = "no_game"
                     send_message(self.logger, message, self.client.sock)
 
@@ -189,7 +180,6 @@ class UIHandler:
                             "is_private": False
                         }
                         send_message(self.logger, message, self.client.sock)
-                        self.client.game_id = self.client.game_id
                 except Exception:
                     pass
 
@@ -209,7 +199,6 @@ class UIHandler:
                     self.client.game_id = user_input
 
             elif self.curr_screen == "quiz_question":
-                # print([chr(x) for x in range(65, 65 + len(self.client.curr_question['possible_answers']))])
                 if user_input.upper() in [chr(x) for x in range(65, 65 + len(self.client.curr_question['possible_answers']))]:
                     message = {
                         "message_type": "quiz_answer",
@@ -226,57 +215,54 @@ class UIHandler:
             self.input_box.set_edit_text("")
 
     def print_quiz_results(self):
-
-        return str(self.client.results)
-
         name = self.client.player_name
         results = self.client.results
-        parsed_results: Dict[str, List[int]] = {}
-        consistent_players = []
 
-        # get to first question answered, initialize list of consistent_players and parsed results
-        i = 0
-        while i < len(results):
-            if name in results[i].keys():
-                for n in results[i].keys():
-                    consistent_players.append(n)
-                    parsed_results[n] = [0, 0]
-                break
-            i += 1
+        if not results:
+            return "no results to show."
 
-        if len(consistent_players) == 0:
+        # find the first and last question indices where the player participated
+        start_idx = -1
+        end_idx = -1
+
+        for i, question_results in enumerate(results):
+            if isinstance(question_results, dict) and name in question_results:
+                if start_idx == -1:
+                    start_idx = i
+                end_idx = i
+
+        if start_idx == -1:
             return "looks like you didn't answer any questions.\nno results to show."
 
-        # go through rest of questions until player not in them
-        # adjust consistent_players and parsed_results for each question
-        while i < len(results):
-            if name not in results[i].keys():
-                break
-            for p_name in consistent_players:
-                if p_name not in results[i].keys():
-                    consistent_players.remove(p_name)
-                else:
-                    parsed_results[p_name][0] = parsed_results[p_name][0] + 1
-                    parsed_results[p_name][1] = parsed_results[p_name][1] + 1
-            i += 1
+        # get all players who participated in all questions in this range
+        players = set(results[start_idx].keys())
+        for i in range(start_idx + 1, end_idx + 1):
+            players = players.intersection(set(results[i].keys()))
 
-        if len(consistent_players) == 1:
-            return f"looks you were the only one.\nyou scored {parsed_results[name][0]/parsed_results[name][1]}"
+        if len(players) == 0:
+            return "no consistent players found throughout your session."
 
-        # remove anyone who didn't make it through the player's questions
-        for p_name in parsed_results.keys():
-            if p_name not in consistent_players:
-                parsed_results.pop(p_name)
+        # calculate scores for each consistent player
+        scores = {}
+        num_questions = end_idx - start_idx + 1
+        for player in players:
+            correct_answers = sum(1 for i in range(start_idx, end_idx + 1)  if results[i][player])
+            scores[player] = (correct_answers, num_questions)
 
-        # sort parsed_results
-        parsed_results = dict(sorted(parsed_results.items(), key=lambda x: x[1][0], reverse=True))
-        # create table and append results
+        # sort players by score (descending)
+        sorted_players = sorted(scores.items(),  key=lambda x: (x[1][0]/x[1][1], x[0]),  reverse=True)
+
+        # create and populate the table
         results_table = PrettyTable()
-        results_table.field_names = ["rank", "player name", "score"]
-        print(results_table)
-        rank = 1
-        for player_name, score in parsed_results.items():
-            results_table.add_row([rank, player_name, f"{score[0]}/{score[1]}"])
-            rank += 1
+        results_table.field_names = ["rank", "player", "score", "percentage"]
+
+        for rank, (player, (correct, total)) in enumerate(sorted_players, 1):
+            percentage = (correct / total) * 100
+            results_table.add_row([
+                rank,
+                player,
+                f"{correct}/{total}",
+                f"{percentage:.1f}%"
+            ])
 
         return str(results_table)

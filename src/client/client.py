@@ -3,9 +3,7 @@ import socket
 import ipaddress
 import json
 import threading
-
-from urwid.wimp import disconnect_signal
-
+import urwid
 
 from src.utils.messages import send_message, receive_message
 from src.utils.logger import setup_logger
@@ -67,8 +65,8 @@ class Client:
                 # blocking call awaits message from server
                 message = self.sock.recv(2048).decode("utf-8")
                 if not message:
-                    self.logger.info("Server connection closed. Press Ctl+C to exit")
-                    self.running = False
+                    self.logger.error("\nServer connection closed. Press Ctl+C to exit")
+                    self.disconnect()
                     break
                 receive_message(self.logger, message, self.sock)
                 msg_obj = json.loads(message)
@@ -76,13 +74,13 @@ class Client:
 
                 # server has shut down
                 if msg_type == "server_shutdown":
-                    self.logger.info("Server is shutting down. Press enter to exit")
-                    self.running = False
+                    self.logger.info("\nServer is shutting down. Press Ctl+C to exit")
+                    self.disconnect()
                     break
 
                 if msg_type == "error":
-                    self.logger.error(f"Server error: {msg_obj.get('message', '')}")
-                    self.running = False
+                    self.logger.error(f"\nServer error: {msg_obj.get('message', '')}")
+                    self.disconnect()
                     break
 
                 if msg_type == "game_update":
@@ -94,6 +92,15 @@ class Client:
                     elif msg_subtype == "game_end":
                         if msg_obj.get("game_id") in self.curr_games:
                             self.curr_games.remove(msg_obj.get("game_id"))
+                        if self.game_id == msg_obj.get("game_id"):
+                            response = {
+                                "message_type": "game_update",
+                                "subtype": "player_leave",
+                                "player_name": self.player_name,
+                            }
+                            send_message(self.logger, response, self.sock)
+                            self.player_name = ""
+                            self.game_id = ""
                         self.logger.debug(f"Game ended: {msg_obj.get('game_id')}")
                         self.logger.debug(f"Current games: {self.curr_games}")
 
@@ -183,4 +190,7 @@ if __name__ == "__main__":
     except KeyboardInterrupt:
         pass
     finally:
-        client.disconnect()
+        try:
+            client.disconnect()
+        except urwid.ExitMainLoop:
+            pass

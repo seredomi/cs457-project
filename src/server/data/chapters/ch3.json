@@ -1,0 +1,105 @@
+{
+  "chapter": "3",
+  "questions": [
+    {
+      "chapter": "3",
+      "number": "3",
+      "topic": "3.2-04. TCP demultiplexing",
+      "question": "Which of the following datagram and segment header fields are used, when demultiplexing data up to a TCP socket?",
+      "possible_answers": [
+        {
+          "answer": "Source and destination IP addresses, and source and destination port numbers.",
+          "is_correct": true
+        },
+        {
+          "answer": "Destination IP address and port number only.",
+          "is_correct": false
+        },
+        {
+          "answer": "None of the other answers is correct.",
+          "is_correct": false
+        },
+        {
+          "answer": "Destination port number only.",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "chapter": "3",
+      "number": "8",
+      "topic": "3.4-18. The RDT 3.0 protocol",
+      "question": "Consider again the rdt3.0 protocol sender and receiver, taken verbatim from the textbook and from our class notes. Which sender FSM transition occurs at time t4?",
+      "possible_answers": [
+        {
+          "answer": "S7",
+          "is_correct": true
+        },
+        {
+          "answer": "S0",
+          "is_correct": false
+        },
+        {
+          "answer": "S1",
+          "is_correct": false
+        },
+        {
+          "answer": "S2",
+          "is_correct": false
+        },
+        {
+          "answer": "S3",
+          "is_correct": false
+        },
+        {
+          "answer": "S4",
+          "is_correct": false
+        },
+        {
+          "answer": "S5",
+          "is_correct": false
+        },
+        {
+          "answer": "S6",
+          "is_correct": false
+        },
+        {
+          "answer": "S8",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "chapter": "3",
+      "number": "15",
+      "topic": "3.6-1b. Hop-by-hop congestion control",
+      "question": "With hop-by-hop congestion control, will the sender need to retransmit due to buffer overflow?",
+      "possible_answers": [
+        {
+          "answer": "Yes",
+          "is_correct": false
+        },
+        {
+          "answer": "No",
+          "is_correct": true
+        }
+      ]
+    },
+    {
+      "chapter": "3",
+      "number": "16",
+      "topic": "3.6-1c. Hop-by-hop congestion control",
+      "question": "With hop-by-hop congestion control and no congestion loss, might the sender still have to sometimes perform retransmission?",
+      "possible_answers": [
+        {
+          "answer": "Yes",
+          "is_correct": true
+        },
+        {
+          "answer": "No",
+          "is_correct": false
+        }
+      ]
+    }
+  ]
+}

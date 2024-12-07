@@ -6,6 +6,10 @@ This will serve as a brief description of the project structure.
 
 
 ## File Descriptions
+### Tests
+- All unit tests contained within this folder
+- to run, use `./run-tests.sh`
+
 ### Utils
 - `logger.py`
   - defines loggers that write all logs DEBUG and up to log files (separately specified by client/server) and all logs ERROR and up to stdout

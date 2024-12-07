@@ -48,3 +48,27 @@ class TestGame(unittest.TestCase):
         self.game.store_response("player1", 0)
         progress = self.game.get_response_progress()
         self.assertEqual(progress, (1, 3))
+
+    def test_advance_question_when_no_more_questions(self):
+        self.game.advance_question()
+        self.game.advance_question()
+        self.assertEqual(self.game.curr_qi, 1)
+
+    def test_get_current_question(self):
+        self.assertEqual(self.game.get_current_question(), self.questions[0])
+        self.game.advance_question()
+        self.assertEqual(self.game.get_current_question(), self.questions[1])
+
+    def test_game_info(self):
+        self.game.add_player("Player1")
+        expected_info = "Game ID: test_game, Owner: owner, Players: owner Player1, Current Question: 1/2"
+        self.assertEqual(self.game.info(), expected_info)
+
+    def test_game_equality(self):
+        self.assertNotEqual(self.game, "ABC")
+        self.assertNotEqual(self.game, "XYZ")
+
+    def test_generate_game_id(self):
+        self.game.generate_game_id()
+        self.assertEqual(len(self.game.game_id), 3)
+        self.assertTrue(self.game.game_id.isalpha())
